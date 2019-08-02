@@ -45,15 +45,7 @@ public class ErpApplication extends SpringBootServletInitializer{
 		return builder.sources(ErpApplication.class);
 	}
 
-		@Bean
-	public FilterRegistrationBean registFilter() {
-		FilterRegistrationBean registration = new FilterRegistrationBean();
-		registration.setFilter(new CorsFilter());
-		registration.addUrlPatterns("/*");
-		registration.setName("CorsFilter");
-		registration.setOrder(1);
-		return registration;
-	}
+
 	//分页插件
 	@Bean
 	public PaginationInterceptor paginationInterceptor() {

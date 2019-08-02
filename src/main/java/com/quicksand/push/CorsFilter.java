@@ -1,24 +1,11 @@
 package com.quicksand.push;
 
-<<<<<<< HEAD
-import java.io.IOException;
 
-import javax.servlet.Filter;
-import javax.servlet.FilterChain;
-import javax.servlet.FilterConfig;
-import javax.servlet.ServletException;
-import javax.servlet.ServletRequest;
-import javax.servlet.ServletResponse;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-
-=======
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
->>>>>>> 163c57043fbc25778670fa2496498295280061b4
+
 
 public class CorsFilter implements Filter {
     @Override
@@ -53,17 +40,12 @@ public class CorsFilter implements Filter {
 //        response.setHeader("token", "xxx"); //设置响应头
         String method = request.getMethod();
         if (method.equalsIgnoreCase("OPTIONS")) {
-<<<<<<< HEAD
+
 //        	System.out.println("请求走-----1");
             servletResponse.getOutputStream().write("Success".getBytes("utf-8"));
         } else {
 //        	System.out.println("请求走-----2");
-=======
-        	System.out.println("请求走-----1");
-            servletResponse.getOutputStream().write("Success".getBytes("utf-8"));
-        } else {
-        	System.out.println("请求走-----2");
->>>>>>> 163c57043fbc25778670fa2496498295280061b4
+
             filterChain.doFilter(servletRequest, servletResponse);
         }
     }
