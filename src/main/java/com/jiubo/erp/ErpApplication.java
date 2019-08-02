@@ -26,8 +26,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 //扫描mapper
 @MapperScan("com.jiubo.erp.*.dao")
-//mybatisplus扫描
-//@MapperScan("com.baomidou.mybatisplus.samples.quickstart.mapper")
 public class ErpApplication extends SpringBootServletInitializer{
 
 	public static void main(String[] args) {
