@@ -1,0 +1,373 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiubo.erp.wzbg.dao.LeavePrepareDao">
+
+	<!-- 查询某个部门下的员工姓名和员工ERP账户-->
+	<select id="queryEmpInfoByDept" resultType="DeptWithEmp">
+		SELECT
+			ACC.ACCOUNT_NAME name,
+			ACC.ACCOUNT_ID account
+		FROM
+			T_Employee_Basic AS EMP
+			LEFT JOIN Account_Data AS ACC ON EMP.ACCOUNT = ACC.ACCOUNT_ID 
+		WHERE
+			EMP.DEPARTMENT_ID = #{id}
+			AND EMP.STATE = '1' 
+			AND EMP.ISDELETE = '0' 
+		ORDER BY
+			ACC.ACCOUNT_NAME,
+			ACC.ACCOUNT_ID
+	</select>
+	
+	<!-- 添加请假报备 -->
+	<insert id="addLeavePrepare" parameterType="LeavePrepareBean">
+		INSERT INTO 
+		Leave_Baobei(
+			TYPE, FILL_ACCOUNT, FILL_TIME, LEAVE_ACCOUNT, STARTTIME, ENDTIME,
+			LEAVE_REMARK, CHECK_ACCOUNT, UPDATE_TIME
+		)VALUES(
+			#{type}, #{fillAccount}, #{fillTime}, #{leaveAccount}, #{startTime}, #{endTime}, 
+			#{leaveRemark}, #{checkAccount}, #{updateTime}
+		)
+	</insert>
+	
+	<!-- 查询请假报备 -->
+	<select id="queryLeavePrepare" resultType="LeavePrepareBean">
+		SELECT
+			A.ID,
+			A.TYPE,
+			A.LEAVE_ACCOUNT,
+			A.FILL_ACCOUNT,
+			A.CHECK_ACCOUNT,
+			A.POSITIONTYPE_ID fillTypeId,
+			B.LEAVE_EMP_NAME leaveEmpName,
+			B.LEAVE_DEPT_ID leaveDeptId,
+			B.LEAVE_DEPT_NAME leaveDepartmentName,
+			B.POSITION_NAME leavePositionName,
+			B.POSITIONTYPE_ID typeId,
+			A.STARTTIME,
+			A.ENDTIME,
+			A.LEAVE_REMARK,
+			A.FILL_EMP_NAME fillEmpName,
+			A.FILL_DEPT_NAME fillDepartmentName,
+			A.FILL_TIME,
+			C.CHECK_NAME checkEmpName,
+			A.CHECK_TIME,
+			A.CHECK_RESULT,
+			A.CHECK_REMARK,
+			A.STATE
+		FROM
+			(
+			SELECT
+				LB.ID,
+				LB.TYPE,
+				LB.FILL_ACCOUNT,
+				LB.FILL_TIME,
+				LB.LEAVE_ACCOUNT,
+				LB.STARTTIME,
+				LB.ENDTIME,
+				LB.LEAVE_REMARK,
+				LB.CHECK_ACCOUNT,
+				LB.CHECK_TIME,
+				LB.CHECK_RESULT,
+				LB.CHECK_REMARK,
+				LB.UPDATE_TIME,
+				LB.ISSEE,
+				LB.STATE,
+				A.FILL_EMP_NAME,
+				A.FILL_DEPT_NAME,
+				A.POSITIONTYPE_ID
+			FROM
+				(
+				SELECT
+					LB.FILL_ACCOUNT,
+					ACC.ACCOUNT_NAME AS FILL_EMP_NAME,
+					DEPT.NAME AS FILL_DEPT_NAME,
+					PT.POSITIONTYPE_ID
+				FROM
+					Leave_Baobei AS LB
+					LEFT JOIN Account_Data AS ACC ON LB.FILL_ACCOUNT = ACC.ACCOUNT_ID
+					LEFT JOIN T_EMPLOYEE_BASIC AS EMP ON ACC.ACCOUNT_ID = EMP.ACCOUNT
+					LEFT JOIN T_Department AS DEPT ON EMP.DEPARTMENT_ID = DEPT.ID 
+					LEFT JOIN Position_Data AS PD  ON ACC.POSITION_ID = PD.POSITION_ID
+					LEFT JOIN Position_Type AS PT ON PD.POSITIONTYPE_ID = PT.POSITIONTYPE_ID
+				GROUP BY
+					LB.FILL_ACCOUNT,
+					ACC.ACCOUNT_NAME,
+					DEPT.NAME,
+					PT.POSITIONTYPE_ID
+				) AS A,
+				Leave_Baobei AS LB 
+			WHERE
+				A.FILL_ACCOUNT = LB.FILL_ACCOUNT 
+			) AS A,
+			(
+			SELECT
+				LB.LEAVE_ACCOUNT,
+				ACC.ACCOUNT_NAME AS LEAVE_EMP_NAME,
+				DEPT.ID AS LEAVE_DEPT_ID,
+				DEPT.NAME AS LEAVE_DEPT_NAME,
+				PD.POSITION_NAME,
+				PT.POSITIONTYPE_ID
+			FROM
+				Leave_Baobei AS LB
+				LEFT JOIN Account_Data AS ACC ON LB.LEAVE_ACCOUNT = ACC.ACCOUNT_ID
+				LEFT JOIN T_EMPLOYEE_BASIC AS EMP ON ACC.ACCOUNT_ID = EMP.ACCOUNT
+				LEFT JOIN Position_Data AS PD  ON ACC.POSITION_ID = PD.POSITION_ID
+				LEFT JOIN Position_Type AS PT ON PD.POSITIONTYPE_ID = PT.POSITIONTYPE_ID
+				LEFT JOIN T_Department AS DEPT ON EMP.DEPARTMENT_ID = DEPT.ID  
+			GROUP BY
+				LB.LEAVE_ACCOUNT,
+				ACC.ACCOUNT_NAME,
+				DEPT.ID,
+				DEPT.NAME,
+				PD.POSITION_NAME,
+				PT.POSITIONTYPE_ID
+			) AS B,
+			(
+			SELECT
+				LB.CHECK_ACCOUNT,
+				EMP.NAME AS CHECK_NAME	
+			FROM
+				Leave_Baobei AS LB
+				LEFT JOIN Account_Data AS ACC ON LB.CHECK_ACCOUNT = ACC.ACCOUNT_ID
+				LEFT JOIN T_Employee_Basic AS EMP ON ACC.ACCOUNT_ID = EMP.ACCOUNT 
+			GROUP BY
+				LB.CHECK_ACCOUNT,
+				EMP.NAME 
+			) AS C 
+		WHERE
+			A.LEAVE_ACCOUNT = B.LEAVE_ACCOUNT  
+			AND A.CHECK_ACCOUNT = C.CHECK_ACCOUNT
+			<if test="accountId !=null and accountId !='' ">
+				AND (A.LEAVE_ACCOUNT = #{accountId} OR A.FILL_ACCOUNT = #{accountId})
+			</if>
+			<if test="startTime !=null and startTime !='' ">
+				AND A.FILL_TIME <![CDATA[ >= ]]> #{startTime}
+			</if>
+			<if test="endTime !=null and endTime !='' ">
+				AND A.FILL_TIME <![CDATA[ <= ]]> #{endTime}
+			</if>
+			<choose>
+			 	<when test="leaveDeptId != null or leaveDeptId != ''">
+			 		 <if test="leaveDeptId != 0">
+			 		 	AND B.LEAVE_DEPT_ID IN (
+						SELECT
+							DEPT.ID 
+						FROM
+							T_Department DEPT 
+						WHERE
+						DEPT.ID = #{ leaveDeptId } 
+						OR DEPT.PARENTID = #{ leaveDeptId } )
+			 		 </if>
+			 	</when>
+			</choose>
+			<if test="leaveEmpName !=null and leaveEmpName !='' ">
+				AND B.LEAVE_EMP_NAME LIKE '%' + #{leaveEmpName} + '%'
+			</if>
+			<if test="state !=null and state !='' ">
+				<choose>
+					<when test="state==1">
+						AND A.CHECK_RESULT IS NULL
+					</when>
+					<when test="state==2">
+						AND A.CHECK_RESULT = '1'
+					</when>
+					<when test="state==3">
+						AND A.CHECK_RESULT = '0'
+					</when>
+					<when test="state==4">
+						AND A.STATE = '1'
+					</when>
+					<when test="state==5">
+						AND A.STATE IS NULL
+					</when>
+					<when test="state==6">
+						AND A.STATE = '2'
+					</when>
+				</choose>
+			</if>
+			ORDER BY A.FILL_TIME
+	</select>
+	
+	<!--  报备审批权限映射表 -->	
+	<resultMap type="ApprovalBaoBeiBean" id="ApprovalResultMap">
+        <id property="id" column="ID" />
+        <result property="leavePositionID" column="Leave_PositionID" />
+        <result property="checkPositionID" column="Check_PositionID" />
+    </resultMap>
+	<!--  查询报备审批权限表 -->	
+	<select id="queryApprovalAuth" resultMap="ApprovalResultMap">
+		SELECT 
+			ID, LEAVE_POSITIONID, CHECK_POSITIONID 
+		FROM 
+			APPROVAL_BAOBEI
+	</select>
+	
+	<!--  查询请假报备审批权限账户信息 -->
+	<select id="queryAuthAccount" resultType="AccWithApprovalLeaveAuth">
+		SELECT 
+			ACC.ACCOUNT_ID AS accountID, ACC.ACCOUNT_NAME AS accountName
+		FROM 
+			Account_Data AS ACC
+		WHERE
+			ACC.POSITION_ID = #{id}
+		AND 
+			ACC.ACCOUNT_STATE = '在用'
+	</select>
+	
+	<!-- 查询请假代理人列表-->
+	<select id="queryAgentList" resultType="DeptWithEmp">
+		SELECT
+			EMP.Department_ID depatrmentId,
+			ACC.ACCOUNT_NAME name,
+			ACC.ACCOUNT_ID account
+		FROM
+			T_Employee_Basic AS EMP
+			LEFT JOIN Account_Data AS ACC ON EMP.ACCOUNT = ACC.ACCOUNT_ID 
+		WHERE
+			EMP.DEPARTMENT_ID = #{departmentId}
+			AND EMP.STATE = '1' 
+			AND EMP.ISDELETE = '0' 
+			AND ACC.ACCOUNT_ID != #{account}
+		ORDER BY
+			ACC.ACCOUNT_NAME,
+			ACC.ACCOUNT_ID
+	</select>
+	
+	<!-- 查询所在部门以及子部门的员工信息-->
+	<select id="queryEmpByDeptOrParentDept" resultType="DeptWithEmp">
+		SELECT
+			EMP.DEPARTMENT_ID,
+			ACC.ACCOUNT_ID account,
+			ACC.ACCOUNT_NAME name,
+			DEPT.NAME deptName,
+			PD.POSITION_NAME positionName
+		FROM
+			T_Employee_Basic AS EMP
+			LEFT JOIN Account_Data AS ACC ON EMP.ACCOUNT = ACC.ACCOUNT_ID 
+			LEFT JOIN Position_Data AS PD ON ACC.POSITION_ID = PD.POSITION_ID 
+			LEFT JOIN T_Department AS DEPT ON DEPT.ID = EMP.DEPARTMENT_ID
+		WHERE
+			 EMP.ISDELETE = '0' 
+			 AND EMP.STATE = '1' 
+			 <if test="name !=null and name !='' ">
+				AND ACC.ACCOUNT_NAME LIKE '%' + #{name} + '%'
+			 </if>
+			 <choose>
+			 	<when test="departmentId != null or departmentId != ''">
+			 		 <if test="departmentId != 0">
+			 		 	AND EMP.DEPARTMENT_ID IN (
+						SELECT
+							DEPT.ID 
+						FROM
+							T_Department DEPT 
+						WHERE
+						DEPT.ID = #{ departmentId } 
+						OR DEPT.PARENTID = #{ departmentId } )
+			 		 </if>
+			 	</when>
+			 </choose>
+			ORDER BY
+				ACC.ACCOUNT_NAME
+	</select>
+	
+	<!-- 更新请假报备 -->
+	<update id="updateLeavePrepare" parameterType="LeavePrepareBean">
+		UPDATE 
+			LEAVE_BAOBEI
+		 <trim prefix="set" suffixOverrides=",">
+		 	<if test="type != null and type != '' ">
+		 		TYPE = #{type},
+		 	</if>
+		 	<if test="fillAccount != null and fillAccount !='' ">
+		 		Fill_Account = #{fillAccount},
+		 	</if>
+		 	<if test="fillTime != null and fillTime != '' ">
+		 		Fill_Time = #{fillTime},
+		 	</if>
+		 	<if test="leaveAccount != null and leaveAccount != '' ">
+		 		Leave_Account = #{leaveAccount},
+		 	</if>
+		 	<if test="startTime != null and startTime != '' ">
+		 		StartTime = #{startTime},
+		 	</if>
+		 	<if test="endTime != null and endTime != '' ">
+		 		EndTime = #{endTime},
+		 	</if>
+		 	<if test="leaveRemark != null and leaveRemark != '' ">
+		 		Leave_Remark = #{leaveRemark},
+		 	</if>
+		 	<if test="checkAccount != null and checkAccount != '' ">
+		 		Check_Account = #{checkAccount},
+		 	</if>
+		 	<if test="checkTime != null and checkTime != '' ">
+		 		Check_Time = #{checkTime},
+		 	</if>
+		 	<if test="checkResult != null and checkResult != '' ">
+		 		Check_Result = #{checkResult},
+		 	</if>
+		 	<if test="checkRemark != null and checkRemark != '' ">
+		 		Check_Remark = #{checkRemark},
+		 	</if>
+		 	<if test="updateTime != null and updateTime != '' ">
+		 		update_Time = #{updateTime},
+		 	</if>
+		 	<if test="isSee != null and isSee !='' ">
+		 		isSee = #{isSee},
+		 	</if>
+		 	<choose>
+		 		<when test="state == null or state =='' ">
+		 			state = null,
+		 		</when>
+		 		<when test="state != null or state !='' ">
+		 			state = #{state},
+		 		</when>
+		 	</choose>
+		 </trim>
+		WHERE 
+			ID = #{id}		 
+	</update>
+	
+	<!-- 查询审查人信息 -->
+	<select id="queryCheckInfo" parameterType="CheckInfo" resultType="CheckInfo">
+		SELECT
+			ACC.Account_ID accountId,
+			ACC.Account_Name accountName,
+			DEPT.ID	deptId
+		FROM
+			T_Employee_Basic AS EMP
+			INNER JOIN Account_Data AS ACC ON EMP.Account = ACC.Account_ID
+			INNER JOIN Position_Data AS PD ON ACC.Position_ID = PD.Position_ID
+			INNER JOIN T_Department AS DEPT ON DEPT.ID = EMP.Department_ID 
+		WHERE
+			EMP.IsDelete = '0' 
+			AND EMP.State = '1' 
+			AND	
+				DEPT.ID IN ( 
+				SELECT ID FROM [dbo].[f_GetChild] ( #{deptId} ) 
+				UNION 
+				SELECT ID FROM [dbo].[fnGetFather] ( #{deptId} ) ) 
+			AND 
+				PD.PositionType_ID IN 
+			<foreach index="index" item="item" collection="typeIds" open="(" separator=","  close=")">
+				#{item}
+			</foreach>
+		GROUP BY
+			DEPT.ID, ACC.Account_ID, ACC.Account_Name
+		ORDER BY 
+			DEPT.ID, ACC.Account_ID
+	</select>
+	
+	<!-- 查询父级部门ID -->
+	<select id="queryParentDept" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT
+			DEPT.ParentID 
+		FROM
+			T_Department DEPT 
+		WHERE
+			DEPT.ID = #{deptId}
+	</select>
+</mapper>

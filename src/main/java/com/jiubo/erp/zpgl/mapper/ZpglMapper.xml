@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiubo.erp.zpgl.dao.ZpglDao">
+
+    <!-- 查询招聘渠道 -->
+    <select id="queryRecruitChannel" resultType="RecruitChannelBean">
+        SELECT RECRUITCHANNEL_ID, RECRUITCHANNEL_NAME
+        FROM ZP_RECRUITCHANNEL
+    </select>
+
+    <!-- 添加招聘渠道 -->
+    <insert id="addRecruitChannel" parameterType="RecruitChannelBean">
+        INSERT INTO ZP_RECRUITCHANNEL (RECRUITCHANNEL_NAME)
+        VALUES(#{recruitChannelName})
+    </insert>
+
+    <!-- 删除招聘渠道 -->
+    <delete id="deleteRecruitChannel">
+        DELETE FROM ZP_RECRUITCHANNEL
+        WHERE RECRUITCHANNEL_ID = #{id}
+    </delete>
+
+    <!-- 修改招聘渠道 -->
+    <update id="updateRecruitChannel" parameterType="RecruitChannelBean">
+        UPDATE ZP_RECRUITCHANNEL
+        SET
+        RECRUITCHANNEL_NAME = #{recruitChannelName}
+        WHERE RECRUITCHANNEL_ID = #{recruitChannelId}
+    </update>
+
+    <!-- 查询面试信息 -->
+    <select id="queryRecruitData" parameterType="RecruitDataBean" resultType="RecruitDataBean">
+        SELECT
+        A.ID, A.NAME, A.SEX, A.BIRTH, A.IDNUM, A.PHONE, A.MAIL, A.QQ, A.ADDRESS, A.HOMEADDRESS, A.HOMETOWN,
+        A.ACCOUNTPROP, A.PLOITICAL,
+        A.MARITAL, A.NATIONALITY, A.HEIGHT, A.WEIGHT, A.BLOODTYPE, A.EDUCATION, A.SCHOOL, A.GRADUATION, A.PROFESSION,
+        A.ATSCHOOL,
+        A.WORKCOMPANY, A.WORKEXP, A.CERTIFICATE, A.CHANNEL, A.POSITION, A.DEPARTMENT, A.WAGES, A.INTERVIEWER,
+        A.INVITATIONDATE,
+        A.RECRUITDATE, A.SCORE, A.ISQUALIFIED, A.ISPAY, A.REMARK, A.ISDELETE, A.UPDATEDATE, A.UPDATEACCOUNT,
+        B.NAME AS DEPARTMENTNAME,
+        C.POSITION_NAME AS POSITIONNAME,
+        D.RECRUITCHANNEL_NAME AS CHANNELNAME,
+        ( CASE A.ISENTRY WHEN 0 THEN '未入职' WHEN 1 THEN '在职' WHEN 2 THEN '离职' END ) ISENTRY
+        FROM
+        ZP_RECRUITDATA AS A
+        LEFT JOIN T_DEPARTMENT AS B ON A.DEPARTMENT = B.ID
+        LEFT JOIN POSITION_DATA AS C ON A.POSITION = C.POSITION_ID
+        LEFT JOIN ZP_RECRUITCHANNEL AS D ON A.CHANNEL = D.RECRUITCHANNEL_ID
+        <where>
+            AND A.ISDELETE = 0
+            <if test="department !=null and department != ''">
+                AND A.DEPARTMENT = #{department}
+            </if>
+            <if test="position != null and position !=''">
+                AND A.POSITION = #{position}
+            </if>
+            <if test="channel != null and channel !=''">
+                AND A.CHANNEL = #{channel}
+            </if>
+            <if test="isQualified != null and isQualified != ''">
+                <choose>
+                    <when test="isQualified == 0">
+                        AND A.ISQUALIFIED = '否'
+                    </when>
+                    <when test="isQualified == 1">
+                        AND A.ISQUALIFIED = '是'
+                    </when>
+                    <when test="isQualified == 2">
+                        AND A.ISQUALIFIED = '待定'
+                    </when>
+                </choose>
+            </if>
+            <if test="dateFlag != null and dateFlag != ''">
+                <choose>
+                    <when test="dateFlag == 0">
+                        AND A.INVITATIONDATE >= #{begDate}
+                        <![CDATA[ AND A.INVITATIONDATE < #{endDate}]]>
+                    </when>
+                    <when test="dateFlag == 1">
+                        AND A.RECRUITDATE >= #{begDate}
+                        <![CDATA[ AND A.RECRUITDATE < #{endDate}]]>
+                    </when>
+                </choose>
+            </if>
+            <if test="isEntry != null and isEntry != ''">
+                <choose>
+                    <when test="isEntry == 0">
+                        AND A.ISENTRY = 0
+                    </when>
+                    <when test="isEntry == 1">
+                        AND A.ISENTRY = 1
+                    </when>
+                    <when test="isEntry == 2">
+                        AND A.ISENTRY = 2
+                    </when>
+                </choose>
+            </if>
+            <if test="name != null and name != ''">
+                AND A.NAME LIKE '%' + #{name} + '%'
+            </if>
+            <if test="phone != null and phone != ''">
+                AND A.PHONE LIKE '%' + #{phone} + '%'
+            </if>
+            <if test="sex != null and sex !=''">
+                <choose>
+                    <when test="sex == 1">
+                        AND A.SEX = '男'
+                    </when>
+                    <when test="sex == 0">
+                        AND A.SEX = '女'
+                    </when>
+                </choose>
+            </if>
+            <if test="isPay != null and isPay !=''">
+                AND A.ISPAY = #{isPay}
+            </if>
+            <if test="education != null and education !=''">
+                <choose>
+                    <when test="education ==0">
+                        AND A.EDUCATION = '未知'
+                    </when>
+                    <when test="education ==1">
+                        AND A.EDUCATION = '博士'
+                    </when>
+                    <when test="education ==2">
+                        AND A.EDUCATION = '硕士研究生'
+                    </when>
+                    <when test="education ==3">
+                        AND A.EDUCATION = '本科'
+                    </when>
+                    <when test="education ==4">
+                        AND A.EDUCATION = '专科'
+                    </when>
+                    <when test="education ==5">
+                        AND A.EDUCATION = '高中/中专'
+                    </when>
+                    <when test="education ==6">
+                        AND A.EDUCATION = '初中及以下'
+                    </when>
+                </choose>
+            </if>
+            <if test="profession != null and profession !=''">
+                AND A.PROFESSION LIKE '%' + #{profession} + '%'
+            </if>
+            <if test="atSchool != null and atSchool !=''">
+                AND A.ATSCHOOL = #{atSchool}
+            </if>
+        </where>
+    </select>
+
+    <!-- 添加面试信息 -->
+    <insert id="addRecruitData" parameterType="RecruitDataBean">
+        INSERT INTO ZP_RECRUITDATA (
+        NAME, SEX, BIRTH, IDNUM, PHONE, MAIL, QQ, ADDRESS,
+        HOMEADDRESS, HOMETOWN, ACCOUNTPROP, PLOITICAL, MARITAL, NATIONALITY, HEIGHT,
+        WEIGHT, BLOODTYPE, EDUCATION, SCHOOL, GRADUATION, PROFESSION, ATSCHOOL, WORKCOMPANY,
+        WORKEXP, CERTIFICATE, CHANNEL, POSITION, DEPARTMENT, WAGES, INTERVIEWER, RECRUITDATE,
+        INVITATIONDATE, SCORE, ISQUALIFIED, ISPAY, REMARK, ISENTRY, ISDELETE, UPDATEDATE, UPDATEACCOUNT)
+        VALUES(
+        #{name},#{sex}, #{birth},#{idNum}, #{phone},#{mail} ,#{qq},#{address},
+        #{homeAddress},#{homeTown},#{accountProp},#{ploitical},#{marital} ,#{nationality},#{height} ,
+        #{weight} ,#{bloodType} ,#{education} ,#{school} ,#{graduation},#{profession},#{atSchool},#{workCompany},
+        #{workexp},#{certificate},#{channel},#{position},#{department} , #{wages}, #{interviewer} ,#{recruitDate} ,
+        #{invitationDate},#{score}, #{isQualified},#{isPay},
+        #{remark},#{isEntry},#{isDelete},#{updateDate},#{updateAccount})
+    </insert>
+
+    <!-- 修改面试信息 -->
+    <update id="updateRecruitData" parameterType="RecruitDataBean">
+        UPDATE ZP_RECRUITDATA
+        SET
+        NAME = #{name}
+        , SEX = #{sex}
+        , BIRTH = #{birth}
+        , IDNUM = #{idNum}
+        , PHONE = #{phone}
+        , MAIL = #{mail}
+        , QQ = #{qq}
+        , ADDRESS = #{address}
+        , HOMEADDRESS = #{homeAddress}
+        , HOMETOWN = #{homeTown}
+        , ACCOUNTPROP = #{accountProp}
+        , PLOITICAL = #{ploitical}
+        , MARITAL = #{marital}
+        , NATIONALITY = #{nationality}
+        , HEIGHT = #{height}
+        , WEIGHT = #{weight}
+        , BLOODTYPE = #{bloodType}
+        , EDUCATION = #{education}
+        , SCHOOL = #{school}
+        , GRADUATION = #{graduation}
+        , PROFESSION = #{profession}
+        , ATSCHOOL = #{atSchool}
+        , WORKCOMPANY = #{workCompany}
+        , WORKEXP = #{workexp}
+        , CERTIFICATE = #{certificate}
+        , CHANNEL = #{channel}
+        , POSITION = #{position}
+        , DEPARTMENT = #{department}
+        , WAGES = #{wages}
+        , INTERVIEWER = #{interviewer}
+        , RECRUITDATE = #{recruitDate}
+        , INVITATIONDATE = #{invitationDate}
+        , SCORE = #{score}
+        , ISQUALIFIED = #{isQualified}
+        , ISPAY = #{isPay}
+        , REMARK = #{remark}
+        WHERE ID = #{id}
+    </update>
+
+    <!-- 删除面试信息（逻辑删除） -->
+    <update id="updateRecruitDataById">
+        UPDATE ZP_RECRUITDATA
+        SET ISDELETE = 1
+        WHERE ID = #{id}
+    </update>
+
+    <!-- 查询招聘计划 -->
+    <select id="queryZpPlan" parameterType="ZpPlanBean" resultType="ZpPlanBean">
+        SELECT
+        A.PLAN_ID,
+        A.DEPARTMENT,
+        B.NAME DEPARTMENTNAME,
+        A.POSITION,
+        C.POSITION_NAME POSITIONNAME,
+        A.LACKNUM,
+        A.PLANNUM,
+        A.PHONENUM,
+        A.PLANDATE,
+        A.IS_YES,
+        A.IS_BACK
+        FROM
+        ZP_PLAN AS A
+        LEFT JOIN T_DEPARTMENT AS B ON A.DEPARTMENT = B.ID
+        LEFT JOIN POSITION_DATA AS C ON A.POSITION = C.POSITION_ID
+        <where>
+            <if test="begDate != null and begDate != '' and endDate != null and endDate != ''">
+                AND A.PLANDATE >= #{begDate}
+                <![CDATA[ AND A.PLANDATE < #{endDate} ]]>
+            </if>
+            <![CDATA[ AND A.PLANDATE < #{endDate} ]]>
+            <if test=" department != null and department != ''">
+                AND A.DEPARTMENT = #{department}
+            </if>
+            <if test="position != null and position != ''">
+                AND C.POSITION_ID = #{position}
+            </if>
+            <if test="isYes !=null and isYes != ''">
+                <choose>
+                    <when test="isYes == 0">
+                        AND A.IS_YES IS NULL
+                    </when>
+                    <when test="isYes != 0">
+                        AND A.IS_YES = #{isYes}
+                    </when>
+                </choose>
+            </if>
+            <if test="isBack !=null and isBack != ''">
+                <choose>
+                    <when test="isBack == 0">
+                        AND A.IS_BACK IS NULL
+                    </when>
+                    <when test="isBack != 0">
+                        AND A.IS_BACK = #{isBack}
+                    </when>
+                </choose>
+            </if>
+        </where>
+    </select>
+
+    <!-- 添加招聘计划 -->
+    <insert id="addZpPlan" parameterType="ZpPlanBean">
+        INSERT INTO ZP_PLAN (DEPARTMENT, POSITION, LACKNUM, PLANNUM, PHONENUM, PLANDATE)
+        VALUES(#{department},#{position},#{lackNum},#{planNum},#{phoneNum},#{planDate})
+    </insert>
+
+    <!-- 删除招聘计划 -->
+    <delete id="deleteZpPlan">
+        DELETE FROM ZP_PLAN WHERE PLAN_ID = #{id}
+    </delete>
+
+    <!-- 修改招聘计划 -->
+    <update id="updateZpPlan" parameterType="ZpPlanBean">
+        UPDATE ZP_PLAN
+        <trim prefix="set" suffixOverrides=",">
+            <if test="department != null">
+                DEPARTMENT = #{department},
+            </if>
+            <if test="position != null">
+                POSITION = #{position},
+            </if>
+            <if test="planDate != null">
+                PLANDATE = #{planDate},
+            </if>
+            <if test="lackNum != null">
+                LACKNUM = #{lackNum},
+            </if>
+            <if test="planNum != null">
+                PLANNUM = #{planNum},
+            </if>
+            <if test="phoneNum != null">
+                PHONENUM = #{phoneNum},
+            </if>
+            <if test="isYes != null">
+                IS_YES = #{isYes},
+            </if>
+            <if test="isBack != null">
+                IS_BACK = #{isBack},
+            </if>
+        </trim>
+        WHERE PLAN_ID = #{planId}
+    </update>
+
+    <!-- 查询招聘发布信息 -->
+    <select id="queryZpPublish" parameterType="ZpPublishBean" resultType="ZpPublishBean">
+        SELECT A.PUBLISH_ID,A.CHANNEL,B.RECRUITCHANNEL_NAME CHANNELNAME,A.POSITION,
+        C.POSITION_NAME,A.PUBLISHNUM, A.PHONENUM, A.PUBLISHDATE
+        FROM ZP_PUBLISH A,ZP_RECRUITCHANNEL B,POSITION_DATA C
+        WHERE A.CHANNEL = B.RECRUITCHANNEL_ID AND A.POSITION = C.POSITION_ID
+        <if test="begDate != null and begDate != '' and endDate != null and endDate != ''">
+            AND A.PUBLISHDATE >= #{begDate}
+            <![CDATA[ AND A.PUBLISHDATE < #{endDate} ]]>
+        </if>
+        <if test="channel != null and channel != ''">
+            AND A.CHANNEL = #{channel}
+        </if>
+        <if test="position != null and position != ''">
+            AND A.POSITION = #{position}
+        </if>
+    </select>
+
+    <!-- 添加招聘发布信息 -->
+    <insert id="addZpPublish" parameterType="ZpPublishBean">
+        INSERT INTO ZP_PUBLISH (CHANNEL, POSITION, PUBLISHNUM, PHONENUM, PUBLISHDATE)
+        VALUES(#{channel},#{position},#{publishNum},#{phoneNum},#{publishDate})
+    </insert>
+
+    <!-- 删除招聘发布信息 -->
+    <delete id="deleteZpPublish">
+        DELETE FROM ZP_PUBLISH
+        WHERE PUBLISH_ID = #{id}
+    </delete>
+
+    <!-- 修改招聘发布信息 -->
+    <update id="updateZpPublish" parameterType="ZpPublishBean">
+        UPDATE ZP_PUBLISH
+        SET
+        CHANNEL = #{channel}
+        , POSITION = #{position}
+        , PUBLISHNUM = #{publishNum}
+        , PHONENUM = #{phoneNum}
+        , PUBLISHDATE = #{publishDate}
+        WHERE PUBLISH_ID = #{publishId}
+    </update>
+
+</mapper>

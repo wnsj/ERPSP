@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiubo.erp.kqgl.dao.KqParamSetDao">
+    <!-- 查询假期种类-->
+    <select id="queryVacation" resultType="com.jiubo.erp.kqgl.vo.Vacation">
+        SELECT
+        ID,
+        NAME,
+        ISDELETE,
+        CREATEDATE,
+        CREATOR
+        FROM
+        T_ATT_LEAVETYPE
+        WHERE ISDELETE = 0
+    </select>
+
+    <!-- 修改假期种类 -->
+    <update id="updateVacation">
+        UPDATE T_ATT_LEAVETYPE
+        SET
+        NAME = #{vacation.name}
+        WHERE
+        ID = #{vacation.id}
+    </update>
+
+    <!-- 删除假期种类 -->
+    <delete id="deleteVacation">
+        DELETE T_ATT_LEAVETYPE
+        WHERE ID = #{id}
+    </delete>
+
+    <!-- 添加假期种类 -->
+    <insert id="addVacation">
+        INSERT INTO T_ATT_LEAVETYPE(NAME,ISDELETE,CREATEDATE,CREATOR)
+        VALUES(#{vacation.name},#{vacation.isDelete},#{vacation.createDate},#{vacation.creator})
+    </insert>
+
+    <!-- 查询考勤规则 -->
+    <select id="queryAttRuleType" resultType="com.jiubo.erp.kqgl.bean.AttRuleTypeBean">
+        SELECT
+        ID,
+        NAME,
+        EARLYMINUTES,
+        LATEMINUTES,
+        ISDELETE,
+        CREATEDATE,
+        CREATOR
+        FROM
+        T_ATT_RULETYPE
+        WHERE ISDELETE = 0
+    </select>
+
+    <!-- 添加考勤规则 -->
+    <insert id="addAttRuleType">
+        INSERT INTO T_ATT_RULETYPE(NAME,EARLYMINUTES,LATEMINUTES,ISDELETE,CREATEDATE,CREATOR)
+        VALUES
+        (#{attRuleType.name},#{attRuleType.earlyMinutes},#{attRuleType.lateMinutes},#{attRuleType.isDelete},#{attRuleType.createDate},#{attRuleType.creator})
+    </insert>
+
+    <!-- 删除考勤规则 -->
+    <delete id="deleteAttRuleType">
+        DELETE FROM T_ATT_RULETYPE
+        WHERE ID = #{id}
+    </delete>
+
+    <!-- 修改考勤规则 -->
+    <update id="updateAttRuleType">
+        UPDATE T_ATT_RULETYPE
+        SET
+        NAME = #{attRuleType.name},
+        EARLYMINUTES = #{attRuleType.earlyMinutes},
+        LATEMINUTES = #{attRuleType.lateMinutes}
+        WHERE
+        ID = #{attRuleType.id}
+    </update>
+
+    <!-- 查询班次 -->
+    <select id="queryAttShiftSchedule" resultType="com.jiubo.erp.kqgl.bean.AttShiftScheduleBean">
+        SELECT
+        ID, NAME, SHORTNAME, STARTTIME, ENDTIME,(CASE TYPE WHEN 1 THEN '工作' WHEN 2 THEN '休息' END) AS TYPE , REMARKS
+        FROM
+        T_ATT_SHIFTSCHEDULE
+    </select>
+
+    <!-- 添加班次 -->
+    <insert id="addAttShiftSchedule">
+        INSERT INTO T_ATT_SHIFTSCHEDULE (NAME, SHORTNAME, STARTTIME, ENDTIME, TYPE, REMARKS)
+        VALUES(#{attShiftSchedule.name},#{attShiftSchedule.shortName},#{attShiftSchedule.startTime},#{attShiftSchedule.endTime},#{attShiftSchedule.type},#{attShiftSchedule.remarks})
+    </insert>
+
+    <!-- 删除班次 -->
+    <delete id="deleteAttShiftSchedule">
+        DELETE FROM T_ATT_SHIFTSCHEDULE
+        WHERE ID = #{id}
+    </delete>
+
+    <!-- 修改班次 -->
+    <update id="updateAttShiftSchedule">
+        UPDATE T_ATT_SHIFTSCHEDULE
+        SET
+        NAME = #{attShiftSchedule.name}
+        , SHORTNAME = #{attShiftSchedule.shortName}
+        , STARTTIME = #{attShiftSchedule.startTime}
+        , ENDTIME = #{attShiftSchedule.endTime}
+        , TYPE = #{attShiftSchedule.type}
+        , REMARKS = #{attShiftSchedule.remarks}
+        WHERE ID = #{attShiftSchedule.id}
+    </update>
+
+    <!-- 查询班组 -->
+    <select id="queryAttShiftGroup" resultType="com.jiubo.erp.kqgl.bean.AttShiftGroupBean">
+        SELECT
+        ID, NAME, REMARK, ISDELETE, CREATEDATE, CREATOR
+        FROM
+        T_ATT_SHIFTGROUP
+        WHERE
+        ISDELETE = 0
+    </select>
+
+    <!-- 添加班组 -->
+    <insert id="addAttShiftGroup">
+        INSERT INTO T_ATT_SHIFTGROUP (NAME, REMARK, ISDELETE, CREATEDATE, CREATOR)
+        VALUES(#{attShiftGroupBean.name},#{attShiftGroupBean.remark},#{attShiftGroupBean.isDelete},#{attShiftGroupBean.createDate},#{attShiftGroupBean.creator})
+    </insert>
+
+    <!-- 删除班组 -->
+    <delete id="deleteAttShiftGroup">
+        DELETE FROM T_ATT_SHIFTGROUP
+        WHERE ID = #{id}
+    </delete>
+
+    <!-- 修改班组 -->
+    <update id="updateAttShiftGroup">
+        UPDATE T_ATT_SHIFTGROUP
+        SET NAME = #{attShiftGroupBean.name}
+        , REMARK = #{attShiftGroupBean.remark}
+        WHERE ID = #{attShiftGroupBean.id}
+    </update>
+
+    <!-- 查询部门信息 -->
+    <select id="queryDepartment" resultType="java.util.Map">
+        SELECT A.ID, A.NAME, A.PARENTID, A.ORDERNUM,ISNULL(B.ID,0) PID,ISNULL(B.NAME,'') PNAME
+        FROM T_DEPARTMENT A
+        LEFT JOIN T_DEPARTMENT B ON A.PARENTID = B.ID
+    </select>
+
+    <!-- 增加部门信息 -->
+    <insert id="addDepartment" parameterType="com.jiubo.erp.rygl.bean.DepartmentBean">
+        INSERT INTO T_DEPARTMENT (NAME, PARENTID, ORDERNUM)
+        values(#{Name},#{ParentID},#{OrderNum})
+    </insert>
+
+    <!-- 删除部门信息 -->
+    <delete id="deleteDepartment">
+        DELETE FROM T_DEPARTMENT
+        WHERE ID = #{id}
+    </delete>
+
+    <!-- 修改部门信息 -->
+    <update id="updateDepartment" parameterType="com.jiubo.erp.rygl.bean.DepartmentBean">
+        UPDATE T_DEPARTMENT
+        SET
+        NAME = #{Name}
+        , PARENTID = #{ParentID}
+        , ORDERNUM = #{OrderNum}
+        WHERE ID = #{ID}
+    </update>
+
+    <!-- 查询职位 -->
+    <select id="queryPositionData" resultType="java.util.Map">
+        SELECT A.POSITION_ID, A.POSITION_NAME, A.POSITIONTYPE_ID,(CASE A.ISPOINT WHEN 1 THEN '是' ELSE '' END)
+        ISPOINT,ISNULL(B.POSITIONTYPE_NAME,'') POSITIONTYPE_NAME
+        FROM POSITION_DATA A LEFT JOIN POSITION_TYPE B
+        ON A.POSITIONTYPE_ID = B.POSITIONTYPE_ID
+    </select>
+
+    <!-- 增加职位 -->
+    <insert id="addPositionData" parameterType="com.jiubo.erp.kqgl.bean.PositionDataBean">
+        INSERT INTO POSITION_DATA (POSITION_NAME, POSITIONTYPE_ID, ISPOINT)
+        VALUES(#{Position_Name},#{PositionType_ID},#{IsPoint})
+    </insert>
+
+    <!-- 修改职位 -->
+    <update id="updatePositionData" parameterType="com.jiubo.erp.kqgl.bean.PositionDataBean">
+        UPDATE POSITION_DATA
+        SET
+        POSITION_NAME = #{Position_Name}
+        , POSITIONTYPE_ID = #{PositionType_ID}
+        , ISPOINT = #{IsPoint}
+        WHERE POSITION_ID = #{Position_ID}
+    </update>
+
+    <resultMap type="com.jiubo.erp.kqgl.bean.PositionTypeBean" id="positionTypeMap">
+        <result column="POSITIONTYPE_ID" property="PositionType_ID"/>
+        <result column="POSITIONTYPE_NAME" property="PositionType_Name"/>
+    </resultMap>
+
+    <!-- 查询岗位类型 -->
+    <select id="queryPositionType" resultMap="positionTypeMap">
+        SELECT POSITIONTYPE_ID, POSITIONTYPE_NAME
+        FROM POSITION_TYPE
+    </select>
+
+    <!-- 添加岗位类型 -->
+    <insert id="addPositionType" parameterType="com.jiubo.erp.kqgl.bean.PositionTypeBean">
+        INSERT INTO POSITION_TYPE (POSITIONTYPE_NAME)
+        VALUES (#{PositionType_Name})
+    </insert>
+
+    <!-- 删除岗位类型 -->
+    <delete id="deletePositionType">
+        DELETE FROM POSITION_TYPE
+        WHERE POSITIONTYPE_ID = #{id}
+    </delete>
+
+    <!-- 修改岗位类型 -->
+    <update id="updatePositionType" parameterType="com.jiubo.erp.kqgl.bean.PositionTypeBean">
+        UPDATE POSITION_TYPE
+        SET
+        POSITIONTYPE_NAME = #{PositionType_Name}
+        WHERE POSITIONTYPE_ID = #{PositionType_ID}
+    </update>
+
+    <!-- 根据ParentID查询部门信息 -->
+    <select id="queryDepartmentByPId" resultType="com.jiubo.erp.rygl.bean.DepartmentBean">
+        SELECT ID, NAME, PARENTID, ORDERNUM
+        FROM T_DEPARTMENT
+        WHERE PARENTID = #{pId}
+    </select>
+
+    <!-- 查询该部门下的员工 -->
+    <select id="queryEmployeeBasic" resultType="com.jiubo.erp.rygl.bean.EmployeeBasicBean">
+        SELECT ID, NAME, SEX, JOBNUM, JOBNUMOLD, DEPARTMENT_ID, BIRTH, ENTRYDATE, POSITIVEDATE, RESIGNDATE, PHOTO,
+        CREATEDATE, UPDATEDATE, ISDELETE, STATE, CREATEUSER, ACCOUNT, REMARK, PARENT_ID, RESIGNTYPE, RESIGNREASON,
+        RECRUITDATAID
+        FROM T_EMPLOYEE_BASIC
+        WHERE DEPARTMENT_ID = #{departmentId} AND STATE = #{state}
+    </select>
+
+    <!-- 查询具体员工的排班计划 -->
+    <select id="queryAttShift" resultType="com.jiubo.erp.kqgl.bean.AttShiftBean">
+        SELECT B.ID, B.NAME, B.YEAR, B.MONTH, B.SHIFTDATE, B.STARTTIME, B.ENDTIME, B.COLORVALUE, B.TYPE, B.ISDELETE,
+        B.CREATEDATE, B.CREATOR
+        FROM T_ATT_PEOPLESHIFT A,T_ATT_SHIFT B,T_EMPLOYEE_BASIC C
+        <where>
+            AND C.ID = A.USERID AND A.SHIFTID = B.ID AND B.ISDELETE = 0 AND B.STARTTIME >= #{startTime} AND B.ENDTIME
+            &lt; #{endTime}
+            <if test="userId != null and userId != ''">
+                AND A.USERID = #{userId}
+            </if>
+            <if test="userName != null and userName != ''">
+                AND C.NAME = #{userName}
+            </if>
+        </where>
+    </select>
+
+    <!-- 查询全部员工的排班计划AND C.STATE = 1 -->
+    <select id="queryAllEmpAttShift" resultType="java.util.Map">
+        <![CDATA[
+			SELECT C.NAME EMPNAME,C.JOBNUM,B.ID, B.NAME,B.SHIFTDATE, B.STARTTIME, B.ENDTIME, B.COLORVALUE, B.TYPE, B.ISDELETE
+			FROM T_ATT_PEOPLESHIFT A,T_ATT_SHIFT B,T_EMPLOYEE_BASIC C
+			WHERE A.USERID = C.ACCOUNT AND A.SHIFTID = B.ID AND B.ISDELETE = 0  AND B.STARTTIME >= #{begDate} AND B.ENDTIME < #{endDate}
+		]]>
+    </select>
+
+    <!-- 删除员工的排班计划
+    <delete id="deleteAttPeopleShift">
+        DELETE FROM T_ATT_PEOPLESHIFT
+        WHERE SHIFTID = #{id}
+    </delete>
+     -->
+
+    <!-- 删除排班计划关系
+        UPDATE T_ATT_SHIFT
+        SET ISDELETE = #{isDelete}
+        WHERE ID = #{id}
+    -->
+    <update id="updateAttShift">
+        DELETE FROM T_ATT_SHIFT
+        WHERE STARTTIME >= #{begDate} AND STARTTIME &lt; #{endDate}
+    </update>
+
+    <resultMap type="com.jiubo.erp.kqgl.bean.PositionDataBean" id="positionDataMap">
+        <result column="POSITION_ID" property="Position_ID"/>
+        <result column="POSITION_NAME" property="Position_Name"/>
+    </resultMap>
+    <!-- 查询部门下的岗位 -->
+    <select id="queryPositionDataByDeptId" resultMap="positionDataMap">
+        SELECT A.DEPARTMENT_ID,B.POSITION_ID,C.POSITION_NAME
+        FROM T_EMPLOYEE_BASIC A,ACCOUNT_DATA B,POSITION_DATA C
+        WHERE A.ACCOUNT = B.ACCOUNT_ID AND B.POSITION_ID = C.POSITION_ID
+        <if test="deptId != null and deptId != ''">
+            AND A.DEPARTMENT_ID = #{deptId}
+        </if>
+        <if test="postId != null and postId != ''">
+            AND C.POSITION_ID = #{postId}
+        </if>
+        <if test="isPoint != null and isPoint != ''">
+            AND C.ISPOINT = 1
+        </if>
+        GROUP BY A.DEPARTMENT_ID,B.POSITION_ID,C.POSITION_NAME
+    </select>
+
+    <!--查询部门树-->
+    <select id="queryDeptTree" resultType="com.jiubo.erp.rygl.bean.DepartmentBean">
+        SELECT A.ID,A.PARENTID,A.LEV LEVEL,B.NAME
+        FROM F_GETCHILD(0) A,T_DEPARTMENT B
+        WHERE A.ID = B.ID
+        ORDER BY B.ORDERNUM
+    </select>
+</mapper>

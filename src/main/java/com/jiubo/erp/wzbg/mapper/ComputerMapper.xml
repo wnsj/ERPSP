@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiubo.erp.wzbg.dao.ComputerDao">
+	<sql id="computerSql">
+		C.ID id,
+		C.DepartmentID deptId,
+		DEPT.Name deptName,
+		C.Job_ID positionId,
+		PD.Position_Name positionName,
+		C.Start_time submitTime,
+		C.renshi_time useTime,
+		C.prepare_time finishTime,
+		C.Apply_name applyName,
+		C.Apply_see applyIsSee,
+		C.User_ID applyId,
+		C.User_name userName,
+		C.User_see userIsSee,
+		C.Zhu_ID leaderId,
+		A1.Account_Name leaderName,
+		C.Zhu_Advice leaderAudit,
+		C.Zhu_see leadreIsSee,
+		C.Prepare_ID handId,
+		C.Prepare_name handName,
+		C.Dui_see handIsSee,
+		C.Fu_ID principalId,
+		A2.Account_Name principalName,
+		C.Fu_Advice principalAudit,
+		C.Fu_see principalIsSee,
+		C.Is_Reserve isReserve,
+		C.Type_ID typeId,
+		C.Articles_name typeName,
+		C.Is_Ing status,
+		C.Shuoming remark 
+	</sql>
+	
+	<!-- 查询电脑预申请 -->
+	<select id="queryPreApplication" resultType="ComputerBean">
+		SELECT 
+			<include refid="computerSql"></include>
+		FROM 
+			Computer C 
+		LEFT JOIN T_Department DEPT
+			ON DEPT.ID = C.DepartmentID
+		LEFT JOIN Position_Data PD
+			ON PD.Position_ID = C.Job_ID
+		LEFT JOIN Account_Data A1
+			ON A1.Account_ID = C.Zhu_ID
+		LEFT JOIN Account_Data A2
+			ON A2.Account_ID = C.Fu_ID
+		WHERE
+			C.Is_Reserve != 0
+		<if test="accountId != null and accountId != '' ">
+			AND (C.Apply_ID = #{accountId}
+				OR C.User_ID = #{accountId}
+				OR C.Zhu_ID = #{accountId}
+				OR C.Fu_ID = #{accountId}
+				<if test="accountName != null and accountName != '' ">
+					OR C.User_name = #{accountName}
+				</if>
+			)
+		</if>
+		<if test="timeType != null and timeType != '' ">
+			<choose>
+				<when test="timeType == 0">
+					<if test="beginTime != null and beginTime != '' ">
+						AND C.Start_time <![CDATA[ >= ]]> #{beginTime}
+					</if>
+					<if test="endTime != null and endTime != '' ">
+						AND C.Start_time <![CDATA[ <= ]]> #{endTime}
+					</if>
+				</when>
+				<when test="timeType == 1">
+					<if test="beginTime != null and beginTime != '' ">
+						AND C.renshi_time <![CDATA[ >= ]]> #{beginTime}
+					</if>
+					<if test="endTime != null and endTime != '' ">
+						AND C.renshi_time <![CDATA[ <= ]]> #{endTime}
+					</if>
+				</when>
+				<when test="timeType == 2">
+					<if test="beginTime != null and beginTime != '' ">
+						AND C.End_time <![CDATA[ >= ]]> #{beginTime}
+					</if>
+					<if test="endTime != null and endTime != '' ">
+						AND C.End_time <![CDATA[ <= ]]> #{endTime}
+					</if>
+				</when>
+			</choose>
+		</if>
+		<if test="deptId != null and deptId != 0 and deptId != '' ">
+			AND C.DepartmentID = #{deptId}
+		</if>
+		<if test="userName != null and userName != '' ">
+			AND C.User_name LIKE '%' + #{userName} + '%'
+		</if>
+		<if test="handName != null and handName != '' ">
+			AND C.Prepare_name LIKE '%' + #{handName} + '%'
+		</if>
+		ORDER BY C.ID
+	</select>
+	
+	<!-- 添加电脑预申请 -->
+	<insert id="addPreApplication" parameterType="ComputerBean">
+		INSERT INTO Computer 
+			(DepartmentID, Start_time, Apply_name, User_ID
+			, User_name, Articles_name, Zhu_ID, Job_ID
+			, Zhu_Advice, Fu_Advice, Type_ID ,User_see
+			, Fu_ID, Is_Reserve, renshi_time
+			)
+		VALUES 
+			(#{deptId}, #{submitTime}, #{applyName}, #{applyId},
+			#{userName}, #{typeName}, #{leaderId}, #{positionId},
+			#{leaderAudit}, #{principalAudit}, #{typeId},#{applyIsSee}, 
+			#{principalId},#{isReserve}, #{useTime}
+			)
+	</insert>
+	
+	<!-- 查询岗位信息 -->
+	<select id="queryPositionInfo" resultType="PositionInfo">
+		SELECT  
+			P.Position_ID positionId,
+			P.Position_Name positionName
+		FROM 
+		Position_Data P
+	</select>
+	
+	<!-- 查询所在部门主管信息  -->
+	<select id="queryLeaderInfo" resultType="LeaderInfo">
+		SELECT
+			Account_ID leaderId,
+			Account_Name leaderName
+		FROM
+			Account_Data A
+			LEFT JOIN T_Employee_Basic EMP ON A.Account_ID = EMP.Account
+			LEFT JOIN T_Department DEPT ON EMP.Department_ID = DEPT.ID
+			LEFT JOIN Position_Data PD ON A.Position_ID = PD.Position_ID
+			LEFT JOIN Position_Type PT ON PD.PositionType_ID = PT.PositionType_ID 
+		WHERE
+			EMP.IsDelete = '0' AND EMP.State = '1'
+		<if test="deptId != null and deptId != '' ">
+			<choose>
+				<when test="deptId == 50">
+					 AND DEPT.ID  = 50
+					 AND (PD.Position_Name = '副总经理' OR PD.Position_Name = '集团总经理助理')
+				</when>
+				<when test="deptId == 60">
+					 AND DEPT.ID  = 39
+					 AND PD.Position_Name = '办公室主任'
+				</when>
+				<otherwise>
+					 AND (PT.PositionType_ID = 5 OR Position_Name = '项目经理' OR PT.PositionType_ID = 6) 
+					 AND DEPT.ID IN ( 
+						SELECT ID FROM [dbo].[f_GetChild] (#{deptId}) 
+						UNION 
+						SELECT ID FROM [dbo].[fnGetFather] (#{deptId})
+					 ) 
+				</otherwise>
+			</choose>
+		</if>
+	</select>
+</mapper>

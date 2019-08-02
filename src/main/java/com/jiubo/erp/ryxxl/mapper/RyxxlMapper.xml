@@ -1,0 +1,1118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiubo.erp.ryxxl.dao.RyxxlDao">
+    <sql id="timeDate">
+        <choose>
+            <when test="flag == 1">
+                B.POSITIVEDATE
+            </when>
+            <otherwise>
+                B.ENTRYDATE
+            </otherwise>
+        </choose>
+    </sql>
+    <!-- 查询工龄，学历，年龄，性别报表 -->
+    <select id="queryZzryReport" resultType="java.util.Map">
+        SELECT
+        COUNT(1) AS SUMCOUNT ,
+        CAST(SUM(CASE WHEN JOBMONTH &lt;= 3 THEN 1 ELSE 0 END) AS VARCHAR) AS MM_1 ,
+        CAST(SUM(CASE WHEN JOBMONTH > 3 AND JOBMONTH &lt;= 6 THEN 1 ELSE 0 END)AS VARCHAR) AS MM_2 ,
+        CAST(SUM(CASE WHEN (JOBMONTH > 6 AND JOBMONTH &lt;12) OR (JOBMONTH =12 AND JOBYEAR&lt; 1) THEN 1 ELSE 0 END) AS
+        VARCHAR) AS MM_3,
+        CAST(SUM(CASE WHEN JOBYEAR = 1 THEN 1 ELSE 0 END)AS VARCHAR) AS MM_4 ,
+        CAST(SUM(CASE WHEN JOBYEAR =2 THEN 1 ELSE 0 END)AS VARCHAR) AS MM_5 ,
+        CAST(SUM(CASE WHEN JOBYEAR >=3 THEN 1 ELSE 0 END)AS VARCHAR) AS MM_6 ,
+        CAST((CASE WHEN COUNT(1) > 0 THEN (SUM(JOBMONTH) / COUNT(1)) ELSE 0 END) AS VARCHAR) + ' 个月' AS MM_15 ,
+        CAST(SUM(CASE WHEN EDUCATION LIKE '初中%' THEN 1 ELSE 0 END)AS VARCHAR) AS MM_17 ,
+        CAST(SUM(CASE WHEN EDUCATION LIKE '高中%' THEN 1 ELSE 0 END)AS VARCHAR) AS MM_18 ,
+        CAST(SUM(CASE WHEN EDUCATION LIKE '专科%' THEN 1 ELSE 0 END)AS VARCHAR) AS MM_19 ,
+        CAST(SUM(CASE WHEN EDUCATION LIKE '本科%' OR EDUCATION LIKE '博士%' OR EDUCATION LIKE '硕士%' THEN 1 ELSE 0 END)AS
+        VARCHAR) AS MM_20 ,
+        CAST(SUM(CASE WHEN EDUCATION LIKE '未知%' OR EDUCATION = '' OR EDUCATION IS NULL THEN 1 ELSE 0 END)AS VARCHAR) AS
+        MM_21 ,
+        CAST(SUM(CASE WHEN AGE &lt;= 20 THEN 1 ELSE 0 END) AS VARCHAR) AS MM_9 ,
+        CAST(SUM(CASE WHEN AGE >20 AND AGE &lt;= 25 THEN 1 ELSE 0 END)AS VARCHAR) AS MM_10 ,
+        CAST(SUM(CASE WHEN AGE >25 AND AGE &lt;= 30 THEN 1 ELSE 0 END)AS VARCHAR) AS MM_11 ,
+        CAST(SUM(CASE WHEN AGE >30 AND AGE &lt;= 35 THEN 1 ELSE 0 END)AS VARCHAR) AS MM_12 ,
+        CAST(SUM(CASE WHEN AGE >35 AND AGE &lt;= 40 THEN 1 ELSE 0 END)AS VARCHAR) AS MM_13 ,
+        CAST(SUM(CASE WHEN AGE >40 THEN 1 ELSE 0 END)AS VARCHAR) AS MM_14 ,
+        CAST((CASE WHEN COUNT(1) > 0 THEN (SUM(AGE) / COUNT(1)) ELSE 0 END) AS DECIMAL(5,1)) AS MM_16 ,
+        CAST(SUM(CASE WHEN SEX ='男' THEN 1 ELSE 0 END) AS VARCHAR) AS MM_7 ,
+        CAST(SUM(CASE WHEN SEX ='女' THEN 1 ELSE 0 END) AS VARCHAR) AS MM_8 ,
+        CAST(SUM(CASE WHEN SEX &lt;> '女' AND SEX &lt;> '男' THEN 1 ELSE 0 END) AS VARCHAR) AS MM_22
+        FROM (
+        SELECT
+        B.ID ,DATEDIFF(MM,<include refid="timeDate"></include>,#{date}) AS JOBMONTH,
+        FLOOR(DATEDIFF(DD,<include refid="timeDate"></include>,#{date}) / 365.25) AS JOBYEAR,
+        B.NAME ,SEX,JOBNUM,ACCOUNT,D.EDUCATION ,FLOOR(DATEDIFF(DD,B.BIRTH,#{date})/ 365.25) AS AGE,
+        A.POSITION_ID,T.POSITIONTYPE_ID
+        FROM T_EMPLOYEE_BASIC B WITH (NOLOCK)
+        LEFT JOIN T_EMPLOYEE_DETIAL D WITH (NOLOCK) ON B.ID = D.EMPLOYEE_BASIC_ID
+        LEFT JOIN ACCOUNT_DATA A WITH (NOLOCK) ON B.ACCOUNT = A.ACCOUNT_ID
+        LEFT JOIN POSITION_DATA P WITH (NOLOCK) ON A.POSITION_ID = P.POSITION_ID
+        LEFT JOIN POSITION_TYPE T WITH (NOLOCK) ON P.POSITIONTYPE_ID = T.POSITIONTYPE_ID
+        LEFT JOIN T_DEPARTMENT TD WITH (NOLOCK) ON B.DEPARTMENT_ID = TD.ID
+        WHERE B.STATE = 1 AND B.ISDELETE = 0
+        AND <include refid="timeDate"></include> &lt;= #{date}
+        <if test="deptId != null and deptId != '' ">
+            AND B.DEPARTMENT_ID = #{deptId}
+        </if>
+        <if test="include != null and include != ''">
+            AND B.POSITIVEDATE IS NOT NULL
+        </if>
+        ) TAB
+    </select>
+
+    <!-- 查询岗位报表 -->
+    <select id="queryPositionReport" resultType="java.util.Map">
+        SELECT
+        COUNT(1) SUMCOUNT,TAB.POSITIONTYPE_ID POSITIONTYPE_ID,TAB.POSITIONTYPE_NAME POSITIONTYPE_NAME
+        FROM (
+        SELECT
+        B.ID ,DATEDIFF(MM,<include refid="timeDate"></include>,#{date}) AS JOBMONTH,
+        FLOOR(DATEDIFF(DD,<include refid="timeDate"></include>,#{date}) / 365.25) AS JOBYEAR,
+        B.NAME ,SEX,JOBNUM,ACCOUNT,D.EDUCATION ,FLOOR(DATEDIFF(DD,B.BIRTH,#{date})/ 365.25) AS AGE,
+        A.POSITION_ID,T.POSITIONTYPE_ID,T.POSITIONTYPE_NAME
+        FROM T_EMPLOYEE_BASIC B WITH (NOLOCK)
+        LEFT JOIN T_EMPLOYEE_DETIAL D WITH (NOLOCK) ON B.ID = D.EMPLOYEE_BASIC_ID
+        LEFT JOIN ACCOUNT_DATA A WITH (NOLOCK) ON B.ACCOUNT = A.ACCOUNT_ID
+        LEFT JOIN POSITION_DATA P WITH (NOLOCK) ON A.POSITION_ID = P.POSITION_ID
+        LEFT JOIN POSITION_TYPE T WITH (NOLOCK) ON P.POSITIONTYPE_ID = T.POSITIONTYPE_ID
+        LEFT JOIN T_DEPARTMENT TD WITH (NOLOCK) ON B.DEPARTMENT_ID = TD.ID
+        WHERE B.STATE = 1 AND B.ISDELETE = 0
+        AND <include refid="timeDate"></include> &lt;= #{date}
+        <if test="deptId != null and deptId != '' ">
+            AND B.DEPARTMENT_ID = #{deptId}
+        </if>
+        <if test="include != null and include != ''">
+            AND B.POSITIVEDATE IS NOT NULL
+        </if>
+        ) TAB
+        GROUP BY TAB.POSITIONTYPE_ID,TAB.POSITIONTYPE_NAME
+    </select>
+
+    <!-- 查询离职员工工龄-->
+    <select id="queryOutEmpWork" resultType="java.util.Map">
+        SELECT
+        SUM(B.MM_1) MM_1,SUM(B.MM_2) MM_2,SUM(B.MM_3) MM_3,SUM(B.MM_4) MM_4,
+        SUM(B.MM_5) MM_5,SUM(B.MM_6) MM_6,SUM(B.MM_7) MM_7,SUM(B.MM_8) MM_8,
+        ( SELECT COUNT(1)
+        FROM T_EMPLOYEE_BASIC A ,ACCOUNT_DATA B
+        WHERE A.ACCOUNT = B.ACCOUNT_ID AND A.RESIGNDATE >= #{begDate} AND A.RESIGNDATE &lt; #{endDate} AND A.STATE = 2
+        ) SUMCOUNT
+        FROM (
+        SELECT
+        CASE WHEN (DATEDIFF(MM,A.POSITIVEDATE,#{endDate}) &lt; 0 OR A.POSITIVEDATE IS NULL OR A.POSITIVEDATE = '') THEN
+        1 ELSE 0 END MM_1,
+        CASE WHEN (DATEDIFF(MM,A.POSITIVEDATE,#{endDate}) >= 0 AND DATEDIFF(MM,A.POSITIVEDATE,#{endDate}) &lt; 4) THEN 1
+        ELSE 0 END MM_2,
+        CASE WHEN (DATEDIFF(MM,A.POSITIVEDATE,#{endDate}) >= 4 AND DATEDIFF(MM,A.POSITIVEDATE,#{endDate}) &lt; 7) THEN 1
+        ELSE 0 END MM_3,
+        CASE WHEN (DATEDIFF(MM,A.POSITIVEDATE,#{endDate}) >= 7 AND DATEDIFF(MM,A.POSITIVEDATE,#{endDate}) &lt; 13) THEN
+        1 ELSE 0 END MM_4,
+        CASE WHEN (DATEDIFF(MM,A.POSITIVEDATE,#{endDate}) >= 13 AND DATEDIFF(MM,A.POSITIVEDATE,#{endDate})&lt; 24) THEN
+        1 ELSE 0 END MM_5,
+        CASE WHEN (DATEDIFF(MM,A.POSITIVEDATE,#{endDate}) >= 24 AND DATEDIFF(MM,A.POSITIVEDATE,#{endDate})&lt; 36) THEN
+        1 ELSE 0 END MM_6,
+        CASE WHEN (DATEDIFF(MM,A.POSITIVEDATE,#{endDate}) >=36) THEN 1 ELSE 0 END MM_7,
+        DATEDIFF(MM,A.POSITIVEDATE,#{endDate}) MM_8
+        FROM T_EMPLOYEE_BASIC A,ACCOUNT_DATA B
+        WHERE A.ACCOUNT = B.ACCOUNT_ID AND A.RESIGNDATE >= #{begDate} AND A.RESIGNDATE &lt; #{endDate} AND A.STATE = 2
+        <if test="deptId != null and deptId != '' ">
+            AND A.DEPARTMENT_ID = #{deptId}
+        </if>
+        <if test="posId != null and posId != ''">
+            AND B.POSITION_ID = #{posId}
+        </if>
+        ) B
+    </select>
+
+    <!-- 查询离职员工学历-->
+    <select id="queryOutEmpEducation" resultType="java.util.Map">
+        SELECT
+        SUM(B.MM_17) MM_17,SUM(B.MM_18) MM_18,SUM(B.MM_19) MM_19,
+        SUM(B.MM_20) MM_20,SUM(B.MM_21) MM_21,(
+        SELECT COUNT(1)
+        FROM T_EMPLOYEE_BASIC A,T_EMPLOYEE_DETIAL C,ACCOUNT_DATA D
+        WHERE A.ACCOUNT = D.ACCOUNT_ID AND A.ID = C.EMPLOYEE_BASIC_ID
+        AND A.RESIGNDATE >= #{begDate} AND A.RESIGNDATE &lt; #{endDate} AND A.STATE = 2
+        ) SUMCOUNT
+        FROM (
+        SELECT
+        CASE WHEN C.EDUCATION = '初中' THEN 1 ELSE 0 END MM_17,
+        CASE WHEN C.EDUCATION = '高中/中专' THEN 1 ELSE 0 END MM_18,
+        CASE WHEN C.EDUCATION = '专科' THEN 1 ELSE 0 END MM_19,
+        CASE WHEN C.EDUCATION = '本科' OR C.EDUCATION = '硕士研究生' OR C.EDUCATION = '博士' THEN 1 ELSE 0 END MM_20,
+        CASE WHEN C.EDUCATION IS NULL OR C.EDUCATION = '' THEN 1 ELSE 0 END MM_21,C.EDUCATION
+        FROM T_EMPLOYEE_BASIC A,T_EMPLOYEE_DETIAL C, ACCOUNT_DATA D
+        WHERE A.ACCOUNT = D.ACCOUNT_ID AND A.ID = C.EMPLOYEE_BASIC_ID
+        AND A.RESIGNDATE >= #{begDate} AND A.RESIGNDATE &lt; #{endDate} AND A.STATE = 2
+        <if test="deptId != null and deptId != '' ">
+            AND A.DEPARTMENT_ID = #{deptId}
+        </if>
+        <if test="posId != null and posId != ''">
+            AND D.POSITION_ID = #{posId}
+        </if>
+        ) B
+    </select>
+
+    <!-- 查询不同岗位类型离职人数 -->
+    <select id="queryOutEmpPositionType" resultType="java.util.Map">
+        SELECT B.POSITIONTYPE_NAME,B.POSITIONTYPE_ID,COUNT(1) SUMCOUNT,
+        (
+            SELECT
+            COUNT(1)
+            FROM T_EMPLOYEE_BASIC D,ACCOUNT_DATA C
+            WHERE C.ACCOUNT_ID = D.ACCOUNT AND D.STATE = 2
+            AND D.RESIGNDATE >= #{begDate} AND D.RESIGNDATE &lt; #{endDate}
+            <if test="deptId != null and deptId != '' ">
+                AND D.DEPARTMENT_ID = #{deptId}
+            </if>
+            <if test="posId != null and posId != ''">
+                AND C.POSITION_ID = #{posId}
+            </if>
+        ) AllCOUNT
+        FROM POSITION_DATA A,POSITION_TYPE B,ACCOUNT_DATA C,T_EMPLOYEE_BASIC D
+        WHERE A.POSITIONTYPE_ID = B.POSITIONTYPE_ID AND C.POSITION_ID = A.POSITION_ID AND C.ACCOUNT_ID = D.ACCOUNT AND
+        D.STATE = 2
+        AND D.RESIGNDATE >= #{begDate} AND D.RESIGNDATE &lt; #{endDate}
+        <if test="deptId != null and deptId != '' ">
+            AND D.DEPARTMENT_ID = #{deptId}
+        </if>
+        <if test="posId != null and posId != ''">
+            AND A.POSITION_ID = #{posId}
+        </if>
+        GROUP BY B.POSITIONTYPE_ID,B.POSITIONTYPE_NAME
+    </select>
+
+    <!-- 查询重点岗位 -->
+    <select id="queryPositionDataIsPoint" resultType="java.util.Map">
+        SELECT POSITION_ID, POSITION_NAME, POSITIONTYPE_ID, ISPOINT
+        FROM POSITION_DATA A
+        WHERE A.ISPOINT = 1
+    </select>
+
+    <!-- 查询具体岗位离职人数 -->
+    <select id="queryOutEmpCount" resultType="java.util.Map">
+        <if test="id != null and id != ''">
+            SELECT A.POSITION_ID,A.POSITION_NAME,D.NAME,D.RESIGNTYPE,(
+            SELECT COUNT(*)
+            FROM POSITION_DATA A,ACCOUNT_DATA C,T_EMPLOYEE_BASIC D
+            WHERE
+            C.POSITION_ID = A.POSITION_ID AND C.ACCOUNT_ID = D.ACCOUNT AND D.STATE = 2
+            AND D.RESIGNDATE >= #{begDate} AND D.RESIGNDATE &lt; #{endDate}
+            ) SUMCOUNT
+            FROM POSITION_DATA A,ACCOUNT_DATA C,T_EMPLOYEE_BASIC D
+            WHERE A.POSITION_ID = C.POSITION_ID AND C.ACCOUNT_ID = D.ACCOUNT
+            AND A.POSITION_ID = #{id} AND D.STATE = 2 AND
+            D.RESIGNDATE >= #{begDate} AND D.RESIGNDATE &lt; #{endDate}
+        </if>
+    </select>
+
+    <!-- 查询所有岗位离职人数 -->
+    <select id="queryOutEmpAllCount" resultType="com.jiubo.erp.ryxxl.bean.OutEmpBean">
+        SELECT A.POSITION_ID,A.POSITION_NAME,D.RESIGNTYPE,COUNT(*) COUNT,(
+        SELECT COUNT(*)
+        FROM POSITION_DATA A,ACCOUNT_DATA C,T_EMPLOYEE_BASIC D
+        WHERE
+        C.POSITION_ID = A.POSITION_ID AND C.ACCOUNT_ID = D.ACCOUNT AND D.STATE = 2
+        AND D.RESIGNDATE >= #{begDate} AND D.RESIGNDATE &lt; #{endDate}
+        ) SUMCOUNT
+        FROM POSITION_DATA A,ACCOUNT_DATA C,T_EMPLOYEE_BASIC D
+        WHERE C.POSITION_ID = A.POSITION_ID AND C.ACCOUNT_ID = D.ACCOUNT AND D.STATE = 2
+        AND D.RESIGNDATE >= #{begDate} AND D.RESIGNDATE &lt; #{endDate}
+        <if test="deptId != null and deptId != ''">
+            AND D.DEPARTMENT_ID = #{deptId}
+        </if>
+        <if test="postId != null and postId != ''">
+            AND A.POSITION_ID = #{postId}
+        </if>
+        GROUP BY A.POSITION_ID,A.POSITION_NAME,D.RESIGNTYPE
+        ORDER BY A.POSITION_ID
+    </select>
+
+    <!-- 查询每个部门离职人数 -->
+    <select id="queryOutEmpByDept" resultType="com.jiubo.erp.ryxxl.bean.OutEmpBean">
+        SELECT A.DEPARTMENT_ID,A.RESIGNTYPE,COUNT(*) COUNT, (
+        SELECT COUNT(*) FROM T_EMPLOYEE_BASIC A
+        WHERE A.RESIGNDATE >= #{begDate} AND A.RESIGNDATE &lt; #{endDate} AND A.STATE = 2
+        ) SUMCOUNT
+        FROM T_EMPLOYEE_BASIC A
+        WHERE A.RESIGNDATE >= #{begDate} AND A.RESIGNDATE &lt; #{endDate} AND A.STATE = 2 AND ISDELETE = 0
+        GROUP BY A.DEPARTMENT_ID,A.RESIGNTYPE
+        ORDER BY A.DEPARTMENT_ID
+    </select>
+
+    <!-- 查询异动 -->
+    <select id="queryOutEmpChangeByDept" resultType="com.jiubo.erp.ryxxl.bean.OutEmpBean">
+        SELECT OLD_DEPARTMENTID DEPARTMENTID,FLAG RESIGNTYPE,COUNT(*) COUNT,NEW_DEPARTMENTID,(
+        SELECT COUNT(*) FROM ACCOUNT_TRANSFER
+        WHERE UPDATETIME >= #{begDate} AND UPDATETIME &lt; #{endDate}
+        ) SUMCOUNT
+        FROM ACCOUNT_TRANSFER
+        WHERE UPDATETIME >= #{begDate} AND UPDATETIME &lt; #{endDate}
+        GROUP BY OLD_DEPARTMENTID,FLAG,NEW_DEPARTMENTID
+        ORDER BY OLD_DEPARTMENTID
+    </select>
+
+    <!-- 查询月初人数，月末人数，本月入职人数 -->
+    <select id="queryEmpCount" resultType="com.jiubo.erp.ryxxl.bean.OutEmpBean">
+        SELECT C.DEPARTMENT_ID,C.BEGMONCOUNT BEGMONCOUNT,B.ENTRYCOUNT ENTRYCOUNT,D.ENDMONCOUNT ENDMONCOUNT
+        FROM (
+        SELECT A.DEPARTMENT_ID,COUNT(*) BEGMONCOUNT
+        FROM T_EMPLOYEE_BASIC A
+        WHERE A.ENTRYDATE &lt; #{begDate} AND A.STATE = 1 AND ISDELETE = 0
+        GROUP BY A.DEPARTMENT_ID
+        ) C
+        LEFT JOIN (
+        SELECT DEPARTMENT_ID,COUNT(*) ENTRYCOUNT
+        FROM T_EMPLOYEE_BASIC
+        WHERE ENTRYDATE >= #{begDate} AND ENTRYDATE &lt; #{endDate}
+        GROUP BY DEPARTMENT_ID
+        ) B
+        ON C.DEPARTMENT_ID = B.DEPARTMENT_ID
+        LEFT JOIN (
+        SELECT A.DEPARTMENT_ID,COUNT(*) ENDMONCOUNT
+        FROM T_EMPLOYEE_BASIC A
+        WHERE A.ENTRYDATE &lt; #{endDate} AND A.STATE = 1
+        GROUP BY A.DEPARTMENT_ID
+        ) D
+        ON C.DEPARTMENT_ID = D.DEPARTMENT_ID
+    </select>
+
+    <!-- 查询每个部门岗位缺编人数，月初人数，计划招聘数，到面人数，合格人数，入职人数，月末人数 -->
+    <select id="queryRecruitByDeptPosId" resultType="com.jiubo.erp.ryxxl.bean.ZpxgpgBean">
+        SELECT
+        A.PLAN_ID,A.DEPARTMENT DEPTID,A.POSITION POSID, A.LACKNUM LACKNUM,
+        A.PLANNUM PLANNUM, A.PHONENUM, A.PLANDATE,B.NAME DEPARTMENT,
+        C.POSITION_NAME POSITION,D.ISQUALIFIED QUALIFIEDCOUNT,D.COUNT FACECOUNT,
+        E.COUNT ENTRYCOUNT,F.BEGMONCOUNT,F.ENDMONCOUNT
+        FROM ZP_PLAN A
+        LEFT JOIN T_DEPARTMENT B
+        ON A.DEPARTMENT = B.ID
+        LEFT JOIN POSITION_DATA C
+        ON A.POSITION = C.POSITION_ID
+        LEFT JOIN
+        (
+        SELECT SUM(A.ISQUALIFIED) ISQUALIFIED,SUM(A.SCORE) COUNT,A.DEPARTMENT,A.POSITION
+        FROM (
+        SELECT
+        CASE WHEN ISQUALIFIED = '是' THEN 1 ELSE 0 END ISQUALIFIED,
+        CASE WHEN SCORE > 0 THEN 1 ELSE 0 END SCORE,
+        DEPARTMENT, POSITION
+        FROM ZP_RECRUITDATA
+        WHERE YEAR(INVITATIONDATE) * 100 + MONTH(INVITATIONDATE) >= YEAR(#{begDate}) * 100 + MONTH (#{begDate})
+        AND YEAR(INVITATIONDATE) * 100 + MONTH(INVITATIONDATE) &lt; YEAR(#{endDate}) * 100 + MONTH (#{endDate})
+        ) A
+        GROUP BY A.DEPARTMENT,A.POSITION
+        ) D
+        ON A.POSITION = D.POSITION AND A.DEPARTMENT = D.DEPARTMENT
+        LEFT JOIN (
+        SELECT COUNT(*) COUNT,C.DEPARTMENT,C.POSITION
+        FROM T_EMPLOYEE_BASIC A,ZP_RECRUITDATA C
+        WHERE A.RECRUITDATAID = C.ID AND A.ENTRYDATE >= #{begDate} AND A.ENTRYDATE &lt; #{endDate}
+        GROUP BY C.DEPARTMENT,C.POSITION
+        ) E
+        ON A.POSITION = E.POSITION AND A.DEPARTMENT = E.DEPARTMENT
+        LEFT JOIN (
+        SELECT G.DEPARTMENT_ID,G.POSITION_ID,G.BEGMONCOUNT,Z.ENDMONCOUNT
+        FROM (
+        SELECT
+        COUNT(*) BEGMONCOUNT,A.DEPARTMENT_ID,C.POSITION_ID
+        FROM T_EMPLOYEE_BASIC A,ACCOUNT_DATA C
+        WHERE A.ACCOUNT = C.ACCOUNT_ID AND A.STATE = 1 AND A.ENTRYDATE &lt; #{begDate}
+        GROUP BY A.DEPARTMENT_ID,C.POSITION_ID
+        ) G,(
+        SELECT
+        COUNT(*) ENDMONCOUNT,A.DEPARTMENT_ID,C.POSITION_ID
+        FROM T_EMPLOYEE_BASIC A,ACCOUNT_DATA C
+        WHERE A.ACCOUNT = C.ACCOUNT_ID AND A.STATE = 1 AND A.ENTRYDATE &lt; #{endDate}
+        GROUP BY A.DEPARTMENT_ID,C.POSITION_ID
+        ) Z
+        WHERE G.DEPARTMENT_ID = Z.DEPARTMENT_ID AND G.POSITION_ID = Z.POSITION_ID
+        ) F
+        ON A.POSITION = F.POSITION_ID AND A.DEPARTMENT = F.DEPARTMENT_ID
+        WHERE A.PLANDATE >= #{begDate} AND A.PLANDATE &lt; #{endDate}
+        <if test="deptId != null and deptId != ''">
+            AND A.DEPARTMENT = #{deptId}
+        </if>
+        <if test="posId != null and posId != ''">
+            AND A.POSITION = #{posId}
+        </if>
+        ORDER BY B.ORDERNUM
+    </select>
+
+    <!-- 查询合格人数，面试人数，入职人数 -->
+    <select id="queryRecruitChannel" resultType="com.jiubo.erp.ryxxl.bean.ZpxgpgBean">
+        SELECT
+        B.CHANNEL CHANNELID,D.RECRUITCHANNEL_NAME CHANNEL, B.POSITION POSID,E.POSITION_NAME POSITION,
+        B.PUBLISHNUM, B.PHONENUM, B.PUBLISHDATE,C.ISQUALIFIED QUALIFIEDCOUNT,C.COUNT CANDIDATES,F.COUNT ENTRYCOUNT
+        FROM ZP_PUBLISH B
+        LEFT JOIN ZP_RECRUITCHANNEL D
+        ON B.CHANNEL = D.RECRUITCHANNEL_ID
+        LEFT JOIN POSITION_DATA E
+        ON B.POSITION = E.POSITION_ID
+        LEFT JOIN (
+        SELECT SUM(A.ISQUALIFIED) ISQUALIFIED,SUM(A.SCORE) COUNT,A.CHANNEL,A.POSITION
+        FROM (
+        SELECT
+        CASE WHEN ISQUALIFIED = '是' THEN 1 ELSE 0 END ISQUALIFIED,
+        CASE WHEN 1=1 THEN 1 ELSE 0 END SCORE,
+        CHANNEL, POSITION
+        FROM ZP_RECRUITDATA
+        WHERE YEAR(INVITATIONDATE) * 100 + MONTH(INVITATIONDATE) >= YEAR(#{begDate}) * 100 + MONTH (#{begDate})
+        AND YEAR(INVITATIONDATE) * 100 + MONTH(INVITATIONDATE) &lt; YEAR(#{endDate}) * 100 + MONTH (#{endDate})
+        ) A GROUP BY A.CHANNEL,A.POSITION
+        ) C
+        ON C.CHANNEL = B.CHANNEL AND C.POSITION = B.POSITION
+        LEFT JOIN (
+        SELECT COUNT(*) COUNT,C.CHANNEL,C.POSITION
+        FROM T_EMPLOYEE_BASIC A,ZP_RECRUITDATA C
+        WHERE A.RECRUITDATAID = C.ID AND A.ENTRYDATE >= #{begDate} AND A.ENTRYDATE &lt; #{endDate}
+        GROUP BY C.CHANNEL,C.POSITION
+        ) F
+        ON B.CHANNEL = F.CHANNEL AND B.POSITION = F.POSITION
+        WHERE PUBLISHDATE >= #{begDate} AND PUBLISHDATE &lt; #{endDate}
+    </select>
+
+    <!-- 查询每个部门员工的打卡天数 -->
+    <select id="queryDeptEmpClock" resultType="com.jiubo.erp.ryxxl.bean.OutEmpBean">
+        SELECT E.SUMCOUNT,E.DEPARTMENT_ID,D.COUNT
+        FROM (
+        SELECT COUNT(C.DAY) SUMCOUNT,C.DEPARTMENT_ID
+        FROM (
+        SELECT A.ENROLLNUMBER,B.DEPARTMENT_ID,CONVERT(VARCHAR(100),A.ATTTIME,23) DAY
+        FROM T_ATT_ATTENDANCE A,T_EMPLOYEE_BASIC B
+        WHERE A.ENROLLNUMBER = B.JOBNUM
+        AND YEAR(A.ATTTIME) * 100 + MONTH(A.ATTTIME) = #{begDate}
+        <!--<if test="deptId != null and deptId != ''">-->
+        <!--AND B.DEPARTMENT_ID = #{deptId}-->
+        <!--</if>-->
+        <if test="isEntry == 0">
+            AND YEAR(B.ENTRYDATE) * 100 + MONTH(B.ENTRYDATE) &lt;= #{begDate}
+        </if>
+        <if test="isEntry == 1">
+            AND YEAR(B.ENTRYDATE) * 100 + MONTH(B.ENTRYDATE) &lt; #{begDate}
+        </if>
+        <if test="isQuit == 0">
+            AND
+            (
+            B.STATE = 1 OR YEAR(B.RESIGNDATE) * 100 + MONTH(B.RESIGNDATE) = #{begDate}
+            )
+        </if>
+        <if test="isQuit == 1">
+            AND B.STATE = 1
+        </if>
+        GROUP BY A.ENROLLNUMBER,B.DEPARTMENT_ID,CONVERT(VARCHAR(100),A.ATTTIME,23)
+        ) C
+        GROUP BY C.DEPARTMENT_ID
+        ) E
+        LEFT JOIN (
+        SELECT COUNT(1) COUNT, DEPARTMENT_ID
+        FROM T_EMPLOYEE_BASIC
+        <where>
+            <if test="isEntry == 0">
+                AND YEAR(ENTRYDATE) * 100 + MONTH(ENTRYDATE) &lt;= #{begDate}
+            </if>
+            <if test="isEntry == 1">
+                AND YEAR(ENTRYDATE) * 100 + MONTH(ENTRYDATE) &lt; #{begDate}
+            </if>
+            <!--<if test="deptId != null and deptId != ''">-->
+            <!--AND DEPARTMENT_ID = #{deptId}-->
+            <!--</if>-->
+            <if test="isQuit == 0">
+                AND
+                (
+                STATE = 1 OR YEAR(RESIGNDATE) * 100 + MONTH(RESIGNDATE) = #{begDate}
+                )
+            </if>
+            <if test="isQuit == 1">
+                AND STATE = 1
+            </if>
+        </where>
+        GROUP BY DEPARTMENT_ID
+        ) D
+        ON E.DEPARTMENT_ID = D.DEPARTMENT_ID
+    </select>
+
+    <!-- 查询每个部门未打卡天数 -->
+    <select id="queryDepartmentAttendance" resultType="com.jiubo.erp.ryxxl.bean.DepartmentAttendanceBean">
+        SELECT ID, DEPARTMENT_ID, NUM, DATAMONTH
+        FROM T_DEPARTMENT_ATTENDANCE
+        WHERE YEAR(DATAMONTH) * 100 + MONTH(DATAMONTH) = #{begDate}
+        <!--<if test="deptId != null and deptId != ''">-->
+        <!--AND DEPARTMENT_ID = #{deptId}-->
+        <!--</if>-->
+    </select>
+
+    <!-- 修改或添加部门未打卡信息 -->
+    <update id="updateAddDeptAttendance" parameterType="com.jiubo.erp.ryxxl.bean.DepartmentAttendanceBean">
+        UPDATE T_DEPARTMENT_ATTENDANCE
+        SET NUM = #{num}
+        WHERE ID = #{id};
+        IF NOT EXISTS (SELECT * FROM T_DEPARTMENT_ATTENDANCE WHERE ID = #{id})
+        INSERT INTO T_DEPARTMENT_ATTENDANCE (DEPARTMENT_ID, NUM, DATAMONTH)
+        VALUES (#{departmentId}, #{num}, #{dataMonth})
+    </update>
+
+    <!-- 查询每个部门正常休假天数 -->
+    <select id="queryDeptVacation" resultType="com.jiubo.erp.ryxxl.bean.OutEmpBean">
+        SELECT COUNT(*) COUNT,C.DEPARTMENT_ID
+        FROM T_ATT_PEOPLESHIFT A,T_ATT_SHIFT B,T_EMPLOYEE_BASIC C
+        WHERE A.USERID = C.ID AND A.SHIFTID = B.ID AND B.ISDELETE = 0 AND B.TYPE = 2
+        AND YEAR(B.SHIFTDATE) * 100 + MONTH(B.SHIFTDATE) = #{begDate}
+        <!--<if test="deptId != null and deptId != ''">-->
+        <!--AND C.DEPARTMENT_ID = #{deptId}-->
+        <!--</if>-->
+        <if test="isEntry == 0">
+            AND YEAR(C.ENTRYDATE) * 100 + MONTH(C.ENTRYDATE) &lt;= #{begDate}
+        </if>
+        <if test="isEntry == 1">
+            AND YEAR(C.ENTRYDATE) * 100 + MONTH(C.ENTRYDATE) &lt; #{begDate}
+        </if>
+        <if test="isQuit == 0">
+            AND
+            (
+            C.STATE = 1 OR YEAR(C.RESIGNDATE) * 100 + MONTH(C.RESIGNDATE) = #{begDate}
+            )
+        </if>
+        <if test="isQuit == 1">
+            AND C.STATE = 1
+        </if>
+        GROUP BY C.DEPARTMENT_ID
+    </select>
+
+    <!--人员异动查询报表-->
+    <select id="getChanges" resultType="com.jiubo.erp.rygl.bean.DepartmentBean">
+        SELECT
+        A.ID,A.NAME,A.PARENTID,
+        ISNULL(TAB1.NUM, 0) AS BEGMONCOUNT,
+        ISNULL(TAB2.NUM, 0) AS ENTRYCOUNT,
+        ISNULL(TAB3.NUM, 0) AS COUNT_1 ,
+        ISNULL(TAB3.C1, 0) AS RESIGNATION ,
+        ISNULL(TAB3.C2, 0) AS DISMISS ,
+        ISNULL(TAB3.C3, 0) AS UNKNOW ,
+        ISNULL(TAB4.NUM, 0) AS TOTAL_1,
+        ISNULL(TAB4.COUNT1, 0) AS DIAOCHU,
+        ISNULL(TAB4.COUNT2, 0) AS DIAORU,
+        ISNULL(TAB4.F1, 0) AS JINSHENG,
+        ISNULL(TAB4.F2, 0) AS JIANGZHI,
+        ISNULL(TAB4.F3, 0) AS CHANGE,
+        ISNULL(TAB5.NUM, 0) AS ENDMONCOUNT
+        FROM T_DEPARTMENT A WITH (NOLOCK)
+        LEFT JOIN (
+        SELECT DEPARTMENT_ID,COUNT(ID) AS NUM
+        FROM T_EMPLOYEE_BASIC WITH (NOLOCK)
+        WHERE STATE = 1 AND ISDELETE = 0 AND ENTRYDATE &lt; #{begDate}
+        GROUP BY DEPARTMENT_ID
+        ) TAB1
+        ON A.ID = TAB1.DEPARTMENT_ID
+        LEFT JOIN (
+        SELECT
+        DEPARTMENT_ID ,COUNT(ID) AS NUM
+        FROM T_EMPLOYEE_BASIC WITH (NOLOCK)
+        WHERE ENTRYDATE >= #{begDate} AND ENTRYDATE &lt; #{endDate}
+        GROUP BY DEPARTMENT_ID
+        ) TAB2
+        ON A.ID = TAB2.DEPARTMENT_ID
+        LEFT JOIN (
+        SELECT
+        DEPARTMENT_ID ,COUNT(ID) AS NUM,
+        SUM(CASE WHEN RESIGNTYPE = '辞职' THEN 1 ELSE 0 END) AS C1,
+        SUM(CASE WHEN RESIGNTYPE = '辞退' THEN 1 ELSE 0 END) AS C2,
+        SUM(CASE WHEN (RESIGNTYPE = '其他' OR RESIGNTYPE = '' OR RESIGNTYPE IS NULL) THEN 1 ELSE 0 END) AS C3
+        FROM T_EMPLOYEE_BASIC WITH (NOLOCK)
+        WHERE RESIGNDATE >= #{begDate} AND RESIGNDATE &lt; #{endDate}
+        GROUP BY DEPARTMENT_ID
+        ) TAB3
+        ON A.ID = TAB3.DEPARTMENT_ID
+        LEFT JOIN (
+        SELECT
+        D.ID AS DEPARTMENT_ID ,SUM(T.F1 + T.F2 + T.F3) AS NUM ,
+        SUM(T.COUNT1) AS COUNT1 ,SUM(T.COUNT2) AS COUNT2 ,
+        SUM(T.F1) AS F1 ,SUM(T.F2) AS F2 ,SUM(T.F3) AS F3
+        FROM T_DEPARTMENT D WITH (NOLOCK)
+        LEFT JOIN (
+        SELECT
+        OLD_DEPARTMENTID AS DID ,COUNT(OLD_DEPARTMENTID) AS COUNT1,0 AS COUNT2 ,
+        SUM(CASE WHEN FLAG = '晋升' THEN 1 ELSE 0 END) AS F1 ,
+        SUM(CASE WHEN FLAG = '降职' THEN 1 ELSE 0 END) AS F2 ,
+        SUM(CASE WHEN FLAG = '换岗' THEN 1 ELSE 0 END) AS F3
+        FROM ACCOUNT_TRANSFER WITH (NOLOCK)
+        WHERE OLD_DEPARTMENTID &lt;> NEW_DEPARTMENTID AND UPDATETIME >= #{begDate} AND UPDATETIME &lt;#{endDate}
+        GROUP BY OLD_DEPARTMENTID
+        UNION ALL
+        SELECT
+        NEW_DEPARTMENTID AS DID ,0 AS COUNT1,
+        COUNT(NEW_DEPARTMENTID) AS COUNT2,
+        SUM(CASE WHEN FLAG = '晋升' THEN 1 ELSE 0 END) AS F1,
+        SUM(CASE WHEN FLAG = '降职' THEN 1 ELSE 0 END) AS F2,
+        SUM(CASE WHEN FLAG = '换岗' THEN 1 ELSE 0 END) AS F3
+        FROM ACCOUNT_TRANSFER WITH (NOLOCK)
+        WHERE OLD_DEPARTMENTID &lt;> NEW_DEPARTMENTID AND UPDATETIME >= #{begDate} AND UPDATETIME &lt; #{endDate}
+        GROUP BY NEW_DEPARTMENTID
+        UNION ALL
+        SELECT
+        NEW_DEPARTMENTID AS DID ,0 AS COUNT1,0 AS COUNT2,
+        SUM(CASE WHEN FLAG = '晋升' THEN 1 ELSE 0 END) AS F1 ,SUM(CASE WHEN FLAG = '降职' THEN 1 ELSE 0 END) AS F2 ,
+        SUM(CASE WHEN FLAG = '换岗' THEN 1 ELSE 0 END) AS F3
+        FROM ACCOUNT_TRANSFER WITH (NOLOCK)
+        WHERE OLD_DEPARTMENTID = NEW_DEPARTMENTID AND UPDATETIME >= #{begDate} AND UPDATETIME &lt;#{endDate}
+        GROUP BY NEW_DEPARTMENTID
+        ) T
+        ON T.DID = D.ID
+        GROUP BY D.ID, D.NAME
+        ) TAB4
+        ON A.ID = TAB4.DEPARTMENT_ID
+        LEFT JOIN (
+        SELECT DEPARTMENT_ID ,COUNT(ID) AS NUM
+        FROM T_EMPLOYEE_BASIC WITH (NOLOCK)
+        WHERE STATE = 1 AND ISDELETE = 0 AND ENTRYDATE &lt; #{endDate}
+        GROUP BY DEPARTMENT_ID
+        ) TAB5
+        ON A.ID = TAB5.DEPARTMENT_ID
+        ORDER BY A.PARENTID,A.ORDERNUM
+    </select>
+
+    <!--离职人员分析报表（查询工龄，教育结构）-->
+    <select id="getOutEmpWorkEdu" resultType="java.util.Map">
+        SELECT
+        COUNT(1) AS SUMCOUNT,
+        CAST(SUM(UNJOB) AS VARCHAR) AS MM_0,
+        CAST(SUM(CASE WHEN JOBMONTH &lt;= 3 THEN 1 ELSE 0 END) AS VARCHAR) AS MM_1,
+        CAST(SUM(CASE WHEN JOBMONTH > 3 AND JOBMONTH&lt;= 6 THEN 1 ELSE 0 END)AS VARCHAR) AS MM_2,
+        CAST(SUM(CASE WHEN (JOBMONTH > 6 AND JOBMONTH &lt; 12) OR (JOBMONTH =12 AND JOBYEAR &lt; 1) THEN 1 ELSE 0 END)
+        AS VARCHAR) AS MM_3,
+        CAST(SUM(CASE WHEN JOBYEAR = 1 THEN 1 ELSE 0 END)AS VARCHAR) AS MM_4,
+        CAST(SUM(CASE WHEN JOBYEAR = 2 THEN 1 ELSE 0 END)AS VARCHAR) AS MM_5,
+        CAST(SUM(CASE WHEN JOBYEAR >= 3 THEN 1 ELSE 0 END)AS VARCHAR) AS MM_6,
+        CAST((CASE WHEN (COUNT(1) - SUM(UNJOB)) > 0 THEN (SUM(JOBMONTH) / (COUNT(1) - SUM(UNJOB)))ELSE 0 END) AS
+        VARCHAR) + ' 个月' AS MM_8,
+        CAST(SUM(CASE WHEN EDUCATION LIKE '初中%' THEN 1 ELSE 0 END)AS VARCHAR) AS MM_17,
+        CAST(SUM(CASE WHEN EDUCATION LIKE '高中%' THEN 1 ELSE 0 END)AS VARCHAR) AS MM_18,
+        CAST(SUM(CASE WHEN EDUCATION LIKE '专科%' THEN 1 ELSE 0 END)AS VARCHAR) AS MM_19,
+        CAST(SUM(CASE WHEN EDUCATION LIKE '本科%' OR EDUCATION LIKE '博士%' OR EDUCATION LIKE '硕士%' THEN 1 ELSE 0 END)AS
+        VARCHAR) AS MM_20,
+        CAST(SUM(CASE WHEN EDUCATION LIKE '未知%' OR EDUCATION = '' OR EDUCATION IS NULL THEN 1 ELSE 0 END)AS VARCHAR) AS
+        MM_21
+        FROM (
+        SELECT
+        B.ID,
+        CASE WHEN POSITIVEDATE IS NULL THEN 1 ELSE 0 END AS UNJOB,
+        DATEDIFF(MM,POSITIVEDATE,RESIGNDATE) AS JOBMONTH,
+        FLOOR(DATEDIFF(DD,POSITIVEDATE,RESIGNDATE) / 365.25) AS JOBYEAR,
+        NAME,SEX,JOBNUM,ACCOUNT,
+        D.EDUCATION,A.POSITION_ID,T.POSITIONTYPE_ID
+        FROM T_EMPLOYEE_BASIC B WITH (NOLOCK)
+        LEFT JOIN T_EMPLOYEE_DETIAL D WITH (NOLOCK)
+        ON B.ID = D.EMPLOYEE_BASIC_ID
+        LEFT JOIN ACCOUNT_DATA A WITH (NOLOCK)
+        ON B.ACCOUNT = A.ACCOUNT_ID
+        LEFT JOIN POSITION_DATA P WITH (NOLOCK)
+        ON A.POSITION_ID = P.POSITION_ID
+        LEFT JOIN POSITION_TYPE T WITH (NOLOCK)
+        ON P.POSITIONTYPE_ID = T.POSITIONTYPE_ID
+        WHERE B.STATE = 2
+        AND RESIGNDATE >= #{begDate} AND RESIGNDATE &lt;= #{endDate}
+        <if test="deptId != null and deptId != '' ">
+            AND B.DEPARTMENT_ID = #{deptId}
+        </if>
+        <if test="posId != null and posId != ''">
+            AND P.POSITION_ID = #{posId}
+        </if>
+        ) TAB
+    </select>
+
+    <!--离职人员分析报表（重点岗位查询）-->
+    <select id="queryOutEmpIsPoint" resultType="java.util.Map">
+        SELECT
+        SUM(NUM) outEmpCount,
+        TOTAL,
+        CASE WHEN TOTAL > 0 THEN CAST(CAST(SUM(NUM) * 1.0 / TOTAL * 100 AS DECIMAL(10,2)) AS VARCHAR(10)) + '%' ELSE
+        '0%' END AS outEmpMix,
+        POSITION_NAME POSITION_NAME,
+        SUM(CASE RESIGNTYPE WHEN '辞职' THEN NUM ELSE 0 END) AS C1,
+        SUM(CASE RESIGNTYPE WHEN '辞退' THEN NUM ELSE 0 END) AS C2,
+        SUM(CASE WHEN RESIGNTYPE = '其他' OR RESIGNTYPE = '' OR RESIGNTYPE IS NULL THEN NUM ELSE 0 END) AS C3
+        FROM (
+        SELECT
+        COUNT(B.ID) NUM,
+        P.POSITION_NAME,
+        B.RESIGNTYPE
+        FROM POSITION_DATA P WITH (NOLOCK)
+        LEFT JOIN ACCOUNT_DATA A WITH (NOLOCK)
+        ON A.POSITION_ID = P.POSITION_ID
+        LEFT JOIN T_EMPLOYEE_BASIC B WITH (NOLOCK)
+        ON B.ACCOUNT = A.ACCOUNT_ID
+        AND B.STATE = 2
+        AND RESIGNDATE >= #{begDate}
+        AND RESIGNDATE &lt;= #{endDate}
+        WHERE P.ISPOINT = 1
+        <if test="deptId != null and deptId != '' ">
+            AND B.DEPARTMENT_ID = #{deptId}
+        </if>
+        <if test="posId != null and posId != ''">
+            AND P.POSITION_ID = #{posId}
+        </if>
+        GROUP BY P.POSITION_NAME,B.RESIGNTYPE
+        )TAB1,(
+        SELECT COUNT(ID) TOTAL
+        FROM T_EMPLOYEE_BASIC B WITH (NOLOCK)
+        WHERE B.STATE = 2 AND RESIGNDATE >= #{begDate} AND RESIGNDATE &lt;= #{endDate}
+        )TAB2
+        GROUP BY POSITION_NAME,TOTAL
+        ORDER BY outEmpCount DESC
+    </select>
+
+    <!--离职人员分析报表（排名分析）-->
+    <select id="queryOutEmpRank" resultType="java.util.Map">
+        SELECT TOP 5
+
+            SUM(NUM) outEmpCount,TOTAL,
+            CASE WHEN TOTAL > 0 THEN CAST(CAST(SUM(NUM) * 1.0 / TOTAL * 100 AS DECIMAL(10,2)) AS VARCHAR(10)) + '%'     ELSE '0%' END AS RATE,
+            POSITION_NAME ,SUM(CASE RESIGNTYPE WHEN '辞职' THEN NUM ELSE 0 END) AS C1,
+            SUM(CASE RESIGNTYPE WHEN '辞退' THEN NUM ELSE 0 END) AS C2,
+            SUM(CASE WHEN RESIGNTYPE = '其他' OR RESIGNTYPE = '' OR RESIGNTYPE IS NULL THEN NUM ELSE 0 END) AS C3
+        FROM (
+            SELECT
+                COUNT(B.ID) NUM,
+                P.POSITION_NAME,
+                B.RESIGNTYPE
+            FROM T_EMPLOYEE_BASIC B WITH (NOLOCK)
+            LEFT JOIN ACCOUNT_DATA A WITH (NOLOCK)
+            ON B.ACCOUNT = A.ACCOUNT_ID
+            LEFT JOIN POSITION_DATA P WITH (NOLOCK)
+            ON A.POSITION_ID = P.POSITION_ID
+            WHERE B.STATE = 2  AND RESIGNDATE >= #{begDate}  AND RESIGNDATE &lt;= #{endDate}
+            <if test="deptId != null and deptId != '' ">
+              AND B.DEPARTMENT_ID = #{deptId}
+            </if>
+            <if test="posId != null and posId != ''">
+              AND P.POSITION_ID = #{posId}
+            </if>
+            GROUP BY P.POSITION_NAME ,B.RESIGNTYPE
+        )TAB1,  (
+            SELECT
+                COUNT(ID) TOTAL
+            FROM T_EMPLOYEE_BASIC B WITH (NOLOCK)
+            WHERE B.STATE = 2  AND RESIGNDATE >= #{begDate} AND RESIGNDATE &lt;= #{endDate}
+            <if test="deptId != null and deptId != '' ">
+                AND B.DEPARTMENT_ID = #{deptId}
+            </if>
+
+        )TAB2
+        GROUP BY POSITION_NAME,TOTAL
+        ORDER BY outEmpCount DESC, POSITION_NAME
+    </select>
+
+    <!--招聘效果分析报表（招聘分析）-->
+    <select id="getRecruit" resultType="com.jiubo.erp.ryxxl.bean.ZpxgpgBean">
+        SELECT
+
+            D.NAME AS DEPARTMENT,P.POSITION_NAME AS POSITION ,
+            ISNULL(TAB1.LACKNUM, 0) AS LACKNUM,
+            ISNULL(TAB2.NUM, 0) AS BEGMONCOUNT,
+            ISNULL(TAB1.PLANNUM, 0) AS PLANNUM,
+            ISNULL(TAB1.PHONENUM, 0) AS  RECRUITNUM,
+            ISNULL(TAB3.RECRUITNUM, 0) AS  FACECOUNT,
+            ISNULL(TAB3.QNUM, 0) AS QUALIFIEDCOUNT ,
+            ISNULL(TAB3.ENUM, 0) AS ENTRYCOUNT,
+            ISNULL(TAB4.NUM, 0) AS ENDMONCOUNT ,
+            CASE WHEN TAB3.RECRUITNUM > 0 THEN CAST(CAST(ISNULL(TAB3.QNUM, 0) * 1.0 / TAB3.RECRUITNUM * 100 AS DECIMAL(10,2)) AS VARCHAR(10)) + '%'         ELSE '0%' END AS EFFECTIVEMIX     ,
+            CASE WHEN TAB3.RECRUITNUM > 0 THEN CAST(CAST(ISNULL(TAB3.ENUM, 0) * 1.0 / TAB3.RECRUITNUM * 100 AS DECIMAL(10,2)) AS VARCHAR(10)) + '%'          ELSE '0%' END AS REACHMIX
+        FROM  (
+            SELECT
+                DEPARTMENT ,POSITION 	,
+                SUM(PLANNUM) AS PLANNUM ,
+                SUM(LACKNUM) AS LACKNUM ,
+                SUM(PHONENUM) AS PHONENUM
+            FROM ZP_PLAN
+            WHERE PLANDATE >= #{begDate} AND PLANDATE &lt; #{endDate}
+            GROUP BY DEPARTMENT, POSITION
+
+        )TAB1
+        LEFT JOIN (
+        SELECT
+        COUNT(B.ACCOUNT) AS NUM,
+        B.DEPARTMENT_ID AS DEPARTMENT_ID,
+        A.POSITION_ID AS POSITION_ID
+        FROM T_EMPLOYEE_BASIC B
+        LEFT JOIN ACCOUNT_DATA A
+        ON A.ACCOUNT_ID = B.ACCOUNT
+        WHERE B.STATE = 1 AND B.ISDELETE = 0 AND ENTRYDATE &lt; #{begDate}
+        GROUP BY B.DEPARTMENT_ID, A.POSITION_ID
+        )TAB2
+        ON TAB1.DEPARTMENT = TAB2.DEPARTMENT_ID AND TAB1.POSITION = TAB2.POSITION_ID
+        LEFT JOIN (
+        SELECT
+        R.DEPARTMENT ,R.POSITION ,COUNT(R.ID) AS RECRUITNUM ,
+        SUM(CASE R.ISQUALIFIED WHEN '是' THEN 1 ELSE 0 END) AS QNUM ,
+        COUNT(B.RECRUITDATAID) AS ENUM
+        FROM ZP_RECRUITDATA R
+        LEFT JOIN T_EMPLOYEE_BASIC B
+        ON R.ID = B.RECRUITDATAID
+        WHERE R.ISDELETE &lt;> 1 AND RECRUITDATE >= #{begDate} AND RECRUITDATE &lt; #{endDate}
+        GROUP BY DEPARTMENT, POSITION
+        )TAB3
+        ON TAB1.DEPARTMENT = TAB3.DEPARTMENT AND TAB1.POSITION = TAB3.POSITION
+        LEFT JOIN (
+        SELECT
+        COUNT(B.ACCOUNT) AS NUM ,B.DEPARTMENT_ID AS DEPARTMENT_ID ,
+        A.POSITION_ID AS POSITION_ID
+        FROM T_EMPLOYEE_BASIC B
+        LEFT JOIN ACCOUNT_DATA A
+        ON A.ACCOUNT_ID = B.ACCOUNT
+        WHERE B.STATE = 1 AND B.ISDELETE = 0 AND ENTRYDATE &lt; #{endDate}
+        GROUP BY B.DEPARTMENT_ID, A.POSITION_ID
+        )TAB4
+        ON TAB1.DEPARTMENT = TAB4.DEPARTMENT_ID AND TAB1.POSITION = TAB4.POSITION_ID
+        LEFT JOIN T_DEPARTMENT D
+        ON D.ID = TAB1.DEPARTMENT
+        LEFT JOIN POSITION_DATA P
+        ON P.POSITION_ID = TAB1.POSITION
+        <if test="deptId != null and deptId != ''">
+            WHERE D.ID = #{deptId}
+        </if>
+        <if test="posId != null and posId != ''">
+            AND P.POSITION_ID = #{posId}
+        </if>
+        ORDER BY D.ORDERNUM
+    </select>
+
+    <!--招聘效果分析报表（渠道分析）-->
+    <select id="getRecruitChannel" resultType="com.jiubo.erp.ryxxl.bean.ZpxgpgBean">
+        SELECT
+        TAB.CHANNELID,
+        TAB.POSITIONID,
+        TAB.CHANNEL CHANNEL,
+        TAB.POSITION POSITION,
+        TAB.PUBLISHNUM PUBLISHNUM,
+        TAB.RECRUITNUM CANDIDATES,
+        TAB.QNUM QUALIFIEDCOUNT,
+        TAB.ENUM ENTRYCOUNT,
+        CASE WHEN TAB.PUBLISHNUM > 0 THEN CAST(CAST(ISNULL(TAB.RECRUITNUM, 0) * 1.0 / TAB.PUBLISHNUM * 100 AS
+        DECIMAL(10,2)) AS VARCHAR(10)) + '%' ELSE '0%' END AS FEEDBACKMIX,
+        CASE WHEN TAB.PUBLISHNUM > 0 THEN CAST(CAST(ISNULL(TAB.QNUM, 0) * 1.0 / TAB.PUBLISHNUM * 100 AS DECIMAL(10,2))
+        AS VARCHAR(10)) + '%' ELSE '0%' END AS EFFECTIVEMIX,
+        CASE WHEN TAB.PUBLISHNUM > 0 THEN CAST(CAST(ISNULL(TAB.ENUM, 0) * 1.0 / TAB.PUBLISHNUM * 100 AS DECIMAL(10,2))
+        AS VARCHAR(10)) + '%' ELSE '0%' END AS REACHMIX
+        FROM (
+        SELECT
+        P.CHANNEL AS CHANNELID,
+        P.POSITION AS POSITIONID,
+        C.RECRUITCHANNEL_NAME AS CHANNEL,
+        PD.POSITION_NAME AS POSITION,
+        SUM(PUBLISHNUM) AS PUBLISHNUM,
+        SUM(ISNULL(TAB1.RECRUITNUM, 0)) AS RECRUITNUM,
+        SUM(ISNULL(TAB1.QNUM, 0)) AS QNUM,
+        SUM(ISNULL(TAB1.ENUM, 0)) AS ENUM
+        FROM ZP_PUBLISH P
+        LEFT JOIN (
+        SELECT
+        R.POSITION,
+        R.CHANNEL,
+        COUNT(R.ID) AS RECRUITNUM,
+        SUM(CASE R.ISQUALIFIED WHEN '是' THEN 1 ELSE 0 END) AS QNUM,
+        COUNT(B.RECRUITDATAID) AS ENUM
+        FROM ZP_RECRUITDATA R
+        LEFT JOIN T_EMPLOYEE_BASIC B
+        ON R.ID = B.RECRUITDATAID
+        WHERE R.ISDELETE &lt;> 1 AND RECRUITDATE >= #{begDate} AND RECRUITDATE &lt; #{endDate}
+        GROUP BY R.POSITION, R.CHANNEL
+        )TAB1
+        ON P.POSITION = TAB1.POSITION AND P.CHANNEL = TAB1.CHANNEL
+        LEFT JOIN ZP_RECRUITCHANNEL C
+        ON P.CHANNEL = C.RECRUITCHANNEL_ID
+        LEFT JOIN POSITION_DATA PD
+        ON P.POSITION = PD.POSITION_ID
+        WHERE P.PUBLISHDATE >= #{begDate} AND P.PUBLISHDATE &lt; #{endDate}
+        GROUP BY P.CHANNEL, P.POSITION, C.RECRUITCHANNEL_NAME, PD.POSITION_NAME
+        ) TAB
+        ORDER BY CHANNELID,POSITIONID
+    </select>
+
+    <!--人力资源利用率分析报表-->
+    <select id="getDeptEmpClock" resultType="com.jiubo.erp.rygl.bean.DepartmentBean">
+        SELECT
+        TT1.ID ID,
+        TT1.DEPARTMENT NAME,
+        TT1.PARENTID PARENTID,
+        TT1.ORDERNUM ORDERNUM,
+        TT1.DEPNUM JIANGZHI,
+        COUNT(TT2.ACCOUNT) AS JINSHENG,
+        ISNULL(SUM(TT2.PAINUM),0) AS PAINUM ,
+        ISNULL(SUM(TT2.WORKNUM),0) AS CHANGE,
+        ISNULL(SUM(TT2.HOLIDAYNUM),0) AS DIAORU
+        FROM (
+        SELECT
+        D.ID AS ID,D.NAME AS DEPARTMENT,D.PARENTID,D.ORDERNUM,
+        ISNULL(SUM(DA.NUM),0) AS DEPNUM
+        FROM T_DEPARTMENT D
+        LEFT JOIN T_DEPARTMENT_ATTENDANCE DA
+        ON D.ID = DA.DEPARTMENT_ID AND DA.DATAMONTH >= #{begDate} AND DA.DATAMONTH &lt; #{endDate}
+        GROUP BY D.ID,D.NAME,D.PARENTID,D.ORDERNUM
+        ) TT1
+
+        LEFT JOIN  (
+            SELECT
+                DEPARTMENT_ID ,ACCOUNT ,
+                SUM(CASE WHEN PAIID IS NOT NULL THEN 1 ELSE 0 END) AS PAINUM  ,
+                SUM(CASE WHEN DAID IS NOT NULL AND TYPE = 1 THEN 1 ELSE 0 END) AS WORKNUM,
+                SUM(CASE WHEN TYPE = 2 THEN 1  ELSE 0 END) AS HOLIDAYNUM
+            FROM (
+                SELECT
+                B.DEPARTMENT_ID,B.ACCOUNT ,
+                TS.SHIFTID AS  PAIID,A.SHIFTID  AS DAID ,
+                TS.TYPE
+                FROM T_EMPLOYEE_BASIC B
+                LEFT JOIN   (
+                    SELECT
+                    PS.SHIFTID  ,PS.USERID ,
+                    S.SHIFTDATE ,S.TYPE
+                    FROM T_ATT_PEOPLESHIFT PS WITH (NOLOCK)
+                    INNER JOIN T_ATT_SHIFT S WITH (NOLOCK)
+                    ON PS.SHIFTID = S.ID  AND S.SHIFTDATE >= #{begDate} AND S.SHIFTDATE &lt; #{endDate}
+                ) TS
+                ON TS.USERID = B.ACCOUNT
+                LEFT JOIN T_ATT_ATTENDANCE A
+                ON A.USERID = B.ACCOUNT  AND A.SHIFTID = TS.SHIFTID AND A.ATTTIME >=  #{begDate} AND A.ATTTIME &lt; #{endDate}
+                WHERE 1 = 1  AND B.ISDELETE = 0
+                <if test="isEntry == 0 and isQuit == 0">
+                  AND ((B.STATE = 1 AND B.ENTRYDATE &lt; #{endDate}) OR (B.ENTRYDATE &lt; #{endDate} AND B.RESIGNDATE >=  #{begDate}))
+                </if>
+                <if test="isEntry == 1 and isQuit == 1">
+                    AND ((B.STATE = 1 AND B.ENTRYDATE &lt;  #{begDate}) OR (B.ENTRYDATE &lt; #{begDate} AND B.RESIGNDATE >= #{endDate}))
+                </if>
+                <if test="isEntry == 1 and isQuit == 0">
+                   AND ((B.STATE = 1 AND B.ENTRYDATE &lt;  #{begDate}) OR (B.ENTRYDATE &lt;  #{begDate} AND B.RESIGNDATE >= #{begDate}))
+                </if>
+                <if test="isEntry == 0 and isQuit == 1">
+                    AND ((B.STATE = 1 AND B.ENTRYDATE &lt; #{endDate}) OR (B.ENTRYDATE &lt; #{endDate} AND B.RESIGNDATE >= #{endDate}))
+                </if>
+             GROUP BY B.DEPARTMENT_ID, B.ACCOUNT, TS.SHIFTID, A.SHIFTID, TS.TYPE
+            )T
+            GROUP BY DEPARTMENT_ID, ACCOUNT
+
+        )TT2
+        ON TT1.ID = TT2.DEPARTMENT_ID
+        GROUP BY TT1.ID ,TT1.DEPARTMENT ,TT1.PARENTID ,TT1.ORDERNUM,TT1.DEPNUM
+        ORDER BY TT1.PARENTID, TT1.ORDERNUM
+    </select>
+</mapper>
+        <!-- sqlserver
+        本月第一天0点
+        CAST(CONVERT(VARCHAR(10),DATEADD(D,-DAY(GETDATE())+1,GETDATE()),120)+' 00:00:00' AS DATETIME)
+        下月第一天0点
+        CAST(CONVERT(VARCHAR(10),DATEADD(D,-DAY('2019-01-01') + 1,DATEADD(M,1,'2019-01-01')),120)+' 00:00:00' AS DATETIME)
+         -->
+        <!-- 查询重点岗位离职人数
+       <select id="">
+           SELECT A.POSITION_ID,A.POSITION_NAME,D.RESIGNTYPE,COUNT(*) COUNT,(
+               SELECT COUNT(*)
+               FROM POSITION_DATA A,ACCOUNT_DATA C,T_EMPLOYEE_BASIC D
+               WHERE
+               C.POSITION_ID = A.POSITION_ID AND C.ACCOUNT_ID = D.ACCOUNT AND D.STATE = 2
+               AND D.RESIGNDATE >= '2018-01-01'AND D.RESIGNDATE < '2019-01-31'
+            ) SUMCOUNT
+            FROM POSITION_DATA A,ACCOUNT_DATA C,T_EMPLOYEE_BASIC D
+            WHERE  A.ISPOINT = 1 AND
+            C.POSITION_ID = A.POSITION_ID AND C.ACCOUNT_ID = D.ACCOUNT AND D.STATE = 2
+            AND D.RESIGNDATE >= '2018-01-01'AND D.RESIGNDATE < '2019-01-31'
+            GROUP BY A.POSITION_ID,A.POSITION_NAME,D.RESIGNTYPE
+       </select> -->
+        <!-- 	SELECT
+                    B.CHANNEL CHANNELID,D.RECRUITCHANNEL_NAME CHANNEL,
+                    B.POSITION POSID,E.POSITION_NAME POSITION,B.PUBLISHNUM,
+                    B.PHONENUM, B.PUBLISHDATE,C.ISQUALIFIED QUALIFIEDCOUNT,
+                    C.COUNT CANDIDATES,C.ISENTRY ENTRYCOUNT
+                FROM ZP_PUBLISH B
+                LEFT JOIN ZP_RECRUITCHANNEL D
+                ON B.CHANNEL = D.RECRUITCHANNEL_ID
+                LEFT JOIN POSITION_DATA E
+                ON B.POSITION = E.POSITION_ID
+                LEFT JOIN (
+                    SELECT SUM(A.ISQUALIFIED) ISQUALIFIED,SUM(A.SCORE) COUNT, SUM(A.ISENTRY) ISENTRY,A.CHANNEL,A.POSITION
+                    FROM (
+                        SELECT
+                            CASE WHEN ISQUALIFIED = '是' THEN 1 ELSE 0 END ISQUALIFIED,
+                            CASE WHEN SCORE > 0 THEN 1 ELSE 0 END SCORE,
+                            CASE ISENTRY WHEN 1 THEN 1 ELSE 0 END ISENTRY,
+                            CHANNEL, POSITION
+                        FROM ZP_RECRUITDATA
+                    ) A GROUP BY A.CHANNEL,A.POSITION
+                ) C
+                ON C.CHANNEL = B.CHANNEL AND C.POSITION = B.POSITION
+                WHERE PUBLISHDATE >= #{begDate} AND  PUBLISHDATE &lt; #{endDate} -->
+
+        <!-- 查询工龄，学历，年龄，性别报表 -->
+        <!--<select id="queryZzryReport" resultType="java.util.Map">-->
+        <!--<if test="flag != null and flag != ''">-->
+        <!--SELECT-->
+        <!--SUM(B.MM_1) MM_1,SUM(B.MM_2) MM_2,SUM(B.MM_3) MM_3,SUM(B.MM_4) MM_4,-->
+        <!--SUM(B.MM_5) MM_5,SUM(B.MM_6) MM_6,SUM(B.MM_7) MM_7,SUM(B.MM_8) MM_8,SUM(B.MM_22) MM_22,-->
+        <!--SUM(B.MM_9) MM_9,SUM(B.MM_10) MM_10,SUM(B.MM_11) MM_11,SUM(B.MM_12) MM_12,-->
+        <!--SUM(B.MM_13) MM_13,SUM(B.MM_14) MM_14,SUM(B.MM_15) MM_15,SUM(B.MM_16) MM_16,-->
+        <!--(SELECT COUNT(1) FROM T_EMPLOYEE_BASIC A WHERE A.STATE = 1-->
+        <!--<choose>-->
+        <!--<when test="flag == 1">-->
+        <!--AND A.POSITIVEDATE &lt; #{date}-->
+        <!--</when>-->
+        <!--<otherwise>-->
+        <!--AND A.ENTRYDATE &lt; #{date}-->
+        <!--</otherwise>-->
+        <!--</choose>-->
+        <!--<if test="include == 0">-->
+        <!--AND A.POSITIVEDATE &lt; #{date}-->
+        <!--</if>-->
+        <!--) SUMCOUNT-->
+        <!--FROM (-->
+        <!--SELECT-->
+        <!--<choose>-->
+        <!--<when test="flag == 1">-->
+        <!--CASE WHEN (DATEDIFF(MM,A.POSITIVEDATE,#{date}) &lt;= 3 )-->
+        <!--THEN 1 ELSE 0 END MM_1,-->
+        <!--CASE WHEN (DATEDIFF(MM,A.POSITIVEDATE,#{date}) >=4 AND DATEDIFF(MM,A.POSITIVEDATE,#{date}) &lt; 7)-->
+        <!--THEN 1 ELSE 0 END MM_2,-->
+        <!--CASE WHEN (DATEDIFF(MM,A.POSITIVEDATE,#{date}) >=7 AND DATEDIFF(MM,A.POSITIVEDATE,#{date}) &lt; 13)-->
+        <!--THEN 1 ELSE 0 END MM_3,-->
+        <!--CASE WHEN (DATEDIFF(MM,A.POSITIVEDATE,#{date}) >=13 AND DATEDIFF(MM,A.POSITIVEDATE,#{date})&lt; 24)-->
+        <!--THEN 1 ELSE 0 END MM_4,-->
+        <!--CASE WHEN (DATEDIFF(MM,A.POSITIVEDATE,#{date}) >=24 AND DATEDIFF(MM,A.POSITIVEDATE,#{date})&lt; 36)-->
+        <!--THEN 1 ELSE 0 END MM_5,-->
+        <!--CASE WHEN (DATEDIFF(MM,A.POSITIVEDATE,#{date}) >=36) THEN 1 ELSE 0 END MM_6,-->
+        <!--DATEDIFF(MM,A.POSITIVEDATE,#{date}) MM_15,-->
+        <!--</when>-->
+        <!--<otherwise>-->
+        <!--CASE WHEN DATEDIFF(MM,A.ENTRYDATE,#{date})  &lt; 4 THEN 1 ELSE 0 END MM_1,-->
+        <!--CASE WHEN (DATEDIFF(MM,A.ENTRYDATE,#{date}) >= 4 AND DATEDIFF(MM,A.ENTRYDATE,#{date}) &lt; 7) THEN 1 ELSE 0 END MM_2,-->
+        <!--CASE WHEN (DATEDIFF(MM,A.ENTRYDATE,#{date}) >= 7 AND DATEDIFF(MM,A.ENTRYDATE,#{date}) &lt; 12 OR  DATEDIFF(MM,A.ENTRYDATE,#{date}) = 12 AND FLOOR(DATEDIFF(DD,ENTRYDATE,#{date})/ 365.25) &lt; 1)-->
+        <!--THEN 1 ELSE 0 END MM_3,-->
+        <!--CASE WHEN (DATEDIFF(MM,A.ENTRYDATE,#{date}) >= 13 AND DATEDIFF(MM,A.ENTRYDATE,#{date})&lt; 24) THEN-->
+        <!--1 ELSE 0 END MM_4,-->
+        <!--CASE WHEN (DATEDIFF(MM,A.ENTRYDATE,#{date}) >= 24 AND DATEDIFF(MM,A.ENTRYDATE,#{date})&lt; 36) THEN-->
+        <!--1 ELSE 0 END MM_5,-->
+        <!--CASE WHEN (DATEDIFF(MM,A.ENTRYDATE,#{date}) >=36) THEN 1 ELSE 0 END MM_6,-->
+        <!--DATEDIFF(MM,A.ENTRYDATE,#{date}) MM_15,-->
+        <!--</otherwise>-->
+        <!--</choose>-->
+        <!--CASE WHEN SEX = '男' THEN 1 ELSE 0 END MM_7,-->
+        <!--CASE WHEN SEX = '女' THEN 1 ELSE 0 END MM_8,-->
+        <!--CASE WHEN SEX &lt;> '男' AND SEX &lt;> '女' THEN 1 ELSE 0 END MM_22,-->
+
+        <!--CASE WHEN (DATEDIFF(YEAR,A.BIRTH,#{date}) >=1 AND DATEDIFF(YEAR,A.BIRTH,#{date}) &lt; = 20) THEN 1 ELSE 0-->
+        <!--END MM_9,-->
+        <!--CASE WHEN (DATEDIFF(YEAR,A.BIRTH,#{date}) >=21 AND DATEDIFF(YEAR,A.BIRTH,#{date}) &lt; = 25) THEN 1 ELSE 0-->
+        <!--END MM_10,-->
+        <!--CASE WHEN (DATEDIFF(YEAR,A.BIRTH,#{date}) >=26 AND DATEDIFF(YEAR,A.BIRTH,#{date}) &lt; = 30) THEN 1 ELSE 0-->
+        <!--END MM_11,-->
+        <!--CASE WHEN (DATEDIFF(YEAR,A.BIRTH,#{date}) >=31 AND DATEDIFF(YEAR,A.BIRTH,#{date}) &lt; = 35) THEN 1 ELSE 0-->
+        <!--END MM_12,-->
+        <!--CASE WHEN (DATEDIFF(YEAR,A.BIRTH,#{date}) >=36 AND DATEDIFF(YEAR,A.BIRTH,#{date}) &lt; = 40) THEN 1 ELSE 0-->
+        <!--END MM_13,-->
+        <!--CASE WHEN (DATEDIFF(YEAR,A.BIRTH,#{date}) > 40) THEN 1 ELSE 0 END MM_14,-->
+        <!--DATEDIFF(YEAR,A.BIRTH,#{date}) MM_16-->
+        <!--FROM T_EMPLOYEE_BASIC A-->
+        <!--WHERE A.STATE = 1 AND A.ISDELETE = 0 AND A.POSITIVEDATE IS NOT NULL-->
+        <!--<choose>-->
+        <!--<when test="flag == 1">-->
+        <!--AND A.POSITIVEDATE &lt; #{date}-->
+        <!--</when>-->
+        <!--<otherwise>-->
+        <!--AND A.ENTRYDATE &lt; #{date}-->
+        <!--</otherwise>-->
+        <!--</choose>-->
+        <!--<if test="deptId != null and deptId != ''">-->
+        <!--AND A.DEPARTMENT_ID = #{deptId}-->
+        <!--</if>-->
+        <!--<if test="include == 0">-->
+        <!--AND A.POSITIVEDATE &lt; #{date}-->
+        <!--</if>-->
+        <!--) B-->
+        <!--</if>-->
+        <!--</select>-->
+        <!-- 查询岗位报表 -->
+        <!--<select id="queryPositionReport" resultType="java.util.Map">-->
+        <!--<if test="flag != null and flag != ''">-->
+        <!--SELECT-->
+        <!--B.POSITIONTYPE_NAME,B.POSITIONTYPE_ID,COUNT(1) SUMCOUNT,-->
+        <!--(SELECT COUNT(1) FROM T_EMPLOYEE_BASIC A WHERE A.STATE = 1-->
+        <!--<choose>-->
+        <!--<when test="flag == 1">-->
+        <!--AND A.POSITIVEDATE &lt; #{date}-->
+        <!--</when>-->
+        <!--<otherwise>-->
+        <!--AND A.ENTRYDATE &lt; #{date}-->
+        <!--</otherwise>-->
+        <!--</choose>-->
+        <!--<if test="include == 0">-->
+        <!--AND A.POSITIVEDATE &lt; #{date}-->
+        <!--</if>-->
+        <!--) AllCOUNT-->
+        <!--FROM POSITION_DATA A,POSITION_TYPE B,ACCOUNT_DATA C,T_EMPLOYEE_BASIC D-->
+        <!--WHERE A.POSITIONTYPE_ID = B.POSITIONTYPE_ID AND C.POSITION_ID = A.POSITION_ID-->
+        <!--AND C.ACCOUNT_ID = D.ACCOUNT AND D.STATE = 1-->
+        <!--<choose>-->
+        <!--<when test="flag == 1">-->
+        <!--AND D.POSITIVEDATE &lt; #{date}-->
+        <!--</when>-->
+        <!--<otherwise>-->
+        <!--AND D.ENTRYDATE &lt; #{date}-->
+        <!--</otherwise>-->
+        <!--</choose>-->
+        <!--<if test="deptId != null and deptId != ''">-->
+        <!--AND D.DEPARTMENT_ID = #{deptId}-->
+        <!--</if>-->
+        <!--<if test="include == 0">-->
+        <!--AND D.POSITIVEDATE &lt; #{date}-->
+        <!--</if>-->
+        <!--GROUP BY B.POSITIONTYPE_ID,B.POSITIONTYPE_NAME-->
+        <!--</if>-->
+        <!--</select>-->
+
+        <!-- 查询学历 -->
+        <!--<select id="queryEducation" resultType="java.util.Map">-->
+        <!--<if test="flag != null and flag != ''">-->
+        <!--SELECT-->
+        <!--SUM(MM_17) MM_17,SUM(MM_18) MM_18,SUM(MM_19) MM_19,SUM(MM_20) MM_20,SUM(MM_21) MM_21,-->
+        <!--(SELECT COUNT(1) FROM T_EMPLOYEE_BASIC A WHERE A.STATE = 1-->
+        <!--<choose>-->
+        <!--<when test="flag == 1">-->
+        <!--AND A.POSITIVEDATE &lt; #{date}-->
+        <!--</when>-->
+        <!--<otherwise>-->
+        <!--AND A.ENTRYDATE &lt; #{date}-->
+        <!--</otherwise>-->
+        <!--</choose>-->
+        <!--<if test="include == 0">-->
+        <!--AND A.POSITIVEDATE &lt; #{date}-->
+        <!--</if>-->
+        <!--) SUMCOUNT-->
+        <!--FROM (-->
+        <!--SELECT-->
+        <!--CASE WHEN C.EDUCATION = '初中' THEN 1 ELSE 0 END MM_17,-->
+        <!--CASE WHEN C.EDUCATION = '高中/中专' THEN 1 ELSE 0 END MM_18,-->
+        <!--CASE WHEN C.EDUCATION = '专科' THEN 1 ELSE 0 END MM_19,-->
+        <!--CASE WHEN C.EDUCATION = '本科' OR C.EDUCATION = '硕士研究生' OR C.EDUCATION = '博士' THEN 1 ELSE 0 END MM_20,-->
+        <!--CASE WHEN C.EDUCATION IS NULL OR C.EDUCATION = '' THEN 1 ELSE 0 END MM_21,C.EDUCATION-->
+        <!--FROM T_EMPLOYEE_BASIC A,T_EMPLOYEE_DETIAL C-->
+        <!--WHERE A.STATE = 1 AND A.ID = C.EMPLOYEE_BASIC_ID-->
+        <!--<choose>-->
+        <!--<when test="flag == 1">-->
+        <!--AND A.POSITIVEDATE &lt; #{date}-->
+        <!--</when>-->
+        <!--<otherwise>-->
+        <!--AND A.ENTRYDATE &lt; #{date}-->
+        <!--</otherwise>-->
+        <!--</choose>-->
+        <!--<if test="deptId != null and deptId != ''">-->
+        <!--AND A.DEPARTMENT_ID = #{deptId}-->
+        <!--</if>-->
+        <!--<if test="include == 0">-->
+        <!--AND A.POSITIVEDATE &lt; #{date}-->
+        <!--</if>-->
+        <!--) B-->
+        <!--</if>-->
+        <!--</select>-->
+

@@ -1,0 +1,356 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiubo.erp.wzbg.dao.LeaveForgetDao">
+
+	<!-- 查询忘记打卡证明 -->
+	<select id="queryLeaveForget" resultType="LeaveForgetBean">
+	WITH A AS (
+		SELECT ACC.Account_ID, ACC.Account_Name, DEPT.ID AS Dept_ID, DEPT.Name, POS.Position_ID
+			, POS.Position_Name
+		FROM Account_Data ACC
+			LEFT JOIN T_Employee_Basic EMP ON ACC.Account_ID = EMP.Account
+			LEFT JOIN T_Department DEPT ON EMP.Department_ID = DEPT.ID
+			LEFT JOIN Position_Data POS ON ACC.Position_ID = POS.Position_ID
+		WHERE EMP.IsDelete = '0'
+			AND EMP.State = '1'
+		GROUP BY ACC.Account_Name, ACC.Account_ID, DEPT.ID, DEPT.Name, POS.Position_ID, POS.Position_Name
+	)
+	SELECT B.id, B.leaveAccount, B.leaveAccountName, B.leaveDeptId, B.leaveDeptName
+		, B.leavePositionId, B.leavePositionName, B.Reason, B.AddTime, B.StartTime
+		, B.leaveRemark, C.accountR, C.witnessAccountName, C.witnessDeptId, C.witnessDeptName
+		, C.witnessPositionId, C.witnessPositionName, C.resultR, C.remarkR, D.account1
+		, D.examineAccountName, D.examineDeptId, D.examineDeptName, D.examinePositionId, D.examinePositionName
+		, D.result1, D.remark1, E.account2, E.checkAccountName, E.checkDeptId
+		, E.checkDeptName, E.checkPositionId, E.checkPositionName, E.result2, E.remark2
+		, F.account3, F.approveAccountName, F.approveDeptId, F.approveDeptName, F.approvePositionId
+		, F.approvePositionName, F.result3, F.remark3, G.account4, G.reportAccountName
+		, G.reportDeptId, G.reportDeptName, G.reportPositionId, G.reportPositionName, G.result4
+		, G.remark4, G.step
+	FROM (
+		SELECT L.ID AS id, L.Reason, L.AddTime, L.StartTime, L.Leave_Remark AS leaveRemark
+			, A.Account_ID AS leaveAccount, A.Account_Name AS leaveAccountName, A.Dept_ID AS leaveDeptId, A.Name AS leaveDeptName, A.Position_ID AS leavePositionId
+			, A.Position_Name AS leavePositionName
+		FROM Leave_Forget L
+			LEFT JOIN A ON L.LeaveAccount = A.Account_ID
+	) B
+		LEFT JOIN (
+			SELECT L.ID, L.TimeR, L.ResultR, L.RemarkR, A.Account_ID AS accountR
+				, A.Account_Name AS witnessAccountName, A.Dept_ID AS witnessDeptId, A.Name AS witnessDeptName, A.Position_ID AS witnessPositionId, A.Position_Name AS witnessPositionName
+			FROM Leave_Forget L
+				LEFT JOIN A ON L.AccountR = A.Account_ID
+		) C
+		ON B.ID = C.ID
+		LEFT JOIN (
+			SELECT L.ID, L.Time1, L.Result1, L.Remark1, A.Account_ID AS account1
+				, A.Account_Name AS examineAccountName, A.Dept_ID AS examineDeptId, A.Name AS examineDeptName, A.Position_ID AS examinePositionId, A.Position_Name AS examinePositionName
+			FROM Leave_Forget L
+				LEFT JOIN A ON L.Account1 = A.Account_ID
+		) D
+		ON C.ID = D.ID
+		LEFT JOIN (
+			SELECT L.ID, L.Time2, L.Result2, L.Remark2, A.Account_ID AS account2
+				, A.Account_Name AS checkAccountName, A.Dept_ID AS checkDeptId, A.Name AS checkDeptName, A.Position_ID AS checkPositionId, A.Position_Name AS checkPositionName
+			FROM Leave_Forget L
+				LEFT JOIN A ON L.Account2 = A.Account_ID
+		) E
+		ON D.ID = E.ID
+		LEFT JOIN (
+			SELECT L.ID, L.Time3, L.Result3, L.Remark3, A.Account_ID AS account3
+				, A.Account_Name AS approveAccountName, A.Dept_ID AS approveDeptId, A.Name AS approveDeptName, A.Position_ID AS approvePositionId, A.Position_Name AS approvePositionName
+			FROM Leave_Forget L
+				LEFT JOIN A ON L.Account3 = A.Account_ID
+		) F
+		ON E.ID = F.ID
+		LEFT JOIN (
+			SELECT L.ID, L.Time4, L.Result4, L.Remark4, L.step, A.Account_ID AS account4
+				, A.Account_Name AS reportAccountName, A.Dept_ID AS reportDeptId, A.Name AS reportDeptName, A.Position_ID AS reportPositionId, A.Position_Name AS reportPositionName
+			FROM Leave_Forget L
+				LEFT JOIN A ON L.Account4 = A.Account_ID
+		) G
+		ON F.ID = G.ID
+		<where>
+			<if test="accountId !=null and accountId !='' ">
+				AND (B.leaveAccount = #{accountId} 
+					OR C.accountR = #{accountId}
+					OR D.account1 = #{accountId}
+					OR E.account2 = #{accountId}
+					OR F.account3 = #{accountId}
+					OR G.account4 = #{accountId}
+				)
+			</if>
+			<if test="beginDate !=null and beginDate !='' ">
+				AND B.addTime <![CDATA[ >= ]]> #{beginDate}
+			</if>
+			<if test="endDate !=null and endDate !='' ">
+				AND B.addTime <![CDATA[ <= ]]> #{endDate}
+			</if>
+			<if test="leaveDeptId != 0">
+			 	<choose>
+			 		<when test="leaveDeptId != null or leaveDeptId != '' ">
+						AND EXISTS (
+							SELECT
+								DEPT.ID 
+							FROM
+								T_Department DEPT 
+							WHERE
+								B.leaveDeptId = DEPT.ID 
+							AND ( DEPT.ID = #{leaveDeptId} OR DEPT.ParentID = #{leaveDeptId} )
+						) 
+			 		</when>
+			 	</choose>
+			</if>
+			<if test="leaveAccountName != null and leaveAccountName != '' ">
+				AND B.leaveAccountName like '%' + #{leaveAccountName} + '%'
+			</if>
+			<if test="state !=null and state !='' ">
+				<choose>
+					<when test="state==1">
+						AND C.resultR IS NULL
+					</when>
+					<when test="state==2">
+						AND C.resultR IS NOT NULL 
+						AND C.resultR != 0
+						AND G.result4 IS NULL
+					</when>
+					<when test="state==3">
+						AND G.result4 = 1
+					</when>
+					<when test="state==4">
+						AND (C.resultR = 0
+							OR D.result1 = 0
+							OR E.result2 = 0
+							OR F.result3 = 0
+							OR G.result4 = 0
+						)
+					</when>
+				</choose>
+			</if>
+		</where>
+		ORDER BY B.AddTime
+	</select>
+
+	<!-- 新增忘记打卡证明 -->
+	<insert id="addLeaveForget" parameterType="LeaveForgetBean">
+		INSERT INTO Leave_Forget (Reason, LeaveAccount, AddTime, StartTime, Leave_Remark
+			, AccountR, Account1, Account2, Account3, Account4
+			, update_Time, step)
+		VALUES (#{reason}, #{leaveAccount}, #{addTime}, #{startTime}, #{leaveRemark}
+			, #{accountR}, #{account1}, #{account2}, #{account3}, #{account4}
+			, #{updateTime}, #{step});
+	</insert>
+	
+	<!-- 通过账户ID查询某员工部门和职位 -->
+	<select id="queryEmpInfoByAccount" resultType="DeptWithEmp">
+		SELECT 
+			ACC.Account_ID account, 
+			ACC.Account_Name name, 
+			DEPT.ID AS departmentId, 
+			DEPT.Name deptName, 
+			POS.Position_ID positionId, 
+			POS.Position_Name positionName,
+			POS.PositionType_ID	typeId
+		FROM 
+			Account_Data ACC
+			LEFT JOIN T_Employee_Basic EMP ON ACC.Account_ID = EMP.Account
+			LEFT JOIN T_Department DEPT ON EMP.Department_ID = DEPT.ID
+			LEFT JOIN Position_Data POS ON ACC.Position_ID = POS.Position_ID
+		WHERE 
+			EMP.IsDelete = '0'
+			AND EMP.State = '1'
+			AND Account_ID = #{account}
+	</select>
+	
+	<!-- 修改忘记打卡证明 -->
+	<update id="updateLeaveForget" parameterType="LeaveForgetBean">
+		UPDATE 
+			LEAVE_FORGET
+		 <trim prefix="set" suffixOverrides=",">
+		 	<if test="reason != null and reason != '' ">
+		 		Reason = #{reason},
+		 	</if>
+		 	<if test="startTime != null and startTime != '' ">
+		 		StartTime = #{startTime},
+		 	</if>
+		 	<if test="accountR != null and accountR != '' ">
+		 		AccountR = #{accountR},
+		 	</if>
+		 	<if test="account1 != null and account1 != '' ">
+		 		Account1 = #{account1},
+		 	</if>
+		 	<if test="account2 != null and account2 != '' ">
+		 		Account2 = #{account2},
+		 	</if>
+		 	<if test="account3 != null and account3 != '' ">
+		 		Account3 = #{account3},
+		 	</if>
+		 	<if test="account4 != null and account4 != '' ">
+		 		Account4 = #{account4},
+		 	</if>
+		 	<if test="leaveRemark != null and leaveRemark != '' ">
+		 		Leave_Remark = #{leaveRemark},
+		 	</if>
+		 	<if test="updateTime != null and updateTime != '' ">
+		 		update_Time = #{updateTime},
+		 	</if>
+		 	<if test="step != null and step != '' ">
+		 		step = #{step},
+		 	</if>
+		 	<if test="timeR != null and timeR != '' ">
+		 		<choose>
+			 		<when test="timeR == '-1' ">
+			 			TimeR = NULL,
+			 		</when>
+			 		<otherwise>
+			 			TimeR = #{timeR},
+			 		</otherwise>
+		 		</choose>
+		 	</if>
+		 	<if test="time1 != null and time1 != '' ">
+		 		<choose>
+			 		<when test="time1 == '-1' ">
+			 			Time1 = NULL,
+			 		</when>
+			 		<otherwise>
+			 			Time1 = #{time1},
+			 		</otherwise>
+		 		</choose>
+		 	</if>
+		 	<if test="time2 != null and time2 != '' ">
+		 		<choose>
+			 		<when test="time2 == '-1' ">
+			 			Time2 = NULL,
+			 		</when>
+			 		<otherwise>
+			 			Time2 = #{time2},
+			 		</otherwise>
+		 		</choose>
+		 	</if>
+		 	<if test="time3 != null and time3 != '' ">
+		 		<choose>
+			 		<when test="time3 == '-1' ">
+			 			Time3 = NULL,
+			 		</when>
+			 		<otherwise>
+			 			Time3 = #{time3},
+			 		</otherwise>
+		 		</choose>
+		 	</if>
+		 	<if test="time4 != null and time4 != '' ">
+		 		<choose>
+			 		<when test="time4 == '-1' ">
+			 			Time4 = NULL,
+			 		</when>
+			 		<otherwise>
+			 			Time4 = #{time4},
+			 		</otherwise>
+		 		</choose>
+		 	</if>
+		 	<if test="resultR != null and resultR != '' ">
+		 		<choose>
+			 		<when test="resultR == '-1' ">
+			 			ResultR = NULL,
+			 		</when>
+			 		<otherwise>
+			 			ResultR = #{resultR},
+			 		</otherwise>
+		 		</choose>
+		 	</if>
+		 	<if test="result1 != null and result1 != '' ">
+		 		<choose>
+			 		<when test="result1 == '-1' ">
+			 			Result1 = NULL,
+			 		</when>
+			 		<otherwise>
+			 			Result1 = #{result1},
+			 		</otherwise>
+		 		</choose>
+		 	</if>
+		 	<if test="result2 != null and result2 != '' ">
+		 		<choose>
+			 		<when test="result2 == '-1' ">
+			 			Result2 = NULL,
+			 		</when>
+			 		<otherwise>
+			 			Result2 = #{result2},
+			 		</otherwise>
+		 		</choose>
+		 	</if>
+		 	<if test="result3 != null and result3 != '' ">
+		 		<choose>
+			 		<when test="result3 == '-1' ">
+			 			Result3 = NULL,
+			 		</when>
+			 		<otherwise>
+			 			Result3 = #{result3},
+			 		</otherwise>
+		 		</choose>
+		 	</if>
+		 	<if test="result4 != null and result4 != '' ">
+		 		<choose>
+			 		<when test="result4 == '-1' ">
+			 			Result4 = NULL,
+			 		</when>
+			 		<otherwise>
+			 			Result4 = #{result4},
+			 		</otherwise>
+		 		</choose>
+		 	</if>
+		 	<if test="remarkR != null and remarkR != '' ">
+		 		<choose>
+			 		<when test="remarkR == '-1' ">
+			 			RemarkR = NULL,
+			 		</when>
+			 		<otherwise>
+			 			RemarkR = #{remarkR},
+			 		</otherwise>
+		 		</choose>
+		 	</if>
+		 	<if test="remark1 != null and remark1 != '' ">
+		 		<choose>
+			 		<when test="remark1 == '-1' ">
+			 			Remark1 = NULL,
+			 		</when>
+			 		<otherwise>
+			 			Remark1 = #{remark1},
+			 		</otherwise>
+		 		</choose>
+		 	</if>
+		 	<if test="remark2 != null and remark2 != '' ">
+		 		<choose>
+			 		<when test="remark2 == '-1' ">
+			 			Remark2 = NULL,
+			 		</when>
+			 		<otherwise>
+			 			Remark2 = #{remark2},
+			 		</otherwise>
+		 		</choose>
+		 	</if>
+		 	<if test="remark3 != null and remark3 != '' ">
+		 		<choose>
+			 		<when test="remark3 == '-1' ">
+			 			Remark3 = NULL,
+			 		</when>
+			 		<otherwise>
+			 			Remark3 = #{remark3},
+			 		</otherwise>
+		 		</choose>
+		 	</if>
+		 	<if test="remark4 != null and remark4 != '' ">
+		 		<choose>
+			 		<when test="remark4 == '-1' ">
+			 			Remark4 = NULL,
+			 		</when>
+			 		<otherwise>
+			 			Remark4 = #{remark4},
+			 		</otherwise>
+		 		</choose>
+		 	</if>
+		 	isSee = NULL,
+		 </trim>
+		WHERE 
+			ID = #{id}		 
+	</update>
+	
+</mapper>

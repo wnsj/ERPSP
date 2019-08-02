@@ -1,0 +1,675 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiubo.erp.wzbg.dao.OfficeDao">
+    <!--办公用品管理查询接口-->
+    <select id="queryOfficeSuppliesData" resultType="com.jiubo.erp.wzbg.bean.OfficeSuppliesDataBean"
+            parameterType="com.jiubo.erp.wzbg.bean.OfficeSuppliesDataBean">
+        SELECT
+        OFFICESUPPLIESDATA.ID AS ID,
+        T_DEPARTMENT.NAME DEPARTMENTNAME,DEPARTMENTID,
+        CONVERT(VARCHAR(7), MONTH, 120) AS MONTH,
+        OFFICESUPPLIESDATA.NAME,NUM,SPECIFICATION,
+        REMARK,ACCOUNTID_2,ACCOUNTID_1,
+        CASE WHEN ADVICE_2 = 3 THEN '未审核' WHEN ADVICE_2 = 1 THEN '同意' WHEN ADVICE_2 = 2 THEN '不同意' END AS ADVICE_2,
+        CASE WHEN STATE = 0 THEN '等待' WHEN STATE = 1 THEN '通过'WHEN STATE = 2 THEN '没通过' END AS STATE,
+        A1.ACCOUNT_NAME AS ACCOUNT1NAME,A2.ACCOUNT_NAME AS ACCOUNT2NAME,D.OFFICEID,D.SPECID
+        FROM OFFICESUPPLIESDATA
+        LEFT JOIN T_DEPARTMENT
+        ON T_DEPARTMENT.ID = OFFICESUPPLIESDATA.DEPARTMENTID
+        LEFT JOIN ACCOUNT_DATA A1
+        ON A1.ACCOUNT_ID = ACCOUNTID_1
+        LEFT JOIN ACCOUNT_DATA A2
+        ON A2.ACCOUNT_ID = ACCOUNTID_2
+        LEFT JOIN (
+        SELECT
+        A.ID OFFICEID,A.NAME OFFICENAME,B.ID SPECID,B.SPECIFICATION SPECNAME
+        FROM OFFICE_NAME A,SPECIFICATION B
+        WHERE A.ID = B.NAME_ID
+        ) D
+        ON D.OFFICENAME = OFFICESUPPLIESDATA.NAME AND D.SPECNAME = OFFICESUPPLIESDATA.SPECIFICATION
+        WHERE YEAR(MONTH) * 100 + MONTH(MONTH) = #{month}
+        <if test="accountId1 != null and accountId1 != ''">
+            AND (ACCOUNTID_1 = #{accountId1} OR ACCOUNTID_2 = #{accountId1})
+        </if>
+        <if test="departmentId != null and departmentId != ''">
+            AND DEPARTMENTID = #{departmentId}
+        </if>
+        <if test="name != null and name != ''">
+            AND OFFICESUPPLIESDATA.NAME LIKE '%' + #{name} + '%'
+        </if>
+        <if test="state != null and state != ''">
+            AND STATE = #{state}
+        </if>
+        <if test="advice2 != null and advice2 != ''">
+            AND ADVICE_2 = #{advice2}
+        </if>
+        ORDER BY NUM
+    </select>
+
+    <!--办公用品名-->
+    <select id="queryOfficeName" resultType="com.jiubo.erp.wzbg.bean.OfficeNameBean">
+        SELECT ID, NAME
+        FROM OFFICE_NAME
+        <where>
+            <if test="id != null and id != ''">
+                AND ID = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                AND NAME = #{name}
+            </if>
+        </where>
+    </select>
+
+    <!--办公用品规格-->
+    <select id="querySpecification" resultType="com.jiubo.erp.wzbg.bean.SpecificationBean">
+        SELECT ID, SPECIFICATION, NAME_ID
+        FROM SPECIFICATION
+        <where>
+            <if test="id != null and id != ''">
+                AND ID = #{id}
+            </if>
+            <if test="specification != null and specification != ''">
+                AND SPECIFICATION = #{specification}
+            </if>
+            <if test="nameId != null and nameId != ''">
+                AND NAME_ID = #{nameId}
+            </if>
+        </where>
+    </select>
+
+    <!--添加或修改办公用品信息-->
+    <update id="addUpdateOfficeSupplies">
+        <if test="officeList != null and officeList.size() > 0">
+            <foreach collection="officeList" item="item">
+                <if test="item.id != null and item.id != ''">
+                    UPDATE OFFICESUPPLIESDATA
+                    SET
+                    <trim prefixOverrides=",">
+                        <if test="item.departmentId != null and item.departmentId != ''">
+                            , DEPARTMENTID = #{item.departmentId}
+                        </if>
+                        <if test="item.month != null and item.month != ''">
+                            , MONTH = #{item.month}
+                        </if>
+                        <if test="item.name != null and item.name != ''">
+                            , NAME = #{item.name}
+                        </if>
+                        <if test="item.num != null and item.num != ''">
+                            , NUM = #{item.num}
+                        </if>
+                        <if test="item.specification != null and item.specification != ''">
+                            , SPECIFICATION = #{item.specification}
+                        </if>
+                        <if test="item.remark != null and item.remark != ''">
+                            , REMARK = #{item.remark}
+                        </if>
+                        <if test="item.accountId1 != null and item.accountId1 != ''">
+                            , ACCOUNTID_1 = #{item.accountId1}
+                        </if>
+                        <if test="item.accountId2 != null and item.accountId2 != ''">
+                            , ACCOUNTID_2 = #{item.accountId2}
+                        </if>
+                        <if test="item.advice2 != null and item.advice2 != ''">
+                            , ADVICE_2 = #{item.advice2}
+                        </if>
+                        <if test="item.accountId3 != null and item.accountId3 != ''">
+                            , ACCOUNTID_3 = #{item.accountId3}
+                        </if>
+                        <if test="item.advice3 != null and item.advice3 != ''">
+                            , ADVICE_3 = #{item.advice3}
+                        </if>
+                        <if test="item.state != null and item.state != ''">
+                            , STATE = #{item.state}
+                        </if>
+                        <if test="item.isTiJiao != null and item.isTiJiao != ''">
+                            , IS_TIJIAO = #{item.isTiJiao}
+                        </if>
+                        <if test="item.renShiId != null and item.renShiId != ''">
+                            , RENSHI_ID = #{item.renShiId}
+                        </if>
+                        <if test="item.renShidAvice != null and item.renShidAvice != ''">
+                            , RENSHI_ADVICE = #{item.renShidAvice}
+                        </if>
+                        <if test="item.renShiSee != null and item.renShiSee != ''">
+                            , RENSHI_SEE = #{item.renShiSee}
+                        </if>
+                        <if test="item.fuZongId != null and item.fuZongId != ''">
+                            , FUZONG_ID = #{item.fuZongId}
+                        </if>
+                        <if test="item.fuZongAdvice != null and item.fuZongAdvice != ''">
+                            , FUZONG_ADVICE = #{item.fuZongAdvice}
+                        </if>
+                        <if test="item.fuZongSee != null and item.fuZongSee != ''">
+                            , FUZONG_SEE = #{item.fuZongSee}
+                        </if>
+                        <if test="item.caiWuId != null and item.caiWuId != ''">
+                            , CAIWU_ID = #{item.caiWuId}
+                        </if>
+                        <if test="item.caiWuAdvice != null and item.caiWuAdvice != ''">
+                            , CAIWU_ADVICE = #{item.caiWuAdvice}
+                        </if>
+                        <if test="item.caiWuSee != null and item.caiWuSee != ''">
+                            , CAIWU_SEE = #{item.caiWuSee}
+                        </if>
+                        <if test="item.zhuSee != null and item.zhuSee != ''">
+                            , ZHU_SEE = #{item.zhuSee}
+                        </if>
+                        <if test="item.renSee != null and item.renSee != ''">
+                            , REN_SEE = #{item.renSee}
+                        </if>
+                        <if test="item.shenSee != null and item.shenSee != ''">
+                            , SHEN_SEE = #{item.shenSee}
+                        </if>
+                        <if test="item.isWanCheng != null and item.isWanCheng != ''">
+                            , IS_WANCHENG = #{item.isWanCheng}
+                        </if>
+                        <if test="item.renOtherSee != null and item.renOtherSee != ''">
+                            , REN_OTHERSEE = #{item.renOtherSee}
+                        </if>
+                    </trim>
+                    WHERE ID = #{item.id}
+                </if>
+                IF NOT EXISTS (SELECT * FROM OFFICESUPPLIESDATA WHERE ID = #{item.id})
+                INSERT INTO OFFICESUPPLIESDATA
+                <trim prefix="(" suffix=")" suffixOverrides=",">
+                    <if test="item.departmentId != null and item.departmentId != ''">
+                        DEPARTMENTID,
+                    </if>
+                    <if test="item.month != null and item.month != ''">
+                        MONTH,
+                    </if>
+                    <if test="item.name != null and item.name != ''">
+                        NAME,
+                    </if>
+                    <if test="item.num != null and item.num != ''">
+                        NUM,
+                    </if>
+                    <if test="item.specification != null and item.specification != ''">
+                        SPECIFICATION,
+                    </if>
+                    <if test="item.remark != null and item.remark != ''">
+                        REMARK,
+                    </if>
+                    <if test="item.accountId1 != null and item.accountId1 != ''">
+                        ACCOUNTID_1,
+                    </if>
+                    <if test="item.accountId2 != null and item.accountId2 != ''">
+                        ACCOUNTID_2,
+                    </if>
+                    <if test="item.advice2 != null and item.advice2 != ''">
+                        ADVICE_2,
+                    </if>
+                    <if test="item.accountId3 != null and item.accountId3 != ''">
+                        ACCOUNTID_3,
+                    </if>
+                    <if test="item.advice3 != null and item.advice3 != ''">
+                        ADVICE_3,
+                    </if>
+                    <if test="item.state != null and item.state != ''">
+                        STATE,
+                    </if>
+                    <if test="item.isTiJiao != null and item.isTiJiao != ''">
+                        IS_TIJIAO,
+                    </if>
+                    <if test="item.renShiId != null and item.renShiId != ''">
+                        RENSHI_ID,
+                    </if>
+                    <if test="item.renShidAvice != null and item.renShidAvice != ''">
+                        RENSHI_ADVICE,
+                    </if>
+                    <if test="item.renShiSee != null and item.renShiSee != ''">
+                        RENSHI_SEE,
+                    </if>
+                    <if test="item.fuZongId != null and item.fuZongId != ''">
+                        FUZONG_ID,
+                    </if>
+                    <if test="item.fuZongAdvice != null and item.fuZongAdvice != ''">
+                        FUZONG_ADVICE,
+                    </if>
+                    <if test="item.fuZongSee != null and item.fuZongSee != ''">
+                        FUZONG_SEE,
+                    </if>
+                    <if test="item.caiWuId != null and item.caiWuId != ''">
+                        CAIWU_ID,
+                    </if>
+                    <if test="item.caiWuAdvice != null and item.caiWuAdvice != ''">
+                        CAIWU_ADVICE,
+                    </if>
+                    <if test="item.caiWuSee != null and item.caiWuSee != ''">
+                        CAIWU_SEE,
+                    </if>
+                    <if test="item.zhuSee != null and item.zhuSee != ''">
+                        ZHU_SEE,
+                    </if>
+                    <if test="item.renSee != null and item.renSee != ''">
+                        REN_SEE,
+                    </if>
+                    <if test="item.shenSee != null and item.shenSee != ''">
+                        SHEN_SEE,
+                    </if>
+                    <if test="item.isWanCheng != null and item.isWanCheng != ''">
+                        IS_WANCHENG,
+                    </if>
+                    <if test="item.renOtherSee != null and item.renOtherSee != ''">
+                        REN_OTHERSEE,
+                    </if>
+                </trim>
+                <trim prefix="VALUES (" suffix=");" suffixOverrides=",">
+                    <if test="item.departmentId != null and item.departmentId != ''">
+                        #{item.departmentId},
+                    </if>
+                    <if test="item.month != null and item.month != ''">
+                        #{item.month},
+                    </if>
+                    <if test="item.name != null and item.name != ''">
+                        #{item.name},
+                    </if>
+                    <if test="item.num != null and item.num != ''">
+                        #{item.num},
+                    </if>
+                    <if test="item.specification != null and item.specification != ''">
+                        #{item.specification},
+                    </if>
+                    <if test="item.remark != null and item.remark != ''">
+                        #{item.remark},
+                    </if>
+                    <if test="item.accountId1 != null and item.accountId1 != ''">
+                        #{item.accountId1},
+                    </if>
+                    <if test="item.accountId2 != null and item.accountId2 != ''">
+                        #{item.accountId2},
+                    </if>
+                    <if test="item.advice2 != null and item.advice2 != ''">
+                        #{item.advice2},
+                    </if>
+                    <if test="item.accountId3 != null and item.accountId3 != ''">
+                        #{item.accountId3},
+                    </if>
+                    <if test="item.advice3 != null and item.advice3 != ''">
+                        #{item.advice3},
+                    </if>
+                    <if test="item.state != null and item.state != ''">
+                        #{item.state},
+                    </if>
+                    <if test="item.isTiJiao != null and item.isTiJiao != ''">
+                        #{item.isTiJiao},
+                    </if>
+                    <if test="item.renShiId != null and item.renShiId != ''">
+                        #{item.renShiId},
+                    </if>
+                    <if test="item.renShidAvice != null and item.renShidAvice != ''">
+                        #{item.renShidAvice},
+                    </if>
+                    <if test="item.renShiSee != null and item.renShiSee != ''">
+                        #{item.renShiSee},
+                    </if>
+                    <if test="item.fuZongId != null and item.fuZongId != ''">
+                        #{item.fuZongId},
+                    </if>
+                    <if test="item.fuZongAdvice != null and item.fuZongAdvice != ''">
+                        #{item.fuZongAdvice},
+                    </if>
+                    <if test="item.fuZongSee != null and item.fuZongSee != ''">
+                        #{item.fuZongSee},
+                    </if>
+                    <if test="item.caiWuId != null and item.caiWuId != ''">
+                        #{item.caiWuId},
+                    </if>
+                    <if test="item.caiWuAdvice != null and item.caiWuAdvice != ''">
+                        #{item.caiWuAdvice},
+                    </if>
+                    <if test="item.caiWuSee != null and item.caiWuSee != ''">
+                        #{item.caiWuSee},
+                    </if>
+                    <if test="item.zhuSee != null and item.zhuSee != ''">
+                        #{item.zhuSee},
+                    </if>
+                    <if test="item.renSee != null and item.renSee != ''">
+                        #{item.renSee},
+                    </if>
+                    <if test="item.shenSee != null and item.shenSee != ''">
+                        #{item.shenSee},
+                    </if>
+                    <if test="item.isWanCheng != null and item.isWanCheng != ''">
+                        #{item.isWanCheng},
+                    </if>
+                    <if test="item.renOtherSee != null and item.renOtherSee != ''">
+                        #{item.renOtherSee},
+                    </if>
+                </trim>
+            </foreach>
+        </if>
+    </update>
+
+    <!--删除办公用品信息-->
+    <delete id="deleteOfficeSupplies">
+        <if test="officeList != null and officeList.size() > 0">
+            <foreach collection="officeList" item="item" separator=";">
+                DELETE FROM OFFICESUPPLIESDATA
+                WHERE ID = #{item.id}
+            </foreach>
+        </if>
+    </delete>
+
+    <!--查询办公用品信息-->
+    <select id="getOfficeSuppliesData" resultType="com.jiubo.erp.wzbg.bean.OfficeSuppliesDataBean">
+        SELECT
+        ID, DEPARTMENTID, MONTH, NAME, NUM, SPECIFICATION, REMARK, ACCOUNTID_1, ACCOUNTID_2, ADVICE_2,
+        ACCOUNTID_3, ADVICE_3, STATE, IS_TIJIAO, RENSHI_ID, RENSHI_ADVICE, RENSHI_SEE, FUZONG_ID, FUZONG_ADVICE,
+        FUZONG_SEE, CAIWU_ID, CAIWU_ADVICE, CAIWU_SEE, ZHU_SEE, REN_SEE, SHEN_SEE, IS_WANCHENG, REN_OTHERSEE
+        FROM OFFICESUPPLIESDATA
+        <where>
+            <if test="id != null and id != ''">AND ID = #{id}</if>
+            <if test="departmentId != null and departmentId != ''">AND DEPARTMENTID = #{departmentId}</if>
+            <if test="month != null and month != ''">AND YEAR(MONTH) * 100 + MONTH(MONTH) = #{month}</if>
+            <if test="name != null and name != ''">AND NAME = #{name}</if>
+            <if test="num != null and num != ''">AND NUM = #{num}</if>
+            <if test="specification != null and specification != ''">AND SPECIFICATION = #{specification}</if>
+            <if test="remark != null and remark != ''">AND REMARK = #{remark}</if>
+            <if test="accountId1 != null and accountId1 != ''">AND ACCOUNTID_1 = #{accountId1}</if>
+            <if test="accountId2 != null and accountId2 != ''">AND ACCOUNTID_2 = #{accountId2}</if>
+            <if test="advice2 != null and advice2 != ''">AND ADVICE_2 = #{advice2}</if>
+            <if test="accountId3 != null and accountId3 != ''">AND ACCOUNTID_3 = #{accountId3}</if>
+            <if test="advice3 != null and advice3 != ''">AND ADVICE_3 = #{advice3}</if>
+            <if test="state != null and state != ''">AND STATE = #{state}</if>
+            <if test="isTiJiao != null and isTiJiao != ''">AND IS_TIJIAO = #{isTiJiao}</if>
+            <if test="renShiId != null and renShiId != ''">AND RENSHI_ID = #{renShiId}</if>
+            <if test="renShidAvice != null and renShidAvice != ''">AND RENSHI_ADVICE = #{renShidAvice}</if>
+            <if test="renShiSee != null and renShiSee != ''">AND RENSHI_SEE = #{renShiSee}</if>
+            <if test="fuZongId != null and fuZongId != ''">AND FUZONG_ID = #{fuZongId}</if>
+            <if test="fuZongAdvice != null and fuZongAdvice != ''">AND FUZONG_ADVICE = #{fuZongAdvice}</if>
+            <if test="fuZongSee != null and fuZongSee != ''">AND FUZONG_SEE = #{fuZongSee}</if>
+            <if test="caiWuId != null and caiWuId != ''">AND CAIWU_ID = #{caiWuId}</if>
+            <if test="caiWuAdvice != null and caiWuAdvice != ''">AND CAIWU_ADVICE = #{caiWuAdvice}</if>
+            <if test="caiWuSee != null and caiWuSee != ''">AND CAIWU_SEE = #{caiWuSee}</if>
+            <if test="zhuSee != null and zhuSee != ''">AND ZHU_SEE = #{zhuSee}</if>
+            <if test="renSee != null and renSee != ''">AND REN_SEE = #{renSee}</if>
+            <if test="shenSee != null and shenSee != ''">AND SHEN_SEE = #{shenSee}</if>
+            <if test="isWanCheng != null and isWanCheng != ''">AND IS_WANCHENG = #{isWanCheng}</if>
+            <if test="renOtherSee != null and renOtherSee != ''">AND REN_OTHERSEE = #{renOtherSee}</if>
+        </where>
+    </select>
+
+    <!--办公用品信息汇总-->
+    <select id="gatherOfficeSupplies" resultType="com.jiubo.erp.wzbg.bean.OfficeSuppliesDataBean">
+        SELECT
+        NAME,SPECIFICATION, SUM(NUM) AS NUM,
+        CASE WHEN IS_WANCHENG = 1 THEN '已完成'WHEN IS_WANCHENG IS NULL THEN '点击完成'END AS IS_WANCHENG
+        FROM OFFICESUPPLIESDATA
+        WHERE  YEAR(MONTH) * 100 + MONTH(MONTH) = #{month} AND STATE = 1
+        GROUP BY NAME ,SPECIFICATION,IS_WANCHENG
+    </select>
+
+    <!--查询审核意见-->
+    <select id="queryAdvance" resultType="java.util.Map">
+        SELECT NAME,RENSHI_ADVICE,FUZONG_ADVICE,CAIWU_ADVICE,ACCOUNTID_3
+        FROM OFFICESUPPLIESDATA
+        WHERE YEAR(MONTH) * 100 + MONTH(MONTH) =  #{month} AND STATE = 1
+        GROUP BY NAME,RENSHI_ADVICE,FUZONG_ADVICE,CAIWU_ADVICE,ACCOUNTID_3
+    </select>
+
+    <!--获取意见给出人-->
+    <select id="queryAdvancePeo" resultType="java.util.Map">
+        SELECT ACCOUNT_NAME,ACCOUNT_ID,POSITION_NAME,NAME,POSITIONTYPE_NAME
+        FROM V_ACCOUNTDATA
+        LEFT JOIN POSITION_DATA
+        ON POSITION_DATA.POSITION_ID = V_ACCOUNTDATA.POSITION_ID
+        LEFT JOIN T_DEPARTMENT
+        ON T_DEPARTMENT.ID = V_ACCOUNTDATA.DEPARTMENT_ID
+        LEFT JOIN POSITION_TYPE
+        ON POSITION_DATA.POSITIONTYPE_ID = POSITION_TYPE.POSITIONTYPE_ID
+        WHERE STATE = '1' AND ISDELETE = '0'
+        <if test="deptName != null and deptName != ''">
+            AND NAME = #{deptName}
+        </if>
+        <if test="postName != null and postName != ''">
+            AND POSITION_NAME = #{postName}
+        </if>
+    </select>
+
+    <update id="commitAndSheHe">
+        <if test="officeList != null and officeList.size() > 0">
+            <foreach collection="officeList" item="item">
+                UPDATE OFFICESUPPLIESDATA
+                SET
+                <trim prefixOverrides=",">
+                    <if test="item.accountId1 != null and item.accountId1 != ''">
+                        , ACCOUNTID_1 = #{item.accountId1}
+                    </if>
+                    <if test="item.accountId2 != null and item.accountId2 != ''">
+                        , ACCOUNTID_2 = #{item.accountId2}
+                    </if>
+                    <if test="item.advice2 != null and item.advice2 != ''">
+                        , ADVICE_2 = #{item.advice2}
+                    </if>
+                    <if test="item.accountId3 != null and item.accountId3 != ''">
+                        , ACCOUNTID_3 = #{item.accountId3}
+                    </if>
+                    <if test="item.advice3 != null and item.advice3 != ''">
+                        , ADVICE_3 = #{item.advice3}
+                    </if>
+                    <if test="item.isTiJiao != null and item.isTiJiao != ''">
+                        , IS_TIJIAO = #{item.isTiJiao}
+                    </if>
+                    <if test="item.renShiId != null and item.renShiId != ''">
+                        , RENSHI_ID = #{item.renShiId}
+                    </if>
+                    <if test="item.renShidAvice != null and item.renShidAvice != ''">
+                        , RENSHI_ADVICE = #{item.renShidAvice}
+                    </if>
+                    <if test="item.renShiSee != null and item.renShiSee != ''">
+                        , RENSHI_SEE = #{item.renShiSee}
+                    </if>
+                    <if test="item.fuZongId != null and item.fuZongId != ''">
+                        , FUZONG_ID = #{item.fuZongId}
+                    </if>
+                    <if test="item.fuZongAdvice != null and item.fuZongAdvice != ''">
+                        , FUZONG_ADVICE = #{item.fuZongAdvice}
+                    </if>
+                    <if test="item.fuZongSee != null and item.fuZongSee != ''">
+                        , FUZONG_SEE = #{item.fuZongSee}
+                    </if>
+                    <if test="item.caiWuId != null and item.caiWuId != ''">
+                        , CAIWU_ID = #{item.caiWuId}
+                    </if>
+                    <if test="item.caiWuAdvice != null and item.caiWuAdvice != ''">
+                        , CAIWU_ADVICE = #{item.caiWuAdvice}
+                    </if>
+                    <if test="item.caiWuSee != null and item.caiWuSee != ''">
+                        , CAIWU_SEE = #{item.caiWuSee}
+                    </if>
+                    <if test="item.zhuSee != null and item.zhuSee != ''">
+                        , ZHU_SEE = #{item.zhuSee}
+                    </if>
+                    <if test="item.renSee != null and item.renSee != ''">
+                        , REN_SEE = #{item.renSee}
+                    </if>
+                    <if test="item.shenSee != null and item.shenSee != ''">
+                        , SHEN_SEE = #{item.shenSee}
+                    </if>
+                    <if test="item.isWanCheng != null and item.isWanCheng != ''">
+                        , IS_WANCHENG = #{item.isWanCheng}
+                    </if>
+                    <if test="item.renOtherSee != null and item.renOtherSee != ''">
+                        , REN_OTHERSEE = #{item.renOtherSee}
+                    </if>
+                </trim>
+                WHERE
+                YEAR(MONTH) * 100 + MONTH(MONTH) = #{item.month}
+                <if test="item.name != null and item.name != ''">
+                    AND NAME = #{item.name}
+                </if>
+                <if test="item.specification != null and item.specification != ''">
+                    AND SPECIFICATION = #{item.specification}
+                </if>
+                <if test="item.state != null and item.state != ''">
+                    AND STATE = #{item.state}
+                </if>
+            </foreach>
+        </if>
+    </update>
+
+    <!--根据部门id查询部门所属的等级-->
+    <select id="queryDeptLevel" resultType="int">
+        <choose>
+            <when test="count == 0">
+                SELECT COUNT(*)
+                FROM T_DEPARTMENT
+                WHERE PARENTID = 0 AND ID = #{deptId}
+            </when>
+            <when test="count == 1">
+                SELECT COUNT(*)
+                FROM T_DEPARTMENT
+                WHERE ID IN(SELECT ID FROM T_DEPARTMENT WHERE PARENTID
+                IN (SELECT ID FROM T_DEPARTMENT WHERE PARENTID = 0)) AND ID = #{deptId}
+            </when>
+            <when test="count == 2">
+                SELECT COUNT(*)
+                FROM T_DEPARTMENT
+                WHERE ID IN (SELECT ID FROM T_DEPARTMENT WHERE PARENTID
+                IN(SELECT ID FROM T_DEPARTMENT WHERE PARENTID
+                IN (SELECT ID FROM T_DEPARTMENT WHERE PARENTID = 0))) AND ID = #{deptId}
+            </when>
+        </choose>
+    </select>
+
+    <!--查询部门相关负责人-->
+    <select id="queryDeptConscientious" resultType="java.util.Map">
+        SELECT EMP_NAME,ACCOUNT_ID,POSITION_NAME,NAME,POSITIONTYPE_NAME
+        FROM V_ACCOUNTDATA
+        LEFT JOIN POSITION_DATA
+        ON POSITION_DATA.POSITION_ID = V_ACCOUNTDATA.POSITION_ID
+        LEFT JOIN T_DEPARTMENT
+        ON T_DEPARTMENT.ID = V_ACCOUNTDATA.DEPARTMENT_ID
+        LEFT JOIN POSITION_TYPE
+        ON POSITION_DATA.POSITIONTYPE_ID = POSITION_TYPE.POSITIONTYPE_ID
+        WHERE ACCOUNT_STATE = '在用'
+        AND (POSITION_TYPE .POSITIONTYPE_ID = 5 OR POSITION_TYPE .POSITIONTYPE_ID = 4)
+        <if test="level == 0">
+            AND (
+            DEPARTMENT_ID IN (
+            SELECT ID FROM T_DEPARTMENT
+            WHERE PARENTID IN (
+            SELECT ID FROM T_DEPARTMENT
+            WHERE PARENTID = #{deptId}
+            )
+            )
+            OR DEPARTMENT_ID IN (
+            SELECT ID FROM T_DEPARTMENT
+            WHERE PARENTID = #{deptId}
+            ) OR DEPARTMENT_ID = #{deptId}
+            )
+        </if>
+        <if test="level == 1">
+            AND (
+            DEPARTMENT_ID = #{deptId}
+            OR DEPARTMENT_ID IN (
+            SELECT ID FROM T_DEPARTMENT WHERE PARENTID = #{deptId}
+            )
+            OR DEPARTMENT_ID IN (
+            SELECT ID FROM T_DEPARTMENT WHERE PARENTID IN (SELECT PARENTID FROM T_DEPARTMENT WHERE ID = #{deptId})
+            )
+            )
+        </if>
+        <if test="level == 2">
+            AND ( DEPARTMENT_ID = #{deptId}
+            OR DEPARTMENT_ID = (SELECT PARENTID FROM T_DEPARTMENT WHERE ID = #{deptId})
+            OR DEPARTMENT_ID IN (SELECT ID FROM T_DEPARTMENT WHERE PARENTID IN (SELECT PARENTID FROM T_DEPARTMENT WHERE
+            ID = #{deptId}))
+            OR DEPARTMENT_ID IN (SELECT ID FROM T_DEPARTMENT WHERE PARENTID IN (SELECT PARENTID FROM T_DEPARTMENT WHERE
+            ID IN (SELECT PARENTID FROM T_DEPARTMENT WHERE ID = #{deptId} ))))
+        </if>
+        <if test="level == 3">
+            AND DEPARTMENT_ID = #{deptId}
+        </if>
+    </select>
+
+    <!--查询会议室申请信息-->
+    <select id="queryOfficeUserData" resultType="com.jiubo.erp.wzbg.bean.OfficeUserDataBean">
+        SELECT OU.ID, OU.ACCOUNTID, ACCOUNT_NAME, O.NAME, OU.NUM
+        , OU.USER_NAME,OFFICEID
+        , CONVERT(VARCHAR(16), STARTTIME, 120) AS STARTTIME
+        , CONVERT(VARCHAR(16), ENDTIME, 120) AS ENDTIME
+        , ACCOUNTZT, REMARK, YUYUE_TIME
+        , CASE
+        WHEN STATE = 1 THEN '已完成'
+        WHEN STATE = 0 THEN '未完成'
+        WHEN STATE = 2 THEN '未完成'
+        WHEN STATE = 3 THEN '已取消'
+        END AS STATE
+        , CASE
+        WHEN TYPE = 2 THEN '例会'
+        WHEN TYPE = 1 THEN '——'
+        END AS CONFERENCE,TYPE
+        FROM OFFICEUSERDATA OU
+        LEFT JOIN ACCOUNT_DATA A ON A.ACCOUNT_ID = OU.ACCOUNTID
+        LEFT JOIN OFFICEDATA O ON OU.OFFICEID = O.ID
+        <where>
+            <if test="startTime != null and startTime != '' and endTime != null and endTime != ''">
+                AND STARTTIME >= #{startTime}
+                AND ENDTIME &lt;= #{endTime}
+            </if>
+            <if test="officeId != null and officeId != ''">
+                AND O.ID = #{officeId}
+            </if>
+            <if test="state != null and state != ''">
+                AND STATE = #{state}
+            </if>
+            <if test="officeIdArr != null and officeIdArr != '' and officeIdArr.length > 0">
+                AND O.ID IN
+                <foreach collection="officeIdArr" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+            <if test="stateArr != null and stateArr != '' and stateArr.length > 0">
+                AND STATE IN
+                <foreach collection="stateArr" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY STARTTIME
+    </select>
+
+    <!--会议室查询-->
+    <select id="queryOfficeData"  resultType="com.jiubo.erp.wzbg.bean.OfficeDataBean">
+        SELECT ID, NAME
+        FROM OFFICEDATA
+    </select>
+
+    <!--申请会议室-->
+    <insert id="addOfficeUserData">
+        INSERT INTO OFFICEUSERDATA (OFFICEID, STARTTIME, ENDTIME, ACCOUNTID,
+         ACCOUNTZT, REMARK, STATE, NUM, USER_NAME, TYPE, YUYUE_TIME)
+        VALUES (#{officeId}, #{startTime},#{endTime}, #{accountId},
+        #{accountZt}, #{remark}, #{state}, #{num}, #{userName}, #{type}, #{yuYueTime})
+    </insert>
+
+    <!--修改会议室申请-->
+    <update id="updateOfficeUserData">
+        UPDATE OFFICEUSERDATA
+        SET
+            OFFICEID = #{officeId}
+            , STARTTIME = #{startTime}
+            , ENDTIME = #{endTime}
+            , ACCOUNTID = #{accountId}
+            , ACCOUNTZT = #{accountZt}
+            , REMARK =#{remark}
+            , STATE = #{state}
+            , NUM =  #{num}
+            , USER_NAME = #{userName}
+            , TYPE = #{type}
+        WHERE ID = #{id}
+    </update>
+
+    <update id="updateOfficeUserDataState">
+        UPDATE OFFICEUSERDATA
+        SET STATE = #{state}
+        WHERE ID = #{id} AND (STATE = 0 OR STATE = 2)
+        <if test="state == 1">
+            AND GETDATE() > STARTTIME
+        </if>
+    </update>
+</mapper>

@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.jiubo.erp.erpLogin.dao.LoginDAO">
+
+    <resultMap id="resultAccountDataMap" type="com.jiubo.erp.erpLogin.bean.AccountDataBean">
+        <result property="Account_ID" column="ACCOUNT_ID"/>
+        <result property="Account_Name" column="ACCOUNT_NAME"/>
+        <result property="Account_Pwd" column="ACCOUNT_PWD"/>
+        <result property="Account_State" column="ACCOUNT_STATE"/>
+        <result property="Position_ID" column="POSITION_ID"/>
+        <result property="positionName" column="POSITION_NAME"/>
+        <result property="departId" column="ID"/>
+        <result property="departName" column="NAME"/>
+    </resultMap>
+
+    <!--根据用户名查询账号信息-->
+    <select id="userLogin" parameterType="com.jiubo.erp.erpLogin.bean.AccountDataBean" resultMap="resultAccountDataMap">
+        SELECT
+          AD.ACCOUNT_ID,
+          AD.ACCOUNT_NAME,
+          AD.ACCOUNT_PWD,
+          AD.ACCOUNT_STATE,
+          AD.POSITION_ID,
+          PD.POSITION_NAME,
+          TD.ID,
+          TD.NAME
+        FROM
+            ACCOUNT_DATA AD
+            LEFT JOIN Position_Data PD ON AD.POSITION_ID=PD.POSITION_ID
+            LEFT JOIN T_Employee_Basic TEB ON TEB.ACCOUNT=AD.ACCOUNT_ID
+            LEFT JOIN T_Department TD ON TD.ID=TEB.DEPARTMENT_ID
+        WHERE
+              ACCOUNT_NAME = #{Account_Name} AND Account_Pwd = #{Account_Pwd}
+              <if test="Account_State != null and Account_State != ''">
+                  AND ACCOUNT_STATE = #{Account_State}
+              </if>
+    </select>
+
+    <resultMap id="resultAccountRuleDataMap" type="com.jiubo.erp.erpLogin.bean.AccountRuleData">
+        <result property="A_R_ID" column="A_R_ID"/>
+        <result property="Account_ID" column="ACCOUNT_ID"/>
+        <result property="Rule_ID" column="RULE_ID"/>
+        <result property="ruleDataBean.Rule_ID" column="RULEID"/>
+        <result property="ruleDataBean.Rule_Name" column="RULE_NAME"/>
+        <result property="ruleDataBean.Rule_Group_ID" column="RULE_GROUP_ID"/>
+    </resultMap>
+
+    <!--根据用户id查询权限-->
+    <select id="queryRuleData" resultMap="resultAccountRuleDataMap">
+            SELECT
+                A.A_R_ID, A.ACCOUNT_ID, A.RULE_ID,B.RULE_ID RULEID, B.RULE_NAME, B.RULE_GROUP_ID
+            FROM ACCOUNT_RULE_DATA A,RULE_DATA B
+            WHERE ACCOUNT_ID = #{accountId} AND A.RULE_ID = B.RULE_ID
+    </select>
+
+
+
+</mapper>
+<!--<select id="selectPositionInfoByAccoutname" parameterType="com.jiubo.erp.erpLogin.bean.AccountDataBean"-->
+        <!--resultType="com.jiubo.erp.erpLogin.vo.PositionInfoOutPut">-->
+<!--SELECT-->
+<!--dbo.Account_Data.Account_Name AS account_name,-->
+<!--dbo.Rule_Data.Rule_Name AS Rule_Name,-->
+<!--dbo.Position_Data.Position_Name AS Position_Name-->
+<!--FROM-->
+<!--dbo.Rule_Data-->
+<!--INNER JOIN dbo.Position_Rule_Data ON dbo.Rule_Data.Rule_ID = dbo.Position_Rule_Data.Rule_ID-->
+<!--INNER JOIN dbo.Position_Data ON dbo.Position_Rule_Data.Position_ID=dbo.Position_Data.Position_ID-->
+<!--INNER JOIN dbo.Account_Data ON dbo.Position_Data.Position_ID=dbo.Account_Data.Position_ID-->
+<!--WHERE-->
+<!--dbo.Rule_Data.Rule_Name LIKE '%员工%' OR dbo.Rule_Data.Rule_Name-->
+<!--LIKE '%人员%' OR dbo.Rule_Data.Rule_Name like '%考勤%'-->
+<!--AND dbo.Account_Data.Account_Name=#{Account_Name}-->
+<!--</select>-->
+
+
+<!--<select id="selectByUserName" parameterType="com.jiubo.erp.erpLogin.bean.AccountDataBean"-->
+        <!--resultType="java.lang.Integer">-->
+<!--SElECT-->
+<!--COUNT(a.Account_Name)-->
+<!--FROM dbo.Account_Data a-->
+<!--WHERE a.Account_Name=#{Account_Name}-->
+<!--</select>-->
+
+<!--<insert id="addAccountData" parameterType="com.jiubo.erp.erpLogin.bean.AccountDataBean">-->
+<!--INSERT INTO-->
+<!--dbo.Account_Data-->
+<!--<trim prefix="(" suffix=")" suffixOverrides=",">-->
+    <!--<if test="Account_ID!=null and Account_ID!=''">-->
+        <!--Account_ID,-->
+    <!--</if>-->
+    <!--<if test="Account_Name!=null and Account_Name!=''">-->
+        <!--Account_Name,-->
+    <!--</if>-->
+    <!--<if test="Account_Pwd!=null and Account_Pwd!=''">-->
+        <!--Account_Pwd,-->
+    <!--</if>-->
+    <!--<if test="Account_State!=null and Account_State!=''">-->
+        <!--Account_State,-->
+    <!--</if>-->
+    <!--<if test="Position_ID!=null and Position_ID!=''">-->
+        <!--Position_ID,-->
+    <!--</if>-->
+<!--</trim>-->
+<!--<trim prefix="values (" suffix=")" suffixOverrides=",">-->
+    <!--<if test="Account_ID!=null and Account_ID!=''">-->
+        <!--#{Account_ID},-->
+    <!--</if>-->
+    <!--<if test="Account_Name!=null and Account_Name!=''">-->
+        <!--#{Account_Name},-->
+    <!--</if>-->
+    <!--<if test="Account_Pwd!=null and Account_Pwd!=''">-->
+        <!--#{Account_Pwd},-->
+    <!--</if>-->
+    <!--<if test="Account_State!=null and Account_State!=''">-->
+        <!--#{Account_State},-->
+    <!--</if>-->
+    <!--<if test="Position_ID!=null and Position_ID!=''">-->
+        <!--#{Position_ID},-->
+    <!--</if>-->
+<!--</trim>-->
+<!--</insert>-->
+
+<!--<insert id="addRuleData" parameterType="com.jiubo.erp.erpLogin.bean.RuleDataBean">-->
+<!--INSERT INTO dbo.Rule_Data-->
+<!--<trim prefix="(" suffix=")" suffixOverrides=",">-->
+    <!--<if test="Rule_ID!=null and Rule_ID!=''">-->
+        <!--Rule_ID,-->
+    <!--</if>-->
+    <!--<if test="Rule_Name!=null and Rule_Name!=''">-->
+        <!--Rule_Name,-->
+    <!--</if>-->
+    <!--<if test="Rule_Group_ID!=null and Rule_Group_ID!=''">-->
+        <!--Rule_Group_ID,-->
+    <!--</if>-->
+<!--</trim>-->
+<!--<trim prefix="values (" suffix=")" suffixOverrides=",">-->
+    <!--<if test="Rule_ID!=null and Rule_ID!=''">-->
+        <!--#{Rule_ID},-->
+    <!--</if>-->
+    <!--<if test="Rule_Name!=null and Rule_Name!=''">-->
+        <!--#{Rule_Name},-->
+    <!--</if>-->
+    <!--<if test="Rule_Group_ID!=null and Rule_Group_ID!=''">-->
+        <!--#{Rule_Group_ID},-->
+    <!--</if>-->
+<!--</trim>-->
+<!--</insert>-->
+
+
+<!--<insert id="addAccountRuleData" parameterType="com.jiubo.erp.erpLogin.bean.AccountRuleData">-->
+<!--INSERT INTO dbo.Account_Rule_Data-->
+<!--<trim prefix="(" suffix=")" suffixOverrides=",">-->
+    <!--<if test="Rule_ID!=null and Rule_ID!=''">-->
+        <!--A_R_ID,-->
+    <!--</if>-->
+    <!--<if test="Rule_Name!=null and Rule_Name!=''">-->
+        <!--Account_ID,-->
+    <!--</if>-->
+    <!--<if test="Rule_Group_ID!=null and Rule_Group_ID!=''">-->
+        <!--Rule_ID,-->
+    <!--</if>-->
+<!--</trim>-->
+<!--<trim prefix="values (" suffix=")" suffixOverrides=",">-->
+    <!--<if test="Rule_ID!=null and Rule_ID!=''">-->
+        <!--#{A_R_ID},-->
+    <!--</if>-->
+    <!--<if test="Rule_Name!=null and Rule_Name!=''">-->
+        <!--#{Account_ID},-->
+    <!--</if>-->
+    <!--<if test="Rule_Group_ID!=null and Rule_Group_ID!=''">-->
+        <!--#{Rule_ID},-->
+    <!--</if>-->
+<!--</trim>-->
+<!--</insert>-->

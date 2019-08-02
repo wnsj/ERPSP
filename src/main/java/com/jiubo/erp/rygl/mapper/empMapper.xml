@@ -1,0 +1,491 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.jiubo.erp.rygl.dao.empDao">
+	<!-- 获取账户列表 -->
+	<select id="selectAccountList" parameterType="com.jiubo.erp.rygl.vo.Account"
+		resultType="com.jiubo.erp.rygl.vo.Account">
+		SELECT
+		a.Account_ID AS accountId,
+		a.Account_Name AS accountName,
+		a.Account_Pwd AS accountPwd,
+		a.Account_State AS accountState,
+		a.Position_ID AS positionId,
+		a.Account_Mac AS accountMac
+		FROM
+		dbo.Account_Data a
+		<trim prefix="WHERE" prefixOverrides="AND | OR">
+			<if test="accountId!=null and accountId!=''">
+				AND a.Account_ID=#{accountId}
+			</if>
+			<if test="accountName!=null and accountName!=''">
+				AND a.Account_Name=#{accountName}
+			</if>
+		</trim>
+
+	</select>
+	<!-- 初始化账号密码 -->
+	<update id="updataAccountPwd" parameterType="com.jiubo.erp.rygl.vo.Account">
+		UPDATE Account_Data SET Account_Pwd=#{accountPwd}
+		<trim prefix="WHERE" prefixOverrides="AND | OR">
+			<if test="accountId!=null and accountId!=''">
+				AND Account_ID=#{accountId}
+			</if>
+		</trim>
+	</update>
+
+	<!-- 获取民族列表 -->
+	<select id="selectNationList" resultType="com.jiubo.erp.rygl.vo.Nation">
+		SELECT
+		dbo.T_Nation.Nation AS nation
+		FROM
+		dbo.T_Nation
+	</select>
+
+	<!-- 获取离职原因列表 -->
+	<select id="selectLeaveList" parameterType="com.jiubo.erp.rygl.vo.LeaveResign"
+		resultType="com.jiubo.erp.rygl.vo.LeaveResign">
+		SELECT
+		dbo.Resign_Reason.Reason_ID AS reasonId,
+		dbo.Resign_Reason.Reason_Name AS reasonName
+		FROM
+		dbo.Resign_Reason
+		<trim prefix="WHERE" prefixOverrides="AND | OR">
+			<if test="reasonName!=null and reasonName!=''">
+				AND dbo.Resign_Reason.Reason_Name = #{reasonName}
+			</if>
+		</trim>
+	</select>
+
+	<!-- 修改离职原因 -->
+	<update id="updateLeaveReason" parameterType="com.jiubo.erp.rygl.vo.LeaveResign">
+		UPDATE
+		dbo.Resign_Reason
+		SET
+		dbo.Resign_Reason.Reason_Name =#{reasonName}
+		WHERE
+		dbo.Resign_Reason.Reason_ID = #{reasonId}
+	</update>
+
+	<!-- 删除离职原因 -->
+	<delete id="deleteLeaveReason">
+		DELETE
+		FROM
+		dbo.Resign_Reason
+		where
+		dbo.Resign_Reason.Reason_ID = #{reasonId}
+	</delete>
+
+	<!-- 查询 全部部门 -->
+	<select id="selectDepartList" parameterType="com.jiubo.erp.rygl.bean.DepartmentBean"
+		resultType="com.jiubo.erp.rygl.bean.DepartmentBean">
+		SELECT
+		dbo.T_Department.ID AS ID,
+		dbo.T_Department.Name AS Name,
+		dbo.T_Department.ParentID AS ParentID,
+		dbo.T_Department.OrderNum AS
+		OrderNum
+		FROM
+		dbo.T_Department
+		<trim prefix="WHERE" prefixOverrides="AND | OR">
+			<if test="Name!=null and Name!=''">
+				AND dbo.T_Department.Name=#{Name}
+			</if>
+		</trim>
+	</select>
+
+	<!-- 查询 全部职位 -->
+	<select id="selectPositionList" resultType="com.jiubo.erp.rygl.vo.Position">
+		SELECT
+		Position_ID AS positionId,
+		Position_Name AS positionName
+		FROM
+		Position_Data
+	</select>
+
+	<!-- 查询 全部项目 -->
+	<select id="selectProjectList" resultType="com.jiubo.erp.rygl.bean.ProjectDataBean">
+		SElECT
+		Project_ID AS
+		ProjectID,
+		Project_Name AS ProjectName
+		FROM Project_Data
+	</select>
+
+	<!-- 查询 全部公司人员 -->
+	<select id="searchEmplist" parameterType="com.jiubo.erp.rygl.vo.QueryParam"
+		resultType="com.jiubo.erp.rygl.vo.QueryResult">
+		SELECT
+		DISTINCT a.ID AS id,
+		a.Account AS uAccountId,
+		a.JobNum AS JobNum,
+		a.Name AS name,
+		a.Sex AS sex,
+		d.Name AS departName,
+		d.ID AS departId,
+		c.Position_Name AS positionName,
+		b.Account_Name AS ERPAaccount,
+		b.Account_ID AS accountId,
+		a.Birth AS birth,
+		a.EntryDate AS entryDate,
+		a.PositiveDate AS PositiveDate,
+		CASE WHEN a.ResignDate&lt;a.EntryDate  THEN NULL
+		ELSE a.ResignDate 
+		END AS ResignDate,
+		a.State AS
+		State,
+		a.ResignType AS resignType,
+		g.Reason_Id AS resignReasonId,
+		g.Reason_Name AS resignName
+		FROM
+		dbo.Account_Data b
+		LEFT JOIN
+		dbo.T_Employee_Basic a ON a.Account=b.Account_ID
+		LEFT JOIN
+		dbo.Position_Data c ON b.Position_ID=c.Position_ID
+		LEFT JOIN
+		dbo.T_Department d ON a.Department_ID=d.ID
+		LEFT JOIN
+		dbo.Account_Project_Data e ON b.Account_ID=e.Account_ID
+		LEFT JOIN
+		dbo.Project_Data f ON e.Project_ID=f.Project_ID
+		LEFT JOIN Resign_Reason
+		g ON a.ResignReason = g.Reason_ID
+		<trim prefix="WHERE" prefixOverrides="AND | OR">
+			<if test="departName!=null and departName!=''">
+				AND d.Name=#{departName}
+			</if>
+			<if test="state!=null and state!=''">
+				AND a.State=#{state}
+			</if>
+			<if test="projectId!=null and projectId!=''">
+				AND f.Project_ID=#{projectId}
+			</if>
+			<if test="searchContent !=null and searchContent !=''">
+				AND (a.JobNum like '%'+#{searchContent}+'%' OR a.name like '%'+#{searchContent}+'%'
+				OR d.Name like '%'+#{searchContent}+'%' OR c.Position_Name like '%'+#{searchContent}+'%')
+			</if>
+			<if
+				test="enterStartDate!=null and enterEndDate!=null and enterStartDate!='' and enterEndDate!=''">
+				AND a.EntryDate &gt;= #{enterStartDate} AND a.EntryDate
+				&lt;=#{enterEndDate}
+			</if>
+			<if
+				test="leaveStartDate !=null and leaveEndDate !=null and leaveStartDate !='' and leaveEndDate !=''">
+				AND a.ResignDate &gt;= #{leaveStartDate} AND a.ResignDate
+				&lt;=#{leaveEndDate}
+			</if>
+			<if
+				test="zzStartDate !=null and zzEndDate !=null and zzStartDate !='' and zzEndDate !=''">
+				AND a.PositiveDate &gt;= #{zzStartDate} AND a.PositiveDate
+				&lt;=#{zzEndDate}
+			</if>
+			<if test="resignType!=null and resignType !=''">
+				AND a.ResignType = #{resignType}
+			</if>
+			<if test="resignReasonId !=null and resignReasonId !=''">
+				AND a.ResignDate = #{resignReasonId}
+			</if>
+			<if test="birth!=null and birth!=''">
+				AND Month(a.Birth)=#{birth}
+			</if>
+			AND a.isDelete='0'
+		</trim>
+		ORDER by b.Account_ID
+	</select>
+
+	<!--查询 全部家庭成员 -->
+	<select id="searchFamilyList" parameterType="com.jiubo.erp.rygl.vo.QueryFamilyResult"
+		resultType="com.jiubo.erp.rygl.vo.QueryFamilyResult">
+		SELECT TEB.JobNum AS jobnum
+		,TEB.Name AS name
+		,AF.name AS chname
+		,AF.Birthday AS birth
+		,AF.appellation AS appellation
+		,AF.workaddress AS workAddress
+		,AF.position AS position
+		,AF.phone AS phone
+		,AF.wechat AS wechat
+		,AF.address AS famAddress
+		FROM Account_Family AF
+		Left Join Account_Data AD ON AF.Account_ID = AD.Account_ID
+		Left Join T_Employee_Basic TEB ON TEB.Account = AD.Account_ID
+		<trim prefix="WHERE" prefixOverrides="AND | OR">
+			<if test="chname !=null and chname !=''">
+				AND AF.name like '%'+#{chname}+'%'
+			</if>
+			<if test="birth!=null and birth!=''">
+				AND Month(AF.Birthday)=#{birth}
+			</if>
+			AND TEB.isDelete=0
+			<if test="name !=null and name !='' and jobnum !=null and jobnum !=''">
+				AND TEB.Name like '%'+#{name}+'%' or TEB.JobNum like '%'+#{jobnum}+'%'
+			</if>
+		</trim>
+		ORDER BY TEB.JobNum
+
+	</select>
+
+	<!-- 查询 单个成员 家庭信息 -->
+	<select id="singleFamilyList" parameterType="com.jiubo.erp.rygl.vo.QueryFamilyResult"
+		resultType="com.jiubo.erp.rygl.vo.QueryFamilyResult">
+		SELECT
+		ID AS ID,
+		appellation AS appellation,
+		name AS chname,
+		workaddress AS
+		workAddress,
+		position AS position,
+		phone AS phone,
+		wechat
+		AS wechat,
+		address AS famAddress,
+		Birthday AS birth
+
+		FROM
+		dbo.Account_Family
+
+		where
+		Account_ID=#{uAccountId}
+	</select>
+
+	<!-- 查询 员工入职 基本信息 -->
+	<select id="searchUBInfo" parameterType="com.jiubo.erp.rygl.vo.UserInfo"
+		resultType="com.jiubo.erp.rygl.vo.UserInfo">
+		SELECT
+		a.Name AS name,
+		a.ID AS id,
+		a.JobNum AS jobNum,
+		a.Sex AS sex,
+		a.Birth AS birth,
+		a.Account AS accountId,
+		a.ID AS positionId,
+		a.EntryDate AS entryDate,
+		a.PositiveDate AS positiveDate,
+		a.ResignDate
+		AS resignDate,
+		a.ResignType AS resignType,
+		a.ResignReason AS
+		resignReason,
+		a.State AS state,
+		a.Remark AS remark
+		FROM
+		dbo.T_Employee_Basic a
+		<trim prefix="WHERE" prefixOverrides="AND | OR">
+			<if test="name !=null and name !=''">
+				AND a.Name=#{name}
+			</if>
+			<if test="jobNum !=null and jobNum !=''">
+				AND a.JobNum=#{jobNum}
+			</if>
+			<if test="id!=null and id!=''">
+				AND a.ID=#{id}
+			</if>
+		</trim>
+	</select>
+
+	<!-- 查询 员工入职 详细信息 -->
+	<select id="searchUDInfo" parameterType="com.jiubo.erp.rygl.vo.UserInfo"
+		resultType="com.jiubo.erp.rygl.vo.UserInfo">
+		SELECT
+		a.IDNum AS uIdNum,
+		a.Political AS uPloitical,
+		a.HomeTown AS uHomeTown,
+		a.Nationality AS uNationality,
+		a.Marital AS
+		uMarital,
+		a.HomeAddress AS uHomeAddress,
+		a.CurrentAddress AS
+		uCurrentAddress,
+		a.Domicile AS uDomicile,
+		a.AccountProp AS uAccountProp,
+		a.Schools AS uSchools,
+		a.Education AS uEducation,
+		a.Profession AS
+		uProfession,
+		a.Graduation AS uGraduation,
+		a.AtSchool AS uAtSchool,
+		a.Contact AS uContact,
+		a.EmergencyContact AS uEmergencyContact,
+		a.Emergencyphone AS uEmergencyphone,
+		a.LicenseType AS uLicenseType,
+		a.DrivingExpe AS uDrivingExpe
+		FROM
+		dbo.T_Employee_Detial a
+		where
+		a.Employee_basic_ID=#{uEmployeeBasicID}
+	</select>
+	<!-- 通过账号表获取部门id -->
+	<select id="selectUserDepartID" resultType="com.jiubo.erp.rygl.vo.UserInfo">
+		SELECT
+		dbo.T_Department.ID
+		FROM
+		dbo.Account_Data
+		where
+		Account_Name=#(uAccount)
+	</select>
+
+	<!-- 插入入职人员 基本信息 -->
+	<insert id="insertBaseInfo" parameterType="com.jiubo.erp.rygl.vo.UserInfo"
+		useGeneratedKeys="true" keyProperty="userid">
+		insert into
+		dbo.T_Employee_Basic
+		(Name,Sex,JobNum,Department_id,Birth,EntryDate,Photo,CreateDate,
+		UpdateDate,IsDelete,State,CreateUser,Account,Remark,Parent_ID,ResignType,ResignReason)
+		values
+		(#{name},#{sex},#{jobNum},#{departId},#{birth},#{entryDate},
+		#{photo},#{createDate},#{updateDate},#{isDelete},#{state},
+		#{createUser},#{accountId},#{remark},#{parentId},#{resignType},#{resignReason})
+	</insert>
+
+	<!-- 插入入职人员 账户信息 -->
+	<insert id="insertAccountInfo" parameterType="com.jiubo.erp.rygl.vo.Account">
+
+		INSERT INTO Account_Data
+
+		(Account_Name,Account_Pwd,Account_State,Position_ID,Account_Mac)
+
+		values
+
+		(#{accountName},#{accountPwd},#{accountState},#{positionId},#{accountMac})
+	</insert>
+
+
+	<!-- 插入入职员工 详细信息 -->
+	<insert id="insertDetailInfo" parameterType="com.jiubo.erp.rygl.vo.UserInfo">
+		insert into
+		dbo.T_Employee_Detial
+		(Employee_basic_ID,IDNum,Political,Contact,HomeTown,Nationality,Marital,HomeAddress,
+		CurrentAddress,Schools,Education,Profession,Graduation,EmergencyContact,EmergencyPhone,
+		Height,Weight,BloodType,LicenseType,DrivingExpe,Domicile,AccountProp,AtSchool,
+		CreateDate,updateDate,CreateUser,Remark)
+		values
+		(#{uEmployeeBasicID},#{uIdNum},#{uPloitical},#{uContact},#{uHomeTown},#{uNationality},#{uMarital},#{uHomeAddress},
+		#{uCurrentAddress},#{uSchools},#{uEducation},#{uProfession},#{uGraduation},#{uEmergencyContact},#{uEmergencyphone},
+		#{uHeight},#{uWeight},#{uBloodType},#{uLicenseType},#{uDrivingExpe},#{uDomicile},#{uAccountProp},#{uAtSchool},
+		#{createDate},#{updateDate},#{createUser},#{remark})
+
+	</insert>
+
+	<!-- 插入 员工入职 家庭信息 -->
+	<insert id="insertfamilyInfo" parameterType="com.jiubo.erp.rygl.vo.QueryFamilyResult">
+		insert into
+		Account_Family
+		(Account_ID,name,Birthday,appellation,workaddress,position,
+		phone,wechat,address)
+		values
+		(#{uAccountId},#{chname},#{birth},#{appellation},#{workAddress},#{position},
+		#{phone},#{wechat},#{famAddress})
+	</insert>
+
+
+	<!-- 插入 离职原因 -->
+	<insert id="addLeaveReason" parameterType="com.jiubo.erp.rygl.vo.LeaveResign">
+		INSERT INTO
+		dbo.Resign_Reason
+
+		(dbo.Resign_Reason.Reason_Name)
+
+		VALUES
+		(#{reasonName})
+
+	</insert>
+
+	<!-- 更新员工的基本信息 -->
+	<update id="updataBaseInfo" parameterType="com.jiubo.erp.rygl.vo.UserInfo">
+		update
+		T_Employee_Basic
+		set
+		Name=#{name},Sex=#{sex},Department_id=#{departId},Birth=#{birth},
+		EntryDate=#{entryDate},PositiveDate=#{positiveDate},ResignDate=#{resignDate},Photo=#{photo},
+		UpdateDate=#{updateDate},IsDelete=#{isDelete},State=#{state},
+		CreateUser=#{createUser},Account=#{accountId},Remark=#{remark},Parent_ID=#{parentId},
+		ResignType=#{resignType},ResignReason=#{resignReason}
+		where
+		ID=#{id}
+	</update>
+
+	<!-- 更新 基本信息 转正 -->
+	<update id="shiftPosition" parameterType="com.jiubo.erp.rygl.vo.UserInfo">
+		update
+		T_Employee_Basic
+		set
+		PositiveDate=#{positiveDate}
+		where
+		ID=#{id}
+	</update>
+
+	<!-- 更新 基本信息 离职 -->
+	<update id="employeeResgin" parameterType="com.jiubo.erp.rygl.vo.UserInfo">
+		update
+		T_Employee_Basic
+		set
+		ResignDate=#{resignDate}
+		where
+		ID=#{id}
+	</update>
+
+	<!-- 更新 基本信息 删除 -->
+	<update id="deleteEmployee" parameterType="com.jiubo.erp.rygl.vo.UserInfo">
+		update
+		T_Employee_Basic
+		set
+		IsDelete=#{isDelete}
+		where
+		ID=#{id}
+	</update>
+
+	<!-- 更新员工的详细信息 -->
+	<update id="updataDetialInfo" parameterType="com.jiubo.erp.rygl.vo.UserInfo">
+		update
+		dbo.T_Employee_Detial
+		set
+		Political=#{uPloitical},Contact=#{uContact},HomeTown=#{uHomeTown}
+		,Nationality=#{uNationality},Marital=#{uMarital},HomeAddress=#{uHomeAddress},CurrentAddress=#{uCurrentAddress},
+		Schools=#{uSchools},Education=#{uEducation},Profession=#{uProfession},Graduation=#{uGraduation},
+		EmergencyContact=#{uEmergencyContact},EmergencyPhone=#{uEmergencyphone},Height=#{uHeight},Weight=#{uWeight},
+		BloodType=#{uBloodType},LicenseType=#{uLicenseType},DrivingExpe=#{uDrivingExpe},Domicile=#{uDomicile},
+		AccountProp=#{uAccountProp},AtSchool=#{uAtSchool},CreateDate=#{createDate},updateDate=#{updateDate},
+		CreateUser=#{createUser},Remark=#{remark}
+		where
+		Employee_basic_ID=#{uEmployeeBasicID}
+	</update>
+
+
+	<!-- 更新员工的家庭信息 -->
+	<update id="updatafamilyInfo" parameterType="com.jiubo.erp.rygl.vo.QueryFamilyResult">
+		update
+		Account_Family
+		set
+		name=#{name},Birthday=#{birth},appellation=#{appellation},workaddress=#{workaddress},position=#{position},
+		phone=#{phone},wechat=#{wechat},address=#{famAddress}
+		where
+		Account_ID =
+		#{accountId}
+
+	</update>
+
+	<!-- 员工入职的调动信息 -->
+	<select id="selectShiftInfo" parameterType="com.jiubo.erp.rygl.vo.PositionShift"
+		resultType="com.jiubo.erp.rygl.vo.PositionShift">
+		select
+		Account_ID AS accountId,
+		Old_DepartmentID AS
+		oldDepartmentId,
+		New_DepartmentID AS newDepartmentId,
+		Old_PositionID AS
+		oldPositionId,
+		New_PositionID AS newPositionId,
+		Updatetime AS
+		upDateTime,
+		Flag AS flag
+		from
+		Account_Transfer
+		where
+		Account_ID=#{accountId}
+	</select>
+
+</mapper>

@@ -1,0 +1,438 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.jiubo.erp.kqgl.dao.kqglDao">
+    <!-- 加载考勤人员基础信息列表 isDelete是否被删除 -->
+    <select id="selectKqInfoList" parameterType="com.jiubo.erp.kqgl.vo.AttParam"
+            resultType="com.jiubo.erp.kqgl.vo.KqInfoResult">
+        SELECT
+        DISTINCT
+        a.ID AS uId,
+        a.Name AS name,
+        a.JobNum AS jobNum,
+        c.Account_Name AS accountName,
+        b.Name AS departName,
+        b.ID AS departId,
+        d.Position_Name AS positionName
+        FROM
+        Account_Data c
+        LEFT JOIN T_Employee_Basic a ON a.Account=c.Account_ID
+        LEFT JOIN T_Department b ON a.Department_ID=b.ID
+        LEFT JOIN Position_Data d ON c.Position_ID=d.Position_ID
+        LEFT JOIN Account_Project_Data e ON c.Account_ID=e.Account_ID
+        LEFT JOIN Project_Data f ON f.Project_ID=e.Project_ID
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="name!=null and name!=''">
+                AND a.Name=#{name}
+            </if>
+            <if test="departName!=null and departName!=''">
+                AND b.Name=#{departName}
+            </if>
+            <if test="positionName!=null and positionName!=''">
+                AND d.Position_Name=#{positionName}
+            </if>
+            <if test="jobNum!=null and jobNum!=''">
+                AND a.JobNum=#{jobNum}
+            </if>
+            <if test="accountName !=null and accountName !=''">
+                AND c.Account_Name=#{accountName}
+            </if>
+            <if test="projectId !=null and projectId !=''">
+                AND f.Project_ID=#{projectId}
+            </if>
+            <if test="beginDate!=null and beginDate!=''">
+                AND (a.ResignDate&gt;#{beginDate} OR a.ResignDate IS NULL or a.ResignDate='1900-01-01 00:00:00.000')
+            </if>
+            <if test="endDate!=null and endDate!=''">
+                AND a.entryDate&lt;#{endDate}
+            </if>
+            AND a.JobNum != '0' AND a.IsDelete='0'
+        </trim>
+
+    </select>
+
+    <!-- 搜索考勤人员考勤信息列表 isDelete是否被删除 -->
+    <select id="searchKqInfoList" parameterType="com.jiubo.erp.kqgl.vo.AttParam"
+            resultType="com.jiubo.erp.kqgl.vo.KqInfoResult">
+        SELECT
+        DISTINCT
+        a.ID AS uId,
+        a.Name AS name,
+        c.Account_Name AS
+        accountName,
+        a.JobNum AS jobNum,
+        b.Name AS departName,
+        b.ID AS departId,
+        a.Account AS accountId,
+        d.Position_Name AS positionName,
+        f.Name AS
+        classTimeName,
+        f.Type AS classTimeType,
+        f.ShiftDate AS shiftDate,
+        f.StartTime AS startTime,
+        f.EndTime As endTime
+
+        FROM
+        Account_Data c
+        LEFT JOIN T_Employee_Basic a ON a.Account=c.Account_ID
+        LEFT JOIN T_Department b ON a.Department_ID=b.ID
+        LEFT JOIN Position_Data d ON
+        c.Position_ID=d.Position_ID
+        LEFT JOIN T_Att_PeopleShift e ON e.UserID
+        = a.Account
+        LEFT JOIN T_Att_Shift f ON e.ShiftID=f.ID
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="name!=null and name!=''">
+                AND a.Name=#{name}
+            </if>
+            <if test="departName!=null and departName!=''">
+                AND b.Name=#{departName}
+            </if>
+            <if test="accountName !=null and accountName !=''">
+                AND c.Account_Name=#{accountName}
+            </if>
+            <if test="positionName!=null and positionName!=''">
+                AND d.Position_Name=#{positionName}
+            </if>
+            <if test="jobNum!=null and jobNum!=''">
+                AND a.JobNum=#{jobNum}
+            </if>
+            <if test="beginDate!=null and beginDate!=''">
+                AND (a.ResignDate&gt;#{beginDate} OR a.ResignDate IS NULL or a.ResignDate='1900-01-01 00:00:00.000')
+            </if>
+            <if test="endDate!=null and endDate!=''">
+                AND a.entryDate&lt;#{endDate}
+            </if>
+            <if test="beginDate!=null and beginDate!=''">
+                AND f.ShiftDate&gt;=#{beginDate}
+            </if>
+            <if test="endDate!=null and endDate!=''">
+                AND f.ShiftDate&lt;=#{endDate}
+            </if>
+            AND a.JobNum != '0' AND a.IsDelete='0'
+        </trim>
+    </select>
+
+    <!-- 个人班次查询 -->
+    <select id="selectClassTimeList" parameterType="com.jiubo.erp.kqgl.vo.ClassTime"
+            resultType="com.jiubo.erp.kqgl.vo.ClassTime">
+        SELECT
+        DISTINCT
+        a.UserID AS accountId,
+        b.ShiftDate AS ctshiftDate,
+        b.StartTime AS ctbeginDate,
+        b.EndTime As ctEndDate
+        FROM
+        T_Att_PeopleShift a
+        INNER JOIN T_Att_Shift b ON a.ShiftID=b.ID
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if
+                    test="ctbeginDate!=null and ctbeginDate!='' and ctEndDate!=null and ctEndDate!=''">
+                AND b.ShiftDate=#{ctEndDate} OR b.ShiftDate BETWEEN
+                #{ctbeginDate} AND
+                #{ctEndDate}
+            </if>
+            <if test="userId!=null and userId!=''">
+                AND a.UserID=#{accountId}
+            </if>
+        </trim>
+    </select>
+
+    <!-- 考勤报表 -->
+    <select id="kqTableInfoList" parameterType="com.jiubo.erp.kqgl.vo.AttParam"
+            resultType="com.jiubo.erp.kqgl.vo.KqInfoResult">
+        SELECT
+        DISTINCT
+        tb3.YYYYMMDD,tb3.uId,tb3.name,tb3.accountName,tb3.jobNum,tb3.entryDate,tb3.resignDate,
+        tb3.departName,tb3.departId,tb3.accountId,tb3.positionName,
+        tb4.Name AS classTimeName,
+        tb4.Type AS classTimeType,
+        tb4.ShiftDate AS shiftDate,
+        tb4.StartTime AS
+        startTime,
+        tb4.EndTime As endTime
+        FROM
+        (SELECT tb1.*,tb2.* FROM
+        (
+        SELECT
+        CONVERT(CHAR(10), DATEADD(DD,NUMBER,#{beginDate}),120) AS YYYYMMDD
+        FROM
+        MASTER..SPT_VALUES
+        WHERE
+        TYPE = 'P' AND DATEDIFF(MI,DATEADD(DD,NUMBER, #{beginDate}),#{endDate})
+        >=0
+        )tb1
+        ,
+        ( SELECT
+        DISTINCT
+        a.ID AS uId,
+        a.Name AS name,
+        c.Account_Name AS accountName,
+        a.JobNum AS jobNum,
+        a.EntryDate AS entryDate,
+        a.ResignDate AS resignDate,
+        b.Name AS departName,
+        b.ID AS departId,
+        a.Account AS accountId,
+        d.Position_Name AS positionName
+
+        FROM
+        Account_Data c
+        LEFT JOIN T_Employee_Basic a ON a.Account=c.Account_ID
+        LEFT JOIN T_Department b ON a.Department_ID=b.ID
+        left JOIN Position_Data d ON c.Position_ID=d.Position_ID
+        LEFT JOIN dbo.Account_Project_Data e ON c.Account_ID=e.Account_ID
+        LEFT JOIN dbo.Project_Data f ON f.Project_ID=e.Project_ID
+        left JOIN T_Att_PeopleShift g ON g.UserID = a.Account
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="name!=null and name!=''">
+                AND a.Name=#{name}
+            </if>
+            <if test="departName!=null and departName!=''">
+                AND b.Name=#{departName}
+            </if>
+            <if test="positionName!=null and positionName!=''">
+                AND d.Position_Name=#{positionName}
+            </if>
+            <if test="jobNum!=null and jobNum!=''">
+                AND a.JobNum=#{jobNum}
+            </if>
+            <if test="beginDate!=null and beginDate!=''">
+                AND (a.ResignDate&gt;#{beginDate} OR a.ResignDate IS NULL or a.ResignDate='1900-01-01 00:00:00.000')
+            </if>
+            <if test="endDate!=null and endDate!=''">
+                AND a.entryDate&lt;#{endDate}
+            </if>
+            <if test="projectId!=null and projectId!=''">
+                AND f.Project_ID=#{projectId}
+            </if>
+        </trim>
+        )tb2
+        ) tb3
+        LEFT JOIN
+        (SELECT i.UserID,j.EndTime,j.ShiftDate,j.StartTime,j.Name,j.Type
+        FROM
+        T_Att_PeopleShift i
+        left JOIN T_Att_Shift j ON i.ShiftID=j.ID
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if
+                    test="beginDate!=null and beginDate!='' and endDate!=null and endDate!=''">
+                AND j.ShiftDate &gt;= #{beginDate} AND j.ShiftDate &lt;= #{endDate}
+            </if>
+        </trim>
+        ) tb4
+        ON tb3.accountId = tb4.UserID
+        where tb4.ShiftDate is null or
+        CONVERT(VARCHAR(100), tb4.ShiftDate, 23) =
+        tb3.YYYYMMDD
+    </select>
+
+    <!-- 查询个人打卡时间 -->
+    <select id="selectPunchRecordList" parameterType="com.jiubo.erp.kqgl.vo.PunchRecord"
+            resultType="com.jiubo.erp.kqgl.vo.PunchRecord">
+        SELECT
+        max(a.AttTime) AS maxAttTime,
+        min(a.AttTime) AS minAttTime
+        FROM
+        T_Att_Attendance a
+        INNER JOIN T_AttLog b ON a.AttLogID=b.ID
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="year!=null and year!=''">
+                AND b.Year=#{year}
+            </if>
+            <if test="month!=null and month!=''">
+                AND b.Month=#{month}
+            </if>
+            <if test="day!=null and day!=''">
+                AND b.Day=#{day}
+            </if>
+            <if test="accountId!=null and accountId!=''">
+                AND a.Userid=#{accountId}
+            </if>
+        </trim>
+
+    </select>
+
+    <!-- 搜索部门列表 -->
+    <select id="selectDepartKqInfoList" resultType="com.jiubo.erp.kqgl.vo.DepartKQ">
+        SELECT
+        Name AS
+        departKQName
+        FROM
+        T_Department
+    </select>
+
+    <!-- 考勤报表统计 -->
+    <select id="kqTableCountList" parameterType="com.jiubo.erp.kqgl.vo.AttParam"
+            resultType="com.jiubo.erp.kqgl.vo.KqInfoResult">
+        SELECT *
+        FROM
+        (
+        (
+        SELECT
+        CONVERT(CHAR(10), DATEADD(DD,NUMBER,#{beginDate}),120) AS YYYYMMDD
+        FROM
+        MASTER..SPT_VALUES
+        WHERE
+        TYPE = 'P' AND DATEDIFF(MI,DATEADD(DD,NUMBER, #{beginDate}),#{endDate})
+        >=0
+        )tab1,
+        (
+        SELECT
+        DISTINCT
+        a.ID AS uId,
+        a.Name AS name,
+        c.Account_Name AS accountName,
+        a.JobNum AS jobNum,
+        b.Name AS departName,
+        b.ID AS departId,
+        a.Account AS accountId,
+        d.Position_Name AS positionName,
+        a.EntryDate AS entryDate,
+        a.ResignDate AS resignDate
+
+        FROM
+        Account_Data c
+        LEFT JOIN T_Employee_Basic a ON a.Account=c.Account_ID
+        LEFT JOIN T_Department b ON a.Department_ID=b.ID
+        left JOIN Position_Data d ON c.Position_ID=d.Position_ID
+        LEFT JOIN dbo.Account_Project_Data e ON c.Account_ID=e.Account_ID
+        LEFT JOIN dbo.Project_Data f ON f.Project_ID=e.Project_ID
+        left JOIN T_Att_PeopleShift g ON g.UserID = a.Account
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="name!=null and name!=''">
+                AND a.Name=#{name}
+            </if>
+            <if test="departName!=null and departName!=''">
+                AND b.Name=#{departName}
+            </if>
+            <if test="jobNum!=null and jobNum!=''">
+                AND a.JobNum=#{jobNum}
+            </if>
+            <if test="beginDate!=null and beginDate!=''">
+                AND (a.ResignDate&gt;#{beginDate} OR a.ResignDate IS NULL or a.ResignDate='1900-01-01 00:00:00.000')
+            </if>
+            <if test="endDate!=null and endDate!=''">
+                AND a.entryDate&lt;#{endDate}
+            </if>
+            AND a.JobNum is not null AND a.JobNum != '0' AND a.Account is not null AND
+            a.Department_ID is not null AND c.Position_ID IS NOT NULL AND a.State='1'
+        </trim>
+
+        )tab2
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if
+                    test="beginDate!=null and beginDate!='' and endDate!=null and endDate!=''">
+                AND tab2.EntryDate &gt;= #{endDate} AND tab2.ResignDate &lt;= #{beginDate}
+            </if>
+        </trim>
+        )tab3
+
+        LEFT JOIN
+
+        (
+        SELECT
+        i.UserID,j.EndTime AS endDate,j.ShiftDate AS shiftDate,j.StartTime AS beginDate,j.Name,j.Type AS classTimeType
+        FROM
+        T_Att_PeopleShift i
+        left JOIN T_Att_Shift j ON i.ShiftID=j.ID
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if
+                    test="beginDate!=null and beginDate!='' and endDate!=null and endDate!=''">
+                AND j.ShiftDate &gt;= #{beginDate} AND j.ShiftDate &lt;= #{endDate}
+            </if>
+        </trim>
+        )tab4
+        ON tab3.accountId = tab4.UserID
+        )
+        where
+        CONVERT(VARCHAR(100), tab4.ShiftDate, 23) = tab3.YYYYMMDD or tab4.ShiftDate is null
+        order by tab3.departId
+    </select>
+
+    <!-- 搜索部门考勤人员考勤信息列表 -->
+    <select id="searchDepartKqInfoList" parameterType="com.jiubo.erp.kqgl.vo.DepartKQ"
+            resultType="com.jiubo.erp.kqgl.vo.DepartKQ">
+        SELECT
+        DISTINCT
+        a.ID AS uId,
+        b.Name AS departName,
+        a.JobNum AS jobNum,
+        b.ID AS departId,
+        d.Position_Name AS positionName,
+        f.Name AS
+        classTimeName,
+        f.Type AS classTimeType,
+        f.ShiftDate AS shiftDate,
+        f.StartTime AS startTime,
+        f.EndTime As endTime
+
+        FROM
+        Account_Data c
+        LEFT JOIN T_Employee_Basic a ON a.Account=c.Account_ID
+        LEFT JOIN T_Department b ON a.Department_ID=b.ID
+        INNER JOIN Position_Data d ON
+        c.Position_ID=d.Position_ID
+        INNER JOIN T_Att_PeopleShift e ON e.UserID
+        = a.ID
+        INNER JOIN T_Att_Shift f ON e.ShiftID=f.ID
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="departName!=null and departName!=''">
+                AND b.Name=#{departName}
+            </if>
+            <if test="beginDate!=null and beginDate!=''">
+                AND f.ShiftDate&gt;=#{beginDate}
+            </if>
+            <if test="endDate!=null and endDate!=''">
+                AND f.ShiftDate&lt;=#{endDate}
+            </if>
+            AND a.JobNum != '0'
+        </trim>
+    </select>
+    <!-- 考勤人员         基础信息列表       按住排序-->
+    <select id="selectKIGList" parameterType="com.jiubo.erp.kqgl.vo.AttParam"
+            resultType="com.jiubo.erp.kqgl.vo.KqInfoResult">
+        SELECT
+        DISTINCT
+        a.ID AS uId,
+        a.Name AS name,
+        a.JobNum AS jobNum,
+        c.Account_Name AS accountName,
+        b.Name AS departName,
+        b.ID AS departId,
+        d.Position_Name AS positionName
+        FROM
+        Account_Data c
+        LEFT JOIN T_Employee_Basic a ON a.Account=c.Account_ID
+        LEFT JOIN T_Department b ON a.Department_ID=b.ID
+        LEFT JOIN Position_Data d ON
+        c.Position_ID=d.Position_ID
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="name!=null and name!=''">
+                AND a.Name=#{name}
+            </if>
+            <if test="departName!=null and departName!=''">
+                AND b.Name=#{departName}
+            </if>
+            <if test="positionName!=null and positionName!=''">
+                AND d.Position_Name=#{positionName}
+            </if>
+            <if test="jobNum!=null and jobNum!=''">
+                AND a.JobNum=#{jobNum}
+            </if>
+            <if test="beginDate!=null and beginDate!=''">
+                AND (a.ResignDate&gt;#{beginDate} OR a.ResignDate IS NULL or a.ResignDate='1900-01-01 00:00:00.000')
+            </if>
+            <if test="endDate!=null and endDate!=''">
+                AND a.entryDate&lt;#{endDate}
+            </if>
+            AND a.JobNum != '0' AND a.State = '1'
+        </trim>
+        order by b.Name
+    </select>
+
+
+</mapper>
