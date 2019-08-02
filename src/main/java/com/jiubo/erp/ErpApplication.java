@@ -13,6 +13,8 @@ import org.springframework.boot.web.servlet.support.SpringBootServletInitializer
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.web.bind.annotation.CrossOrigin;
+
 /* *
  * @desc:springboot程序入口
  * 当使用外部部署时（即打包成war时）需要继承SpringBootServletInitializer并重写configure方法
@@ -63,5 +65,16 @@ public class ErpApplication extends SpringBootServletInitializer{
 	//@Profile({"dev","test"})// 设置 dev test 环境开启（由于没有设置开发，测试环境故此选项不适用）
 	public PerformanceInterceptor performanceInterceptor() {
 		return new PerformanceInterceptor();
+	}
+
+	//注册过滤器
+	@Bean
+	public FilterRegistrationBean registFilter() {
+		FilterRegistrationBean registration = new FilterRegistrationBean();
+		registration.setFilter(new CorsFilter());
+		registration.addUrlPatterns("/*");
+		registration.setName("CorsFilter");
+		registration.setOrder(1);
+		return registration;
 	}
 }
