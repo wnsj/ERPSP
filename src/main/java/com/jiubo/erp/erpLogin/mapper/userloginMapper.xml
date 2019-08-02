@@ -30,9 +30,9 @@
           TD.NAME
         FROM
             ACCOUNT_DATA AD
-            LEFT JOIN Position_Data PD ON AD.POSITION_ID=PD.POSITION_ID
-            LEFT JOIN T_Employee_Basic TEB ON TEB.ACCOUNT=AD.ACCOUNT_ID
-            LEFT JOIN T_Department TD ON TD.ID=TEB.DEPARTMENT_ID
+            LEFT JOIN POSITION_DATA PD ON AD.POSITION_ID=PD.POSITION_ID
+            LEFT JOIN T_EMPLOYEE_BASIC TEB ON TEB.ACCOUNT=AD.ACCOUNT_ID
+            LEFT JOIN T_DEPARTMENT TD ON TD.ID=TEB.DEPARTMENT_ID
         WHERE
               ACCOUNT_NAME = #{Account_Name} AND Account_Pwd = #{Account_Pwd}
               <if test="Account_State != null and Account_State != ''">
