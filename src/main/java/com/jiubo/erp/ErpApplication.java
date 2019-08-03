@@ -1,5 +1,7 @@
 package com.jiubo.erp;
 
+import com.baomidou.mybatisplus.core.parser.ISqlParser;
+import com.baomidou.mybatisplus.extension.parsers.BlockAttackSqlParser;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.PerformanceInterceptor;
 import com.quicksand.push.CorsFilter;
@@ -14,6 +16,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.bind.annotation.CrossOrigin;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /* *
  * @desc:springboot程序入口
@@ -45,18 +50,15 @@ public class ErpApplication extends SpringBootServletInitializer{
 		return builder.sources(ErpApplication.class);
 	}
 
-
 	//分页插件
 	@Bean
 	public PaginationInterceptor paginationInterceptor() {
-		return new PaginationInterceptor();
-	}
-
-	//性能监控(打包发布时请将此注释)
-	@Bean
-	//@Profile({"dev","test"})// 设置 dev test 环境开启（由于没有设置开发，测试环境故此选项不适用）
-	public PerformanceInterceptor performanceInterceptor() {
-		return new PerformanceInterceptor();
+		PaginationInterceptor paginationInterceptor = new PaginationInterceptor();
+		//List<ISqlParser> sqlParserList = new ArrayList<>();
+		// 攻击 SQL 阻断解析器、加入解析链
+		//sqlParserList.add(new BlockAttackSqlParser());
+		//paginationInterceptor.setSqlParserList(sqlParserList);
+		return paginationInterceptor;
 	}
 
 	//注册过滤器
@@ -70,3 +72,10 @@ public class ErpApplication extends SpringBootServletInitializer{
 		return registration;
 	}
 }
+
+//性能监控(打包发布时请将此注释)
+//	@Bean
+//@Profile({"dev","test"})// 设置 dev test 环境开启（由于没有设置开发，测试环境故此选项不适用）
+//	public PerformanceInterceptor performanceInterceptor() {
+//		return  new PerformanceInterceptor();
+//	}
