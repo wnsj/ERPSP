@@ -148,6 +148,15 @@
             </includes>
             </resource>
         </resources>
+        <!--单元测试时引用src/main/java下的资源文件-->
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+            <testResource>
+                <directory>src/main/java</directory>
+            </testResource>
+        </testResources>
     </build>
 
 </project>
