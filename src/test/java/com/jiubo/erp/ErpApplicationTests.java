@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.jiubo.erp.wzbg.bean.DimissionApplyBean;
 import com.jiubo.erp.wzbg.dao.DimissionApplyDao;
+import com.jiubo.erp.wzbg.service.DimissionApplyService;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -22,6 +23,9 @@ public class ErpApplicationTests {
 
 	@Autowired
 	private DimissionApplyDao dimissionApplyDao;
+
+	@Autowired
+	private DimissionApplyService dimissionApplyService;
 
 	@Test
 	public void contextLoads() {
@@ -41,16 +45,14 @@ public class ErpApplicationTests {
 
 		//分页查询
 		Page<DimissionApplyBean> page = new Page<DimissionApplyBean>();
-		page.setCurrent(1);
+		page.setCurrent(0);
 		page.setSize(2);
-//		IPage<DimissionApplyBean> dimissionApplyBeanIPage = dimissionApplyDao.selectPage(page, null);
-//		System.out.println(JSON.toJSONString(dimissionApplyBeanIPage));
-
+		//IPage<DimissionApplyBean> dimissionApplyBeanIPage = dimissionApplyDao.selectPage(page, null);
+		//IPage<DimissionApplyBean> dimissionApplyBeanIPage =dimissionApplyDao.queryDimissionApplyByPage(page);
+		System.out.println(JSON.toJSONString(dimissionApplyDao.queryDimissionApplyByPage(page)));
 	}
 
 	@Test
 	public void test2(){
-//		List<Vacation> vacations = dimissionApplyDao.queryVacation(null);
-//		vacations.forEach(System.out::println);
 	}
 }
