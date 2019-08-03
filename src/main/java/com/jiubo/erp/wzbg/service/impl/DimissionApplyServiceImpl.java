@@ -4,7 +4,10 @@ import com.jiubo.erp.wzbg.bean.DimissionApplyBean;
 import com.jiubo.erp.wzbg.dao.DimissionApplyDao;
 import com.jiubo.erp.wzbg.service.DimissionApplyService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * <p>
@@ -17,4 +20,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class DimissionApplyServiceImpl extends ServiceImpl<DimissionApplyDao, DimissionApplyBean> implements DimissionApplyService {
 
+    @Autowired
+    private DimissionApplyDao dimissionApplyDao;
+
+    @Override
+    public List<DimissionApplyBean> queryDimissionApplyByPage(DimissionApplyBean dimissionApplyBean) {
+        return dimissionApplyDao.queryDimissionApplyByPage(null);
+    }
 }
