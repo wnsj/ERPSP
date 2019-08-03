@@ -49,7 +49,7 @@ public class ErpApplicationTests {
 		page.setSize(2);
 		//IPage<DimissionApplyBean> dimissionApplyBeanIPage = dimissionApplyDao.selectPage(page, null);
 		//IPage<DimissionApplyBean> dimissionApplyBeanIPage =dimissionApplyDao.queryDimissionApplyByPage(page);
-		System.out.println(JSON.toJSONString(dimissionApplyDao.queryDimissionApplyByPage(page)));
+		//System.out.println(JSON.toJSONString(dimissionApplyDao.queryDimissionApplyByPage(page)));
 	}
 
 	@Test
