@@ -3,6 +3,8 @@ package com.jiubo.erp.common;
 import com.alibaba.fastjson.JSONObject;
 import com.jiubo.erp.common.Constant;
 import com.jiubo.erp.common.MessageException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -16,6 +18,8 @@ import org.springframework.web.bind.annotation.ResponseBody;
 @ControllerAdvice  //不指定包默认加了@Controller和@RestController都能控制
 //@ControllerAdvice(basePackages ="com.example.demo.controller")
 public class SysControllerAdvice {
+
+    private Logger log = LoggerFactory.getLogger(SysControllerAdvice.class);
 
     /* *
      * @desc:全局异常处理，反正异常返回统一格式的JSONObject
@@ -32,6 +36,7 @@ public class SysControllerAdvice {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(Constant.Result.RETCODE, Constant.Result.ERROR);
         jsonObject.put(Constant.Result.RETMSG, Constant.Result.ERROR_MSG);
+        log.error(Constant.Result.RETMSG, e);
         return jsonObject;
     }
 
