@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
-PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jiubo.erp.wzbg.dao.ComputerDao">
-	<sql id="computerSql">
+	<sql id="computerSql" >
 		C.ID id,
 		C.DepartmentID deptId,
 		DEPT.Name deptName,
@@ -13,14 +13,14 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		C.renshi_time useTime,
 		C.prepare_time finishTime,
 		C.Apply_name applyName,
-		C.Apply_see applyIsSee,
+		C.User_see applyIsSee,
 		C.User_ID applyId,
 		C.User_name userName,
-		C.User_see userIsSee,
+		C.Apply_see userIsSee,
 		C.Zhu_ID leaderId,
 		A1.Account_Name leaderName,
 		C.Zhu_Advice leaderAudit,
-		C.Zhu_see leadreIsSee,
+		C.Zhu_see leaderIsSee,
 		C.Prepare_ID handId,
 		C.Prepare_name handName,
 		C.Dui_see handIsSee,
@@ -32,33 +32,33 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		C.Type_ID typeId,
 		C.Articles_name typeName,
 		C.Is_Ing status,
-		C.Shuoming remark 
+		C.Shuoming remark
 	</sql>
-	
+
 	<!-- 查询电脑预申请 -->
 	<select id="queryPreApplication" resultType="ComputerBean">
-		SELECT 
-			<include refid="computerSql"></include>
-		FROM 
-			Computer C 
+		SELECT
+		<include refid="computerSql"></include>
+		FROM
+		Computer C
 		LEFT JOIN T_Department DEPT
-			ON DEPT.ID = C.DepartmentID
+		ON DEPT.ID = C.DepartmentID
 		LEFT JOIN Position_Data PD
-			ON PD.Position_ID = C.Job_ID
+		ON PD.Position_ID = C.Job_ID
 		LEFT JOIN Account_Data A1
-			ON A1.Account_ID = C.Zhu_ID
+		ON A1.Account_ID = C.Zhu_ID
 		LEFT JOIN Account_Data A2
-			ON A2.Account_ID = C.Fu_ID
+		ON A2.Account_ID = C.Fu_ID
 		WHERE
-			C.Is_Reserve != 0
+		C.Is_Reserve != 0
 		<if test="accountId != null and accountId != '' ">
 			AND (C.Apply_ID = #{accountId}
-				OR C.User_ID = #{accountId}
-				OR C.Zhu_ID = #{accountId}
-				OR C.Fu_ID = #{accountId}
-				<if test="accountName != null and accountName != '' ">
-					OR C.User_name = #{accountName}
-				</if>
+			OR C.User_ID = #{accountId}
+			OR C.Zhu_ID = #{accountId}
+			OR C.Fu_ID = #{accountId}
+			<if test="accountName != null and accountName != '' ">
+				OR C.User_name = #{accountName}
+			</if>
 			)
 		</if>
 		<if test="timeType != null and timeType != '' ">
@@ -100,62 +100,112 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 		</if>
 		ORDER BY C.ID
 	</select>
-	
+
 	<!-- 添加电脑预申请 -->
 	<insert id="addPreApplication" parameterType="ComputerBean">
-		INSERT INTO Computer 
-			(DepartmentID, Start_time, Apply_name, User_ID
-			, User_name, Articles_name, Zhu_ID, Job_ID
-			, Zhu_Advice, Fu_Advice, Type_ID ,User_see
-			, Fu_ID, Is_Reserve, renshi_time
+		INSERT INTO Computer
+			(DepartmentID, Start_time, Apply_name, User_ID,
+			User_name, Articles_name, Zhu_ID, Job_ID,
+			Zhu_Advice, Fu_Advice, Type_ID,
+			Zhu_see, Fu_see, Dui_see, User_see,
+			Fu_ID, Is_Reserve, renshi_time
 			)
-		VALUES 
+		VALUES
 			(#{deptId}, #{submitTime}, #{applyName}, #{applyId},
 			#{userName}, #{typeName}, #{leaderId}, #{positionId},
-			#{leaderAudit}, #{principalAudit}, #{typeId},#{applyIsSee}, 
+			#{leaderAudit}, #{principalAudit}, #{typeId},
+			#{leaderIsSee}, #{principalIsSee}, #{handIsSee}, #{applyIsSee},
 			#{principalId},#{isReserve}, #{useTime}
 			)
 	</insert>
-	
+	<!-- 更新电脑预申请 -->
+	<update id="updatePreApplication" parameterType="ComputerBean">
+		UPDATE Computer
+		<trim prefix="set" suffixOverrides=",">
+			<if test="deptId != null and deptId != '' ">
+				DepartmentID = #{deptId},
+			</if>
+			<if test="positionId != null and positionId != '' ">
+				Job_ID = #{positionId},
+			</if>
+			<if test="typeName != null and typeName != '' ">
+				Articles_name = #{typeName},
+			</if>
+			<if test="submitTime != null and submitTime != '' ">
+				Start_time = #{submitTime},
+			</if>
+			<if test="useTime != null and useTime != '' ">
+				renshi_time = #{useTime},
+			</if>
+			<if test="userId != null and userId != '' ">
+				User_ID = #{userId},
+			</if>
+			<if test="applyName != null and applyName != '' ">
+				Apply_name = #{applyName},
+			</if>
+			<if test="userName != null and userName != '' ">
+				User_name = #{userName},
+			</if>
+			<if test="handId != null and handId != '' ">
+				Pei_Jiedan_ID = #{handId},
+			</if>
+			<if test="principalAudit != null and principalAudit != '' ">
+				Fu_see = #{principalAudit},
+			</if>
+			<if test="isConfig != null and isConfig != '' ">
+				Is_Pei = #{isConfig},
+			</if>
+			<if test="remark != null and remark != '' ">
+				Shuoming = #{remark},
+			</if>
+			Prepare_name = #{handName},
+		</trim>
+		WHERE
+		ID = #{id}
+	</update>
+
 	<!-- 查询岗位信息 -->
 	<select id="queryPositionInfo" resultType="PositionInfo">
-		SELECT  
+		SELECT
 			P.Position_ID positionId,
 			P.Position_Name positionName
-		FROM 
+		FROM
 		Position_Data P
 	</select>
-	
+
 	<!-- 查询所在部门主管信息  -->
 	<select id="queryLeaderInfo" resultType="LeaderInfo">
 		SELECT
-			Account_ID leaderId,
-			Account_Name leaderName
+		Account_ID leaderId,
+		Account_Name leaderName
 		FROM
-			Account_Data A
-			LEFT JOIN T_Employee_Basic EMP ON A.Account_ID = EMP.Account
-			LEFT JOIN T_Department DEPT ON EMP.Department_ID = DEPT.ID
-			LEFT JOIN Position_Data PD ON A.Position_ID = PD.Position_ID
-			LEFT JOIN Position_Type PT ON PD.PositionType_ID = PT.PositionType_ID 
+		Account_Data A
+		LEFT JOIN T_Employee_Basic EMP ON A.Account_ID = EMP.Account
+		LEFT JOIN T_Department DEPT ON EMP.Department_ID = DEPT.ID
+		LEFT JOIN Position_Data PD ON A.Position_ID = PD.Position_ID
+		LEFT JOIN Position_Type PT ON PD.PositionType_ID = PT.PositionType_ID
 		WHERE
-			EMP.IsDelete = '0' AND EMP.State = '1'
+		EMP.IsDelete = '0' AND EMP.State = '1'
 		<if test="deptId != null and deptId != '' ">
 			<choose>
+				<when test="deptId == 0">
+					AND DEPT.ID = 0
+				</when>
 				<when test="deptId == 50">
-					 AND DEPT.ID  = 50
-					 AND (PD.Position_Name = '副总经理' OR PD.Position_Name = '集团总经理助理')
+					AND DEPT.ID  = 50
+					AND (PD.Position_Name = '副总经理' OR PD.Position_Name = '集团总经理助理')
 				</when>
 				<when test="deptId == 60">
-					 AND DEPT.ID  = 39
-					 AND PD.Position_Name = '办公室主任'
+					AND DEPT.ID  = 39
+					AND PD.Position_Name = '办公室主任'
 				</when>
 				<otherwise>
-					 AND (PT.PositionType_ID = 5 OR Position_Name = '项目经理' OR PT.PositionType_ID = 6) 
-					 AND DEPT.ID IN ( 
-						SELECT ID FROM [dbo].[f_GetChild] (#{deptId}) 
-						UNION 
-						SELECT ID FROM [dbo].[fnGetFather] (#{deptId})
-					 ) 
+					AND (PT.PositionType_ID = 5 OR Position_Name = '项目经理' OR PT.PositionType_ID = 6)
+					AND DEPT.ID IN (
+					SELECT ID FROM [dbo].[f_GetChild] (#{deptId})
+					UNION
+					SELECT ID FROM [dbo].[fnGetFather] (#{deptId})
+					)
 				</otherwise>
 			</choose>
 		</if>

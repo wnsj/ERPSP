@@ -74,6 +74,29 @@ public class ComputerServiceImpl implements ComputerService {
 			throw new MessageException(e.getMessage());
 		}
 	}
+
+	/**
+	 * @Description: 添加电脑预申请
+	 * @param  computerBean
+	 * @return
+	 * @author: DingDong
+	 * @date: 2019年7月31日
+	 * @version: V1.0
+	 */
+	@Override
+	public void updatePreApplication(ComputerBean computerBean) throws MessageException {
+		logger.info("----------开始修改电脑预申请,方法:updatePreApplication----------");
+		try {
+			computerBean.setHandName("");
+			computerBean.setPrincipalAudit("0");
+			computerBean.setIsReserve("1");
+			computerDao.updatePreApplication(computerBean);
+		} catch (Exception e) {
+			throw new MessageException(e.getMessage());
+		}
+	}
+
+
 	
 	/**
 	 * @Description: 查询岗位信息
