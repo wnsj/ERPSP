@@ -21,7 +21,7 @@
 		A1.Account_Name leaderName,
 		C.Zhu_Advice leaderAudit,
 		C.Zhu_see leaderIsSee,
-		C.Prepare_ID handId,
+		C.Pei_Jiedan_ID handId,
 		C.Prepare_name handName,
 		C.Dui_see handIsSee,
 		C.Fu_ID principalId,
@@ -146,19 +146,15 @@
 			<if test="userName != null and userName != '' ">
 				User_name = #{userName},
 			</if>
-			<if test="handId != null and handId != '' ">
-				Pei_Jiedan_ID = #{handId},
-			</if>
 			<if test="principalAudit != null and principalAudit != '' ">
-				Fu_see = #{principalAudit},
-			</if>
-			<if test="isConfig != null and isConfig != '' ">
-				Is_Pei = #{isConfig},
+				Fu_Advice = #{principalAudit},
 			</if>
 			<if test="remark != null and remark != '' ">
 				Shuoming = #{remark},
 			</if>
-			Prepare_name = #{handName},
+				Pei_Jiedan_ID = #{handId},
+				Prepare_name = #{handName},
+				Is_Pei = #{isConfig},
 		</trim>
 		WHERE
 		ID = #{id}
@@ -209,5 +205,19 @@
 				</otherwise>
 			</choose>
 		</if>
+	</select>
+
+	<!-- 查询所在部门主管信息  -->
+	<select id="queryHandInfo" resultType="HandInfo">
+		SELECT
+			Account_ID handId,
+			Account_Name handName
+		FROM
+			Account_Data A
+			LEFT JOIN T_Employee_Basic EMP ON A.Account_ID = EMP.Account
+		WHERE
+			EMP.IsDelete = '0'
+			AND EMP.State = '1'
+			AND EMP.Department_ID = 23
 	</select>
 </mapper>

@@ -2,6 +2,7 @@ package com.jiubo.erp.wzbg.service;
 
 import com.jiubo.erp.common.MessageException;
 import com.jiubo.erp.wzbg.bean.ComputerBean;
+import com.jiubo.erp.wzbg.vo.HandInfo;
 import com.jiubo.erp.wzbg.vo.LeaderInfo;
 import com.jiubo.erp.wzbg.vo.PositionInfo;
 
@@ -66,4 +67,24 @@ public interface ComputerService   {
 	 * @version: V1.0
 	 */
 	List<LeaderInfo> queryLeaderInfo(String deptId) throws MessageException;
+
+	/**
+	 * @Description: 查询对接人信息
+	 * @param
+	 * @return List<HandInfo>
+	 * @author: DingDong
+	 * @date: 2019年8月1日
+	 * @version: V1.0
+	 */
+	List<HandInfo> queryHandInfo() throws MessageException;
+
+	/**
+	 * @Description: 负责人审批
+	 * @param
+	 * @return
+	 * @author: DingDong
+	 * @date: 2019年8月5日
+	 * @version: V1.0
+	 */
+	void checkPreApp(ComputerBean computerBean) throws MessageException;
 }

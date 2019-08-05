@@ -253,4 +253,86 @@ public class ComputerController {
 			result.put(Constant.Result.RETMSG, retMsg);
 		}
 	}
+
+	/**
+	 * @Description: 查询对接人信息
+	 * @author: DingDong
+	 * @date: 2019年8月5日
+	 * @version: V1.0
+	 */
+	//http://127.0.0.1:8080/Erp/computerController/queryHandInfo
+	@RequestMapping(value="/queryHandInfo", method=RequestMethod.GET)
+	public JSONObject queryHandInfo() {
+		JSONObject result = new JSONObject();
+		String retCode = null;
+		String retMsg = null;
+		String retData;
+		logger.info("----------请求接口:computerController/queryHandInfo----------");
+		try {
+			retCode = Constant.Result.SUCCESS;
+			retMsg = Constant.Result.SUCCESS_MSG;
+			retData = Constant.Result.RETDATA;
+			result.put(retData, computerService.queryHandInfo());
+			logger.info("----------查询对接人信息接口成功----------");
+			return result;
+		} catch (MessageException e) {
+			retCode = Constant.Result.ERROR;
+			retMsg = Constant.Result.ERROR_MSG;
+			logger.error(e.getMessage(), e);
+			return result;
+		} catch (Exception e) {
+			retCode = Constant.Result.ERROR;
+			retMsg = Constant.Result.ERROR_MSG;
+			logger.error(e.getMessage(), e);
+			return result;
+		}finally {
+			result.put(Constant.Result.RETCODE, retCode);
+			result.put(Constant.Result.RETMSG, retMsg);
+		}
+	}
+
+	/**
+	 * @Description: 负责人审批
+	 * @author: DingDong
+	 * @date: 2019年8月5日
+	 * @version: V1.0
+	 */
+	//http://127.0.0.1:8080/Erp/computerController/checkPreApp
+	@RequestMapping(value="/checkPreApp", method=RequestMethod.POST)
+	public JSONObject checkPreApp(HttpServletRequest request) {
+		JSONObject result = new JSONObject();
+		String retCode = null;
+		String retMsg = null;
+		logger.info("----------请求接口:computerController/checkPreApp----------");
+		try {
+			String str = ToolClass.getStrFromInputStream(request);
+			if(StringUtils.isBlank(str)) {
+				throw new MessageException("参数接收失败！");
+			}
+			ComputerBean computerBean = MapUtil.transJsonStrToObjectIgnoreCase(str,ComputerBean.class);
+			computerService.checkPreApp(computerBean);
+			retCode = Constant.Result.SUCCESS;
+			retMsg = Constant.Result.SUCCESS_MSG;
+			logger.info("----------负责人审批成功----------");
+			return result;
+		} catch (IOException e) {
+			retCode = Constant.Result.ERROR;
+			retMsg = Constant.Result.ERROR_MSG;
+			logger.error(e.getMessage(), e);
+			return result;
+		} catch (MessageException e) {
+			retCode = Constant.Result.ERROR;
+			retMsg = Constant.Result.ERROR_MSG;
+			logger.error(e.getMessage(), e);
+			return result;
+		} catch (Exception e) {
+			retCode = Constant.Result.ERROR;
+			retMsg = Constant.Result.ERROR_MSG;
+			logger.error(e.getMessage(), e);
+			return result;
+		}finally {
+			result.put(Constant.Result.RETCODE, retCode);
+			result.put(Constant.Result.RETMSG, retMsg);
+		}
+	}
 }
