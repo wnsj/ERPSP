@@ -99,11 +99,14 @@ public class ComputerServiceImpl implements ComputerService {
 	public void updatePreApplication(ComputerBean computerBean) throws MessageException {
 		logger.info("----------开始修改电脑预申请,方法:updatePreApplication----------");
 		try {
-			computerBean.setHandId(" ");
-			computerBean.setHandName(" ");
-			computerBean.setPrincipalIsSee("0");
+			// 初始化主管
+			computerBean.setLeaderId("0");
+			computerBean.setLeaderAudit("5");
+			computerBean.setLeaderIsSee("0");
+			// 初始化负责人
 			computerBean.setPrincipalAudit("0");
-			computerBean.setIsConfig(" ");
+			computerBean.setPrincipalIsSee("0");
+			// 更新
 			computerDao.updatePreApplication(computerBean);
 		} catch (Exception e) {
 			throw new MessageException(e.getMessage());
@@ -174,12 +177,10 @@ public class ComputerServiceImpl implements ComputerService {
 	public void checkPreApp(ComputerBean computerBean) throws MessageException {
 		logger.info("----------开始审批,方法:check----------");
 		try {
-			//	负责人
-			computerBean.setPrincipalIsSee("1");
 			if(StringUtils.isNotEmpty(computerBean.getHandId())){
 				computerBean.setIsConfig("1");
 			}
-			computerDao.updatePreApplication(computerBean);
+			computerDao.checkPreApp(computerBean);
 		} catch (Exception e) {
 			throw new MessageException(e.getMessage());
 		}

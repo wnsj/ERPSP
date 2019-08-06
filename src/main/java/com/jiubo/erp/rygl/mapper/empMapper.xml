@@ -329,8 +329,7 @@
 	</select>
 
 	<!-- 插入入职人员 基本信息 -->
-	<insert id="insertBaseInfo" parameterType="com.jiubo.erp.rygl.vo.UserInfo"
-		useGeneratedKeys="true" keyProperty="userid">
+	<insert id="insertBaseInfo" parameterType="com.jiubo.erp.rygl.vo.UserInfo">
 		insert into
 		dbo.T_Employee_Basic
 		(Name,Sex,JobNum,Department_id,Birth,EntryDate,Photo,CreateDate,

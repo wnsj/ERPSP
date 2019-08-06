@@ -128,36 +128,39 @@
 			<if test="positionId != null and positionId != '' ">
 				Job_ID = #{positionId},
 			</if>
-			<if test="typeName != null and typeName != '' ">
-				Articles_name = #{typeName},
-			</if>
 			<if test="submitTime != null and submitTime != '' ">
 				Start_time = #{submitTime},
 			</if>
 			<if test="useTime != null and useTime != '' ">
 				renshi_time = #{useTime},
 			</if>
-			<if test="userId != null and userId != '' ">
-				User_ID = #{userId},
-			</if>
-			<if test="applyName != null and applyName != '' ">
-				Apply_name = #{applyName},
-			</if>
 			<if test="userName != null and userName != '' ">
 				User_name = #{userName},
 			</if>
-			<if test="principalAudit != null and principalAudit != '' ">
-				Fu_Advice = #{principalAudit},
+            <if test="leaderAudit != null and leaderAudit != '' ">
+                Zhu_Advice = #{leaderAudit},
+            </if>
+            <if test="leaderIsSee != null and leaderIsSee != '' ">
+                Zhu_see = #{leaderIsSee},
+            </if>
+            <if test="principalAudit != null and principalAudit != '' ">
+                Fu_Advice = #{principalAudit},
+            </if>
+			<if test="principalIsSee != null and principalIsSee != '' ">
+				Fu_see = #{principalIsSee},
 			</if>
-			<if test="remark != null and remark != '' ">
-				Shuoming = #{remark},
-			</if>
-				Pei_Jiedan_ID = #{handId},
-				Prepare_name = #{handName},
-				Is_Pei = #{isConfig},
+            <if test="handIsSee != null and handIsSee != '' ">
+                Dui_see = #{handIsSee},
+            </if>
+			Is_Ing = NULL,
+			Shuoming = NULL,
+            Pei_Jiedan_ID = NULL,
+            Prepare_name = NULL,
+            prepare_time = NULL,
+            Is_Pei = NULL,
 		</trim>
 		WHERE
-		ID = #{id}
+		    ID = #{id}
 	</update>
 
 	<!-- 查询岗位信息 -->
@@ -207,7 +210,7 @@
 		</if>
 	</select>
 
-	<!-- 查询所在部门主管信息  -->
+	<!-- 查询对接人信息  -->
 	<select id="queryHandInfo" resultType="HandInfo">
 		SELECT
 			Account_ID handId,
@@ -220,4 +223,39 @@
 			AND EMP.State = '1'
 			AND EMP.Department_ID = 23
 	</select>
+
+    <update id="checkPreApp" parameterType="ComputerBean">
+        UPDATE Computer
+        <trim prefix="set" suffixOverrides=",">
+            <if test="handId != null and handId != '' ">
+                Pei_Jiedan_ID = #{handId},
+            </if>
+            <if test="handIsSee != null and handIsSee != '' ">
+                Dui_See = #{handIsSee},
+            </if>
+            <if test="principalAudit != null and principalAudit != '' ">
+                Fu_Advice = #{principalAudit},
+            </if>
+            <if test="principalIsSee != null and principalIsSee != '' ">
+                Fu_See = #{principalIsSee},
+            </if>
+            <if test="isConfig != null and isConfig != '' ">
+                Is_Pei = #{isConfig},
+            </if>
+            <if test=" finishTime!= null and finishTime != '' ">
+                prepare_time = #{finishTime},
+            </if>
+            <if test="handName != null and handName != '' ">
+                Prepare_name = #{handName},
+            </if>
+            <if test="remark != null and remark != '' ">
+                Shuoming = #{remark},
+            </if>
+            <if test="status != null and status != '' ">
+                Is_Ing = #{status},
+            </if>
+        </trim>
+        WHERE
+            ID = #{id}
+    </update>
 </mapper>

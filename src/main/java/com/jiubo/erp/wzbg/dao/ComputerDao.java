@@ -29,4 +29,6 @@ public interface ComputerDao {
 	List<LeaderInfo> queryLeaderInfo(@Param("deptId") String deptId);
 	// 查询对接人信息
 	List<HandInfo> queryHandInfo();
+	// 审批对接操作
+    void checkPreApp(ComputerBean computerBean);
 }
