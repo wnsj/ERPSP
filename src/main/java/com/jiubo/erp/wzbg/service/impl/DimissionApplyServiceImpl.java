@@ -11,7 +11,7 @@ import java.util.List;
 
 /**
  * <p>
- *  服务实现类
+ *   离职管理 服务实现类
  * </p>
  *
  * @author dx
@@ -24,7 +24,7 @@ public class DimissionApplyServiceImpl extends ServiceImpl<DimissionApplyDao, Di
     private DimissionApplyDao dimissionApplyDao;
 
     @Override
-    public List<DimissionApplyBean> queryDimissionApplyByPage(DimissionApplyBean dimissionApplyBean) {
-        return dimissionApplyDao.queryDimissionApplyByPage(null);
+    public List<DimissionApplyBean> queryDimissionApply(DimissionApplyBean dimissionApplyBean) {
+        return dimissionApplyDao.queryDimissionApply(dimissionApplyBean);
     }
 }

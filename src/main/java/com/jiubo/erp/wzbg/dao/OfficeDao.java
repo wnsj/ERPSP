@@ -51,8 +51,35 @@ public interface OfficeDao {
     //根据部门id查询部门所属的等级
     public int queryDeptLevel(@Param("count") int count, @Param("deptId") String deptId);
 
-    //查询部门相关负责人
+    //查询部门相关负责人(主管及组长)
     public List<Map<String, Object>> queryDeptConscientious(@Param("level") int level, @Param("deptId") String deptId);
+
+    //查询本部门主管
+    public List<Map<String, Object>> queryDeptResponsible(@Param("level") int level, @Param("deptId") String deptId);
+
+    //扩大部门主管范围
+    public List<Map<String, Object>> queryDeptExpandResponsible(@Param("level") int level, @Param("deptId") String deptId);
+
+    //普岗，资深，主力，组长，主管
+    public int isPuGang(@Param("postId")String postId,@Param("postName")String postName);
+
+    //部长，总监
+    public int isBuZhang(@Param("postId")String postId,@Param("postName")String postName);
+
+    //副总
+    public int isFuZong(@Param("postId")String postId,@Param("postName")String postName);
+
+    //查询审查人（暂不使用）
+    public List<Map<String, Object>> queryCensor(@Param("level") int level);
+
+    //查询审查人
+    public List<Map<String, Object>> queryCensors(@Param("postLevel") int postLevel,@Param("deptLevel")int deptLevel,@Param("deptId")String deptId);
+
+    //查询电脑交接人
+    public List<Map<String, Object>> queryComputerHandover();
+
+    //查询办公用品交接人
+    public List<Map<String, Object>> queryOfficeHandover();
 
     //查询会议室申请信息
     public List<OfficeUserDataBean> queryOfficeUserData(OfficeUserDataBean officeUserDataBean);

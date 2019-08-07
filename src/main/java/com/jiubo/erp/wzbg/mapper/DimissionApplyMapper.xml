@@ -1,7 +1,143 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jiubo.erp.wzbg.dao.DimissionApplyDao">
-    <select id="queryDimissionApplyByPage" resultType="com.jiubo.erp.wzbg.bean.DimissionApplyBean">
-        SELECT * FROM DIMISSION_APPLY
+    <!--离职管理查询-->
+    <select id="queryDimissionApply" resultType="com.jiubo.erp.wzbg.bean.DimissionApplyBean">
+        SELECT
+            DA.ID AS ID,
+            DA.DA_ID,
+            AD1.ACCOUNT_NAME AS DANAME,
+            TD.NAME AS DADEPARTMENTNAME,
+            JOBNUM,
+            PD.POSITION_NAME AS DAPOSITIONNAME,
+            DA_ENTRY_TIME,
+            DA_APPLY_TIME,
+            DA_LEAVE_TIME,
+            DA_RESAON,
+            DA_MINISTER_REMARK,
+            DA_DEPARTMENT_ID,
+            DA.DA_CHARGE_ID,
+            AD2.ACCOUNT_NAME AS DACHARGENAME
+            , CASE
+                WHEN DA_CHARGE_ADVICE IS NULL
+                OR DA_CHARGE_ADVICE = 1 THEN '未审核'
+                WHEN DA_CHARGE_ADVICE = 2 THEN '同意'
+                WHEN DA_CHARGE_ADVICE = 3 THEN '不同意'
+            END AS DA_CHARGE_ADVICE,
+            DA.DA_MINISTER_ID,
+            AD3.ACCOUNT_NAME AS DAMINISTERNAME
+            , CASE
+                WHEN DA_MINISTER_ADVICE IS NULL
+                OR DA_MINISTER_ADVICE = 1 THEN '未审核'
+                WHEN DA_MINISTER_ADVICE = 2 THEN '同意'
+                WHEN DA_MINISTER_ADVICE = 3 THEN '不同意'
+            END AS DA_MINISTER_ADVICE,
+            DA.DA_CONNECT_ID,
+            AD4.ACCOUNT_NAME AS DACONNECTNAME
+            , CASE
+                WHEN DA_CONNECT_ADVICE IS NULL
+                OR DA_CONNECT_ADVICE = 1 THEN '未审核'
+                WHEN DA_CONNECT_ADVICE = 2 THEN '同意'
+                WHEN DA_CONNECT_ADVICE = 3 THEN '不同意'
+            END AS DA_CONNECT_ADVICE,
+            DA.DA_PERSONNEL_OFFICE_ID DAPERSONNELOFFICEID,
+            AD5.ACCOUNT_NAME AS DAPERSONNELOFFICENAME
+            , CASE
+                WHEN DA_PERSONNEL_OFFICE_ADVICE IS NULL
+                OR DA_PERSONNEL_OFFICE_ADVICE = 1 THEN '未审核'
+                WHEN DA_PERSONNEL_OFFICE_ADVICE = 2 THEN '同意'
+                WHEN DA_PERSONNEL_OFFICE_ADVICE = 3 THEN '不同意'
+            END AS DA_PERSONNEL_OFFICE_ADVICE
+            , CASE
+                WHEN DA_TYPE = 1 THEN '辞职'
+                WHEN DA_TYPE = 2 THEN '辞退'
+                WHEN DA_TYPE = 3 THEN '其他'
+            END AS DA_TYPE
+        FROM DIMISSION_APPLY DA
+            LEFT JOIN ACCOUNT_DATA AD1 ON DA.DA_ID = AD1.ACCOUNT_ID
+            LEFT JOIN ACCOUNT_DATA AD2 ON DA.DA_CHARGE_ID = AD2.ACCOUNT_ID
+            LEFT JOIN ACCOUNT_DATA AD3 ON DA.DA_MINISTER_ID = AD3.ACCOUNT_ID
+            LEFT JOIN ACCOUNT_DATA AD4 ON DA.DA_CONNECT_ID = AD4.ACCOUNT_ID
+            LEFT JOIN ACCOUNT_DATA AD5 ON DA.DA_PERSONNEL_OFFICE_ID = AD5.ACCOUNT_ID
+            LEFT JOIN T_DEPARTMENT TD ON DA.DA_DEPARTMENT_ID = TD.ID
+            LEFT JOIN POSITION_DATA PD ON DA.DA_POSITION_ID = PD.POSITION_ID
+            LEFT JOIN T_EMPLOYEE_BASIC TB ON DA.DA_ID = TB.ACCOUNT
+        <where>
+            <if test="daId != null and daId != ''">
+                AND
+                (
+                  AD1.ACCOUNT_ID = #{daId}
+                 OR AD2.ACCOUNT_ID = #{daId}
+                 OR AD3.ACCOUNT_ID = #{daId}
+                 OR AD4.ACCOUNT_ID = #{daId}
+                 OR AD5.ACCOUNT_ID = #{daId}
+                )
+            </if>
+            <if test="daDepartmentId != null and daDepartmentId != ''">
+                AND DA_DEPARTMENT_ID = #{daDepartmentId}
+            </if>
+            <if test="daDepartmentId != null and daDepartmentId != ''">
+                AND PD.POSITION_ID = #{daDepartmentId}
+            </if>
+            <if test="daType != null and daType != ''">
+                AND DA.DA_TYPE = #{daType}
+            </if>
+            <if test="daType != null and daType != ''">
+                <choose>
+                    <when test="daType == 1">
+                        AND DA_ENTRY_TIME >= #{begDate}
+                        AND DA_ENTRY_TIME &lt;= #{endDate}
+                    </when>
+                    <when test="daType == 2">
+                        AND DA_APPLY_TIME >= #{begDate}
+                        AND DA_APPLY_TIME &lt;= #{endDate}
+                    </when>
+                    <otherwise>
+                        AND DA_LEAVE_TIME >= #{begDate}
+                        AND DA_LEAVE_TIME &lt;= #{endDate}
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="daName != null and daName != ''">
+                AND AD1.ACCOUNT_NAME LIKE '%' + #{daName} + '%'
+            </if>
+            <if test="daChargeAdvice != null and daChargeAdvice != ''">
+                <choose>
+                    <when test="daChargeAdvice == 1">
+                        AND
+                        (
+                          DA_CHARGE_ADVICE IS NULL
+                          OR DA_CHARGE_ADVICE = 1
+                          OR DA_MINISTER_ADVICE IS NULL
+                          OR DA_MINISTER_ADVICE = 1
+                          OR DA_CONNECT_ADVICE  IS NULL
+                          OR DA_CONNECT_ADVICE = 1
+                          OR DA_PERSONNEL_OFFICE_ADVICE  IS NULL
+                          OR DA_PERSONNEL_OFFICE_ADVICE = 1
+                        )
+                    </when>
+                    <otherwise>
+                        AND
+                        (
+                          DA_CHARGE_ADVICE = #{daChargeAdvice}
+                          OR DA_MINISTER_ADVICE = #{daChargeAdvice}
+                          OR DA_CONNECT_ADVICE = #{daChargeAdvice}
+                          OR DA_PERSONNEL_OFFICE_ADVICE = #{daChargeAdvice}
+                        )
+                    </otherwise>
+                </choose>
+            </if>
+            <if test="id != null and id != ''">
+                AND DA.ID = #{id}
+            </if>
+            <if test="daIsCollect != null and daIsCollect != ''">
+                <if test="daIsCollect == 1">
+                    AND DA_IS_COLLECT = 1
+                </if>
+                <if test="daIsCollect == 2">
+                    AND DA_IS_COLLECT IS  NULL
+                </if>
+            </if>
+        </where>
     </select>
 </mapper>
