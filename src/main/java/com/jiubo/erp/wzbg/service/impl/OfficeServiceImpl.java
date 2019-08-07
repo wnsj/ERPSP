@@ -108,6 +108,8 @@ public class OfficeServiceImpl implements OfficeService {
             //判断本月是否已经汇总
             if (StringUtils.isNotBlank(officeSuppliesDataBean.getIsTiJiao())) {
                 dataMap.put("isHuiZong", "9999");
+                dataMap.put("huiZongRenId",officeSuppliesDataBean.getAccountId3());
+                dataMap.put("huiZongRenName",officeSuppliesDataBean.getAccount3Name());
                 return dataMap;
             }
         }
