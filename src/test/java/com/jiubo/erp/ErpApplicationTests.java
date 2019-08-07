@@ -203,6 +203,8 @@ public class ErpApplicationTests {
         sql.append("    LEFT JOIN Account_Rule_Data ARD ");
         sql.append("    ON V.Account_ID  = ARD.Account_ID ");
         sql.append("    WHERE Account_State = '在用' AND ARD.Rule_ID = 76 ");
+
+
         System.out.println(sql.toString());
     }
 }
