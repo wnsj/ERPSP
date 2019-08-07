@@ -13,9 +13,9 @@ import java.io.Serializable;
  **/
 @Data
 public class ComputerBean implements Serializable {
-	
+
 	private static final long serialVersionUID = -5597291336415363760L;
-	
+
 	private String id; // (主键)单号
 	// 部门
 	private String deptId; // 部门ID
@@ -44,8 +44,8 @@ public class ComputerBean implements Serializable {
 	// 主管
 	private String leaderId; // 主管ID
 	private String leaderName; // 主管姓名
-	private String leaderAudit; // 审核状态: 0.未审核 1.同意 2.不同意 
-	private String leadreIsSee; // 是否查看
+	private String leaderAudit; // 审核状态: 0.未审核 1.同意 2.不同意
+	private String leaderIsSee; // 是否查看
 	// 交接人
 	private String handId; // 交接人ID
 	private String handName; // 交接人姓名
@@ -53,7 +53,7 @@ public class ComputerBean implements Serializable {
 	// 负责人
 	private String principalId; // 负责人ID
 	private String principalName; // 负责人姓名
-	private String principalAudit; // 审核状态: 0.未审核 1.同意 2.不同意 
+	private String principalAudit; // 审核状态: 0.未审核 1.同意 2.不同意
 	private String principalIsSee; // 负责人是否查看
 	// 配置人
 	private String configId; // 配置电脑人ID
@@ -65,7 +65,7 @@ public class ComputerBean implements Serializable {
 	private String typeId; // 类型: 0.领用电脑 1.更换配件 2.添加配件
 	private String typeName; // 名称
 	private String status; // 申请状态: null:未完成(页面显示点击完成)  1.进行中 2.已完成
-	
+
 	private String remark; // 说明
 	// 登陆人
 	private String accountId; // 登陆人ID

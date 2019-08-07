@@ -35,7 +35,7 @@ public class LeavePrepareServiceImpl implements LeavePrepareService {
 
 	/**
 	 * @Description: 查询部门下的员工姓名以及ERP账户信息
-	 * @param  String id(部门id)
+	 * @param  id(部门id)
 	 * @return List<DeptWithEmp>
 	 * @author: DingDong
 	 * @date: 2019年7月1日
@@ -153,7 +153,7 @@ public class LeavePrepareServiceImpl implements LeavePrepareService {
 	
 	/**
 	 * @Description: 查询审查人信息
-	 * @param  queryCheckInfo
+	 * @param  checkInfo
 	 * @return
 	 * @author: DingDong
 	 * @date: 2019年7月24日
@@ -173,7 +173,7 @@ public class LeavePrepareServiceImpl implements LeavePrepareService {
 	
 	/**
 	 * @Description: 查询父级部门ID
-	 * @param  queryParentDept
+	 * @param  deptId
 	 * @return	String
 	 * @author: DingDong
 	 * @date: 2019年7月24日
