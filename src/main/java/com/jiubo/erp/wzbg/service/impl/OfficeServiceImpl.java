@@ -108,6 +108,8 @@ public class OfficeServiceImpl implements OfficeService {
             //判断本月是否已经汇总
             if (StringUtils.isNotBlank(officeSuppliesDataBean.getIsTiJiao())) {
                 dataMap.put("isHuiZong", "9999");
+                dataMap.put("huiZongRenId",officeSuppliesDataBean.getAccountId3());
+                dataMap.put("huiZongRenName",officeSuppliesDataBean.getAccount3Name());
                 return dataMap;
             }
         }
@@ -248,6 +250,83 @@ public class OfficeServiceImpl implements OfficeService {
             }
         }
         return mapList;
+    }
+
+    @Override
+    public List<Map<String, Object>> queryDeptResponsible(Map<String, Object> params) throws MessageException {
+        String deptId = null;
+        List<Map<String, Object>> mapList = new ArrayList<Map<String, Object>>();
+        try {
+            deptId = MapUtil.getStringIgnoreCase(params, "deptId", MapUtil.NOT_NULL);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new MessageException(e.getMessage());
+        }
+        //主管
+        for (int i = 0; i < 3; i++) {
+            if (wzbgDao.queryDeptLevel(i, deptId) > 0) {
+                mapList = wzbgDao.queryDeptResponsible(i, deptId);
+            }
+        }
+        return mapList;
+    }
+
+    @Override
+    public List<Map<String, Object>> queryDeptExpandResponsible(Map<String, Object> params) throws MessageException {
+        String deptId = null;
+        List<Map<String, Object>> mapList = new ArrayList<Map<String, Object>>();
+        try {
+            deptId = MapUtil.getStringIgnoreCase(params, "deptId", MapUtil.NOT_NULL);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new MessageException(e.getMessage());
+        }
+        //主管
+        for (int i = 0; i < 3; i++) {
+            if (wzbgDao.queryDeptLevel(i, deptId) > 0) {
+                mapList = wzbgDao.queryDeptExpandResponsible(i, deptId);
+            }
+        }
+        return mapList;
+    }
+
+    @Override
+    public List<Map<String, Object>> queryCensor(Map<String, Object> params) throws MessageException {
+        String postId = null;
+        String postName = null;
+        String deptId = null;
+        int deptLevel = 0;
+        List<Map<String, Object>> mapList = new ArrayList<Map<String, Object>>();
+        try {
+            deptId = MapUtil.getStringIgnoreCase(params, "deptId", MapUtil.NOT_NULL);
+            postId = MapUtil.getStringIgnoreCase(params, "postId", MapUtil.ALLOW_NULL);
+            postName = MapUtil.getStringIgnoreCase(params, "postName", MapUtil.ALLOW_NULL);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new MessageException(e.getMessage());
+        }
+        for (int i = 0; i < 3; i++) {
+            if (wzbgDao.queryDeptLevel(deptLevel = i, deptId) > 0) break;
+        }
+        if (wzbgDao.isPuGang(postId, postName) > 0)
+            mapList = wzbgDao.queryCensors(0,deptLevel,deptId);
+        else if (wzbgDao.isBuZhang(postId, postName) > 0)
+            mapList = wzbgDao.queryCensors(1,deptLevel,deptId);
+        else if (wzbgDao.isFuZong(postId, postName) > 0)
+            mapList = wzbgDao.queryCensors(2,deptLevel,deptId);
+        else
+            mapList = wzbgDao.queryCensors(3,deptLevel,deptId);
+        return mapList;
+    }
+
+    @Override
+    public List<Map<String, Object>> queryComputerHandover(Map<String, Object> params) throws MessageException {
+        return wzbgDao.queryComputerHandover();
+    }
+
+    @Override
+    public List<Map<String, Object>> queryOfficeHandover(Map<String, Object> params) throws MessageException {
+        return wzbgDao.queryOfficeHandover();
     }
 
     @Override
