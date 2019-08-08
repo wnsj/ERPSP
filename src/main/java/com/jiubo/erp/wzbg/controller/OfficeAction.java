@@ -360,7 +360,7 @@ public class OfficeAction {
     }
 
     /* *
-     * @desc:查询部门相关负责人
+     * @desc:查询部门相关负责人(主管及组长)
      * @author: dx
      * @date: 2019-07-18 10:00:10
      * @param request :
@@ -381,6 +381,181 @@ public class OfficeAction {
             if (StringUtils.isBlank(params)) throw new MessageException("参数接收失败!");
             Map<String, Object> requestMap = JSONObject.parseObject(params, Map.class);
             result.put(Constant.Result.RETDATA, wzbgService.queryDeptConscientious(requestMap));
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = e.getMessage();
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(Constant.Result.RETMSG, e);
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+            return result;
+        }
+    }
+
+    /* *
+     * @desc:查询本部门主管
+     * @author: dx
+     * @date: 2019-08-06 10:15:47
+     * @param request :
+     * @param response :
+     * @param params :
+     * @return: com.alibaba.fastjson.JSONObject
+     * @throws:
+     * @version: 1.0
+     **/
+    //http://127.0.0.1:8080/Erp/officeAction/queryDeptResponsible?deptId=&level=
+    @ResponseBody
+    @RequestMapping(value = "/queryDeptResponsible", method = RequestMethod.POST)
+    public JSONObject queryDeptResponsible(HttpServletRequest request, HttpServletResponse response, @RequestBody String params) {
+        JSONObject result = new JSONObject();
+        String retCode = Constant.Result.SUCCESS;
+        String retMsg = Constant.Result.SUCCESS_MSG;
+        try {
+            if (StringUtils.isBlank(params)) throw new MessageException("参数接收失败!");
+            Map<String, Object> requestMap = JSONObject.parseObject(params, Map.class);
+            result.put(Constant.Result.RETDATA, wzbgService.queryDeptResponsible(requestMap));
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = e.getMessage();
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(Constant.Result.RETMSG, e);
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+            return result;
+        }
+    }
+
+    /* *
+     * @desc:扩大主管范围
+     * @author: dx
+     * @date: 2019-08-06 10:34:34
+     * @param request :
+     * @param response :
+     * @param params :
+     * @return: com.alibaba.fastjson.JSONObject
+     * @throws:
+     * @version: 1.0
+     **/
+    //http://127.0.0.1:8080/Erp/officeAction/queryDeptExpandResponsible?deptId=&level=
+    @ResponseBody
+    @RequestMapping(value = "/queryDeptExpandResponsible", method = RequestMethod.POST)
+    public JSONObject queryDeptExpandResponsible(HttpServletRequest request, HttpServletResponse response, @RequestBody String params) {
+        JSONObject result = new JSONObject();
+        String retCode = Constant.Result.SUCCESS;
+        String retMsg = Constant.Result.SUCCESS_MSG;
+        try {
+            if (StringUtils.isBlank(params)) throw new MessageException("参数接收失败!");
+            Map<String, Object> requestMap = JSONObject.parseObject(params, Map.class);
+            result.put(Constant.Result.RETDATA, wzbgService.queryDeptExpandResponsible(requestMap));
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = e.getMessage();
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(Constant.Result.RETMSG, e);
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+            return result;
+        }
+    }
+
+    /* *
+     * @desc:查询审查人
+     * @author: dx
+     * @date: 2019-08-06 13:34:49
+     * @param request :
+     * @param response :
+     * @param params :
+     * @return: com.alibaba.fastjson.JSONObject
+     * @throws:
+     * @version: 1.0
+     **/
+    //http://127.0.0.1:8080/Erp/officeAction/queryCensor?postId=&postName=
+    @ResponseBody
+    @RequestMapping(value = "/queryCensor", method = RequestMethod.POST)
+    public JSONObject queryCensor(HttpServletRequest request, HttpServletResponse response, @RequestBody String params) {
+        JSONObject result = new JSONObject();
+        String retCode = Constant.Result.SUCCESS;
+        String retMsg = Constant.Result.SUCCESS_MSG;
+        try {
+            if (StringUtils.isBlank(params)) throw new MessageException("参数接收失败!");
+            Map<String, Object> requestMap = JSONObject.parseObject(params, Map.class);
+            result.put(Constant.Result.RETDATA, wzbgService.queryCensor(requestMap));
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = e.getMessage();
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(Constant.Result.RETMSG, e);
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+            return result;
+        }
+    }
+
+    /* *
+     * @desc:查询电脑交接人
+     * @author: dx
+     * @date: 2019-08-06 15:45:14
+     * @param request :
+     * @param response :
+     * @param params :
+     * @return: com.alibaba.fastjson.JSONObject
+     * @throws:
+     * @version: 1.0
+     **/
+    //http://127.0.0.1:8080/Erp/officeAction/queryComputerHandover
+     @ResponseBody
+     @RequestMapping(value = "/queryComputerHandover", method = RequestMethod.POST)
+     public JSONObject queryComputerHandover(HttpServletRequest request, HttpServletResponse response) {
+        JSONObject result = new JSONObject();
+        String retCode = Constant.Result.SUCCESS;
+        String retMsg = Constant.Result.SUCCESS_MSG;
+        try {
+            result.put(Constant.Result.RETDATA, wzbgService.queryComputerHandover(null));
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = e.getMessage();
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(Constant.Result.RETMSG, e);
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+            return result;
+        }
+    }
+
+    /* *
+     * @desc:查询办公用品交接人
+     * @author: dx
+     * @date: 2019-08-06 15:54:39
+     * @param request :
+     * @param response :
+     * @return: com.alibaba.fastjson.JSONObject
+     * @throws:
+     * @version: 1.0
+     **/
+    //http://127.0.0.1:8080/Erp/officeAction/queryOfficeHandover
+    @ResponseBody
+    @RequestMapping(value = "/queryOfficeHandover", method = RequestMethod.POST)
+    public JSONObject queryOfficeHandover(HttpServletRequest request, HttpServletResponse response) {
+        JSONObject result = new JSONObject();
+        String retCode = Constant.Result.SUCCESS;
+        String retMsg = Constant.Result.SUCCESS_MSG;
+        try {
+            result.put(Constant.Result.RETDATA, wzbgService.queryOfficeHandover(null));
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
             retMsg = e.getMessage();

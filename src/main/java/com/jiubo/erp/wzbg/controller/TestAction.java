@@ -34,7 +34,7 @@ public class TestAction {
         page.setSize(2);
         JSONObject result = new JSONObject();
         result.put(Constant.Result.RETCODE,Constant.Result.SUCCESS);
-        System.out.println(dimissionApplyDao.queryDimissionApplyByPage(page));
+        //System.out.println(dimissionApplyDao.queryDimissionApplyByPage(page));
         //result.put(Constant.Result.RETDATA,dimissionApplyDao.queryVacation(null));
         //int i = 1 / 0;
         //if(true)throw new MessageException("自定义异常!");

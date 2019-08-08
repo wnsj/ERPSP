@@ -129,6 +129,43 @@ public interface OfficeService {
     public List<Map<String, Object>> queryDeptConscientious(Map<String, Object> params) throws MessageException;
 
     /* *
+     * @desc:查询本部门主管
+     * @author: dx
+     * @date: 2019-08-06 10:18:41
+     * @param params :
+     * @return: java.util.List<java.util.Map<java.lang.String,java.lang.Object>>
+     * @throws:
+     * @version: 1.0
+     **/
+    public List<Map<String, Object>> queryDeptResponsible(Map<String, Object> params) throws MessageException;
+
+    /* *
+     * @desc:扩大主管范围
+     * @author: dx
+     * @date: 2019-08-06 11:01:04
+     * @param params :
+     * @return: java.util.List<java.util.Map<java.lang.String,java.lang.Object>>
+     * @throws:
+     * @version: 1.0
+     **/
+    public List<Map<String, Object>> queryDeptExpandResponsible(Map<String, Object> params) throws MessageException;
+
+    /* *
+     * @desc:查询审查人
+     * @author: dx
+     * @date: 2019-08-06 11:23:57
+     * @param params :
+     * @return: java.util.List<java.util.Map<java.lang.String,java.lang.Object>>
+     * @throws:
+     * @version: 1.0
+     **/
+    public List<Map<String, Object>> queryCensor(Map<String, Object> params) throws MessageException;
+
+    public List<Map<String, Object>> queryComputerHandover(Map<String, Object> params) throws MessageException;
+
+    public List<Map<String, Object>> queryOfficeHandover(Map<String, Object> params) throws MessageException;
+
+    /* *
      * @desc:会议室申请信息查询
      * @author: dx
      * @date: 2019-07-23 09:36:14
@@ -148,9 +185,9 @@ public interface OfficeService {
      * @throws:
      * @version: 1.0
      **/
-    public void addOfficeUserData(OfficeUserDataBean officeUserDataBean)throws MessageException;
+    public void addOfficeUserData(OfficeUserDataBean officeUserDataBean) throws MessageException;
 
-    public void updateOfficeUserData(OfficeUserDataBean officeUserDataBean)throws MessageException;
+    public void updateOfficeUserData(OfficeUserDataBean officeUserDataBean) throws MessageException;
 
     /* *
     * @desc:会议室查询
@@ -160,7 +197,7 @@ public interface OfficeService {
     * @throws:
     * @version: 1.0
     **/
-    public List<OfficeDataBean> queryOfficeData()throws MessageException;
+    public List<OfficeDataBean> queryOfficeData() throws MessageException;
 
     /* *
      * @desc:会议预约信息添加及修改
@@ -171,7 +208,7 @@ public interface OfficeService {
      * @throws:
      * @version: 1.0
      **/
-    public void addUpdateOfficeUserData(OfficeUserDataBean officeUserDataBean)throws MessageException;
+    public void addUpdateOfficeUserData(OfficeUserDataBean officeUserDataBean) throws MessageException;
 
     /* *
      * @desc:修改会议室预约信息状态
@@ -182,5 +219,5 @@ public interface OfficeService {
      * @throws:
      * @version: 1.0
      **/
-    public void updateOfficeUserDataState(OfficeUserDataBean officeUserDataBean)throws MessageException;
+    public void updateOfficeUserDataState(OfficeUserDataBean officeUserDataBean) throws MessageException;
 }
