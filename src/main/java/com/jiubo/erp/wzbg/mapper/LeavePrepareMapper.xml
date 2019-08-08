@@ -341,24 +341,53 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
 			T_Employee_Basic AS EMP
 			INNER JOIN Account_Data AS ACC ON EMP.Account = ACC.Account_ID
 			INNER JOIN Position_Data AS PD ON ACC.Position_ID = PD.Position_ID
-			INNER JOIN T_Department AS DEPT ON DEPT.ID = EMP.Department_ID 
+			INNER JOIN T_Department AS DEPT ON DEPT.ID = EMP.Department_ID
 		WHERE
 			EMP.IsDelete = '0' 
-			AND EMP.State = '1' 
-			AND	
-				DEPT.ID IN ( 
-				SELECT ID FROM [dbo].[f_GetChild] ( #{deptId} ) 
-				UNION 
-				SELECT ID FROM [dbo].[fnGetFather] ( #{deptId} ) ) 
-			AND 
-				PD.PositionType_ID IN 
-			<foreach index="index" item="item" collection="typeIds" open="(" separator=","  close=")">
-				#{item}
-			</foreach>
+			AND EMP.State = '1'
+		<choose>
+			<when test="typeIds != null and typeIds != '' ">
+				AND
+				DEPT.ID IN (
+				SELECT ID FROM [dbo].[f_GetChild] ( #{deptId} )
+				UNION
+				SELECT ID FROM [dbo].[fnGetFather] ( #{deptId} ) )
+				AND
+				PD.PositionType_ID IN
+				<foreach index="index" item="item" collection="typeIds" open="(" separator=","  close=")">
+					#{item}
+				</foreach>
+			</when>
+			<when test="typeIds == null or typeIds == '' ">
+				<if test="deptIds != null and deptIds != '' ">
+					AND
+					DEPT.ID IN
+					<foreach index="index" item="item" collection="deptIds" open="(" separator=","  close=")">
+						#{item}
+					</foreach>
+				</if>
+			</when>
+		</choose>
+		<if test="positionId != null and positionId != '' ">
+			UNION
+			SELECT
+			ACC.Account_ID accountId,
+			ACC.Account_Name accountName,
+			DEPT.ID	deptId
+			FROM
+			T_Employee_Basic AS EMP
+			INNER JOIN Account_Data AS ACC ON EMP.Account = ACC.Account_ID
+			INNER JOIN Position_Data AS PD ON ACC.Position_ID = PD.Position_ID
+			INNER JOIN T_Department AS DEPT ON DEPT.ID = EMP.Department_ID
+			WHERE
+			EMP.IsDelete = '0'
+			AND EMP.State = '1'
+			AND PD.Position_ID = #{positionId}
+		</if>
 		GROUP BY
 			DEPT.ID, ACC.Account_ID, ACC.Account_Name
-		ORDER BY 
-			DEPT.ID, ACC.Account_ID
+		ORDER BY
+			ACC.Account_Name, ACC.Account_ID
 	</select>
 	
 	<!-- 查询父级部门ID -->
