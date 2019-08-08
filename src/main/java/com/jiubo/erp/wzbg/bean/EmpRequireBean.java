@@ -48,7 +48,7 @@ public class EmpRequireBean {
 	private String foreignLanguageLevel;
 	private String essentialCondition;
 	private String supplement;
-	private String file_name;
+	private String fileName;
 	private String applyType;
 	private String state;
 	
@@ -72,7 +72,7 @@ public class EmpRequireBean {
 				+ obsterical + ", education=" + education + ", major=" + major + ", industry=" + industry
 				+ ", yearsOfWorking=" + yearsOfWorking + ", jobHapping=" + jobHapping + ", computerLevel="
 				+ computerLevel + ", foreignLanguageLevel=" + foreignLanguageLevel + ", essentialCondition="
-				+ essentialCondition + ", supplement=" + supplement + ", file_name=" + file_name + ", applyType="
+				+ essentialCondition + ", supplement=" + supplement + ", file_name=" + fileName + ", applyType="
 				+ applyType + ", state=" + state + "]";
 	}
 
@@ -398,12 +398,12 @@ public class EmpRequireBean {
 		this.supplement = supplement;
 	}
 
-	public String getFile_name() {
-		return file_name;
+	public String getFileName() {
+		return fileName;
 	}
 
-	public void setFile_name(String file_name) {
-		this.file_name = file_name;
+	public void setFileName(String fileName) {
+		this.fileName = fileName;
 	}
 
 	public String getApplyType() {

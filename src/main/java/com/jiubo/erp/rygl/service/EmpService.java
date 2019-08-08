@@ -4,7 +4,9 @@ package com.jiubo.erp.rygl.service;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jiubo.erp.common.Position;
 import com.jiubo.erp.rygl.bean.DepartmentBean;
 import com.jiubo.erp.rygl.bean.EmployeeBasicBean;
@@ -17,6 +19,7 @@ import com.jiubo.erp.rygl.vo.QueryFamilyResult;
 import com.jiubo.erp.rygl.vo.QueryParam;
 import com.jiubo.erp.rygl.vo.QueryResult;
 import com.jiubo.erp.rygl.vo.UserInfo;
+import org.springframework.http.HttpRequest;
 
 public interface EmpService {
 	
@@ -69,8 +72,7 @@ public interface EmpService {
 	
 	//更新基础用户信息
 	public Integer updataBaseInfo(UserInfo userInfo);
-	
-	
+
 	//插入用户的详细信息
 	public Integer insertUserDetailInfo(UserInfo userInfo);
 	
@@ -95,6 +97,9 @@ public interface EmpService {
 	
 	//查询调动信息
 	public List<PositionShift> selectShiftInfo(PositionShift pShift);
+
+	//插入调动信息
+	Integer insertShiftInfo(PositionShift pShift)throws Exception;
 	
 	//更新离职原因
 	Integer updateLeaveReason(LeaveResign lResign);

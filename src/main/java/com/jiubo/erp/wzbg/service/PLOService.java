@@ -31,4 +31,34 @@ public interface PLOService {
 	
 	//倒休修改
 	public JSONObject restDownModify(HttpServletResponse response, HttpServletRequest request);
+
+	// 人员需求列表
+	public JSONObject selectEmpRequireLsit(HttpServletResponse response, HttpServletRequest request);
+
+	//人员需求申请
+	public JSONObject insertEmpRequireApply(HttpServletResponse response, HttpServletRequest request);
+
+	// 修改需求列表
+	public JSONObject updateRYRequire(HttpServletResponse response, HttpServletRequest request);
+
+	// 工作年限
+	public JSONObject selectWorkAge(HttpServletResponse response, HttpServletRequest request);
+
+	// 专业
+	public JSONObject selectMajor(HttpServletResponse response, HttpServletRequest request);
+
+	// 跳槽频率
+	public JSONObject selectJobHopFrequency(HttpServletResponse response, HttpServletRequest request);
+
+	// 行业
+	public JSONObject selectIndustryBackground(HttpServletResponse response, HttpServletRequest request);
+
+	// 年龄段列表
+	public JSONObject selectAgeLsit(HttpServletResponse response, HttpServletRequest request);
+
+	//审查人
+	public JSONObject empRequireCheckList(HttpServletResponse response, HttpServletRequest request);
+
+	//审批人
+	public JSONObject empRequireApprolList(HttpServletResponse response, HttpServletRequest request);
 }

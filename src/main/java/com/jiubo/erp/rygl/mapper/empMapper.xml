@@ -29,7 +29,13 @@
 	</select>
 	<!-- 初始化账号密码 -->
 	<update id="updataAccountPwd" parameterType="com.jiubo.erp.rygl.vo.Account">
-		UPDATE Account_Data SET Account_Pwd=#{accountPwd}
+		UPDATE
+			Account_Data
+		SET
+		<trim suffixOverrides=",">
+			<if test=" accountPwd !=null and accountPwd != ''">Account_Pwd=#{accountPwd},</if>
+			<if test=" positionId !=null and positionId != ''">Position_ID=#{positionId},</if>
+		</trim>
 		<trim prefix="WHERE" prefixOverrides="AND | OR">
 			<if test="accountId!=null and accountId!=''">
 				AND Account_ID=#{accountId}
@@ -127,6 +133,7 @@
 		d.Name AS departName,
 		d.ID AS departId,
 		c.Position_Name AS positionName,
+		c.Position_ID AS positionId,
 		b.Account_Name AS ERPAaccount,
 		b.Account_ID AS accountId,
 		a.Birth AS birth,
@@ -222,7 +229,7 @@
 			</if>
 			AND TEB.isDelete=0
 			<if test="name !=null and name !='' and jobnum !=null and jobnum !=''">
-				AND TEB.Name like '%'+#{name}+'%' or TEB.JobNum like '%'+#{jobnum}+'%'
+				AND (TEB.Name like '%'+#{name}+'%' or TEB.JobNum like '%'+#{jobnum}+'%')
 			</if>
 		</trim>
 		ORDER BY TEB.JobNum
@@ -329,8 +336,7 @@
 	</select>
 
 	<!-- 插入入职人员 基本信息 -->
-	<insert id="insertBaseInfo" parameterType="com.jiubo.erp.rygl.vo.UserInfo"
-		useGeneratedKeys="true" keyProperty="userid">
+	<insert id="insertBaseInfo" parameterType="com.jiubo.erp.rygl.vo.UserInfo">
 		insert into
 		dbo.T_Employee_Basic
 		(Name,Sex,JobNum,Department_id,Birth,EntryDate,Photo,CreateDate,
@@ -399,13 +405,34 @@
 		update
 		T_Employee_Basic
 		set
-		Name=#{name},Sex=#{sex},Department_id=#{departId},Birth=#{birth},
-		EntryDate=#{entryDate},PositiveDate=#{positiveDate},ResignDate=#{resignDate},Photo=#{photo},
-		UpdateDate=#{updateDate},IsDelete=#{isDelete},State=#{state},
-		CreateUser=#{createUser},Account=#{accountId},Remark=#{remark},Parent_ID=#{parentId},
-		ResignType=#{resignType},ResignReason=#{resignReason}
+		<trim suffixOverrides=",">
+			<if test=" name !=null and name != ''">Name=#{name},</if>
+			<if test=" sex !=null and sex != ''">Sex=#{sex},</if>
+			<if test=" departId !=null and departId != ''">Department_id=#{departId},</if>
+			<if test=" birth !=null and birth != ''">Birth=#{birth},</if>
+			<if test=" entryDate !=null and entryDate != ''">EntryDate=#{entryDate},</if>
+			<if test=" positiveDate !=null and positiveDate != ''">PositiveDate=#{positiveDate},</if>
+			<if test=" resignDate !=null and resignDate != ''">ResignDate=#{resignDate},</if>
+			<if test=" photo !=null and photo != ''">Photo=#{photo},</if>
+			<if test=" updateDate !=null and updateDate != ''">UpdateDate=#{updateDate},</if>
+			<if test=" isDelete !=null and isDelete != ''">IsDelete=#{isDelete},</if>
+			<if test=" state !=null and state != ''">State=#{state},</if>
+			<if test=" createUser !=null and createUser != ''">CreateUser=#{createUser},</if>
+			<if test=" accountId !=null and accountId != ''">Account=#{accountId},</if>
+			<if test=" remark !=null and remark != ''">Remark=#{remark},</if>
+			<if test=" parentId !=null and parentId != ''">Parent_ID=#{parentId},</if>
+			<if test=" resignType !=null and resignType != ''">ResignType=#{resignType},</if>
+			<if test=" resignReason !=null and resignReason != ''">ResignReason=#{resignReason},</if>
+		</trim>
 		where
-		ID=#{id}
+		<trim prefix="WHERE" prefixOverrides="AND | OR">
+			<if test="id !=null and id !=''">
+				AND ID=#{id}
+			</if>
+			<if test="accountId !=null and accountId !=''">
+				AND Account=#{accountId}
+			</if>
+		</trim>
 	</update>
 
 	<!-- 更新 基本信息 转正 -->
@@ -468,24 +495,42 @@
 
 	</update>
 
-	<!-- 员工入职的调动信息 -->
+	<!-- 员工异动   查询  -->
 	<select id="selectShiftInfo" parameterType="com.jiubo.erp.rygl.vo.PositionShift"
 		resultType="com.jiubo.erp.rygl.vo.PositionShift">
 		select
-		Account_ID AS accountId,
-		Old_DepartmentID AS
-		oldDepartmentId,
-		New_DepartmentID AS newDepartmentId,
-		Old_PositionID AS
-		oldPositionId,
-		New_PositionID AS newPositionId,
-		Updatetime AS
-		upDateTime,
-		Flag AS flag
+		AT.ID AS id,
+		AT.Account_ID AS accountId,
+		AT.Old_DepartmentID AS oldDepartmentId,
+		OTD.Name AS oldDepartmentName,
+		AT.New_DepartmentID AS newDepartmentId,
+		NTD.Name AS newDepartmentName,
+		AT.Old_PositionID AS oldPositionId,
+		OPD.Position_Name AS oldPositionName,
+		AT.New_PositionID AS newPositionId,
+		NPD.Position_Name AS newPositionName,
+		AT.Updatetime AS upDateTime,
+		AT.Flag AS flag
 		from
-		Account_Transfer
+		Account_Transfer AT
+		LEFT JOIN T_Department OTD ON OTD.ID=AT.Old_DepartmentID
+		LEFT JOIN T_Department NTD ON NTD.ID=AT.New_DepartmentID
+		LEFT JOIN Position_Data OPD ON AT.Old_PositionID=OPD.Position_ID
+		LEFT JOIN Position_Data NPD ON AT.New_PositionID=NPD.Position_ID
+
 		where
 		Account_ID=#{accountId}
 	</select>
+
+	<!-- 员工异动   添加  -->
+	<insert id="insertShiftInfo" parameterType="com.jiubo.erp.rygl.vo.PositionShift">
+		INSERT  INTO
+			Account_Transfer
+		  	(Account_ID,Old_DepartmentID,New_DepartmentID,Old_PositionID,New_PositionID,Updatetime,Flag)
+		  	VALUES
+		  	(#{accountId},#{oldDepartmentId},#{newDepartmentId},#{oldPositionId},#{newPositionId},#{upDateTime},#{flag})
+	</insert>
+
+
 
 </mapper>

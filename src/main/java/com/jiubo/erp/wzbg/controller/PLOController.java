@@ -156,10 +156,163 @@ public class PLOController {
 		return this.service.restDownModify(response, request);
 	}
 
-	
-	
-	
-	
+	/**
+	 * 人员需求列表
+	 * 方法说明
+	 * @param response
+	 * @param request
+	 * @return
+	 * JSONObject
+	 * @author 作者 : mwl
+	 * @version 创建时间：2019年8月1日 下午1:42:27
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/empRequireLsit")
+	public JSONObject selectEmpRequireLsit(HttpServletResponse response, HttpServletRequest request) {
+
+		return this.service.selectEmpRequireLsit(response, request);
+	};
+
+	/**
+	 * 人员需求申请
+	 * 方法说明
+	 * @param response
+	 * @param request
+	 * @return
+	 * JSONObject
+	 * @author 作者 : mwl
+	 * @version 创建时间：2019年8月1日 下午1:42:27
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/insertEmpRequireApply")
+	public JSONObject insertEmpRequireApply(HttpServletResponse response, HttpServletRequest request) {
+
+		return this.service.insertEmpRequireApply(response, request);
+	};
+	/**
+	 * 修改人员需求
+	 * 方法说明
+	 * @param response
+	 * @param request
+	 * @return
+	 * JSONObject
+	 * @author 作者 : mwl
+	 * @version 创建时间：2019年8月1日 下午1:43:01
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/updateRYRequire")
+	public JSONObject updateRYRequire(HttpServletResponse response, HttpServletRequest request) {
+
+		return this.service.updateRYRequire(response, request);
+	}
+
+	/**
+	 * 工作年限
+	 * 方法说明
+	 * @param response
+	 * @param request
+	 * @return
+	 * JSONObject
+	 * @author 作者 : mwl
+	 * @version 创建时间：2019年8月1日 下午1:43:30
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/selectWorkAge")
+	public JSONObject selectWorkAge(HttpServletResponse response, HttpServletRequest request) {
+		return this.service.selectWorkAge(response, request);
+	}
+
+	/**
+	 * 专业
+	 * 方法说明
+	 * @param response
+	 * @param request
+	 * @return
+	 * JSONObject
+	 * @author 作者 : mwl
+	 * @version 创建时间：2019年8月1日 下午1:43:54
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/selectMajor")
+	public JSONObject selectMajor(HttpServletResponse response, HttpServletRequest request) {
+		return this.service.selectMajor(response, request);
+	}
+
+	/**
+	 * 跳槽频率
+	 * 方法说明
+	 * @param response
+	 * @param request
+	 * @return
+	 * JSONObject
+	 * @author 作者 : mwl
+	 * @version 创建时间：2019年8月1日 下午1:44:21
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/jobHopFrequency")
+	public JSONObject selectJobHopFrequency(HttpServletResponse response, HttpServletRequest request) {
+		return this.service.selectJobHopFrequency(response, request);
+	}
+
+	/**
+	 * 行业
+	 * 方法说明
+	 * @param response
+	 * @param request
+	 * @return
+	 * JSONObject
+	 * @author 作者 : mwl
+	 * @version 创建时间：2019年8月1日 下午1:45:25
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/industryBackground")
+	public JSONObject selectIndustryBackground(HttpServletResponse response, HttpServletRequest request) {
+		return this.service.selectIndustryBackground(response, request);
+	}
+
+	/**
+	 * 年龄段列表
+	 * 方法说明
+	 * @param response
+	 * @param request
+	 * @return
+	 * JSONObject
+	 * @author 作者 : mwl
+	 * @version 创建时间：2019年8月1日 下午1:45:58
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/selectAgeLsit")
+	public JSONObject selectAgeLsit(HttpServletResponse response, HttpServletRequest request) {
+
+		return this.service.selectAgeLsit(response, request);
+	}
+
+
+	/**
+	 *  人员需求审查人列表
+	 * @param response
+	 * @param request
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/empRequireCheckList")
+	public JSONObject empRequireCheckList(HttpServletResponse response, HttpServletRequest request){
+
+		return this.service.empRequireCheckList(response,request);
+	}
+
+	/**
+	 * 人员需求审批人列表
+	 * @param response
+	 * @param request
+	 * @return
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/empRequireApprolList")
+	public JSONObject empRequireApprolList(HttpServletResponse response, HttpServletRequest request){
+
+		return this.service.empRequireApprolList(response,request);
+	}
 	
 	
 	

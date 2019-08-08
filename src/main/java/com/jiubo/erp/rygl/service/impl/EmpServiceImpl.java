@@ -1,11 +1,21 @@
 package com.jiubo.erp.rygl.service.impl;
 
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import com.alibaba.fastjson.JSONObject;
+import com.jiubo.erp.common.Constant;
+import com.jiubo.erp.common.MapUtil;
+import com.jiubo.erp.common.MessageException;
+import com.jiubo.erp.rygl.controller.EmpController;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -22,9 +32,13 @@ import com.jiubo.erp.rygl.vo.QueryFamilyResult;
 import com.jiubo.erp.rygl.vo.QueryParam;
 import com.jiubo.erp.rygl.vo.QueryResult;
 import com.jiubo.erp.rygl.vo.UserInfo;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StreamUtils;
 
 @Service
 public class EmpServiceImpl implements EmpService {
+
+	public static Logger log = LoggerFactory.getLogger(EmpController.class);
 
 	@Autowired
 	private empDao dao;
@@ -61,7 +75,6 @@ public class EmpServiceImpl implements EmpService {
 	 * 家庭成员的模糊查询
 	 * 
 	 * @param param
-	 * @param request
 	 * @return
 	 * @throws Exception
 	 */
@@ -280,6 +293,25 @@ public class EmpServiceImpl implements EmpService {
 	public List<PositionShift> selectShiftInfo(PositionShift pShift) {
 		List<PositionShift> psList = this.dao.selectShiftInfo(pShift);
 		return psList;
+	}
+
+	/**
+	 * 插入调动信息
+	 * @param pShift
+	 * @return
+	 */
+	@Transactional(value="txManager")
+	public Integer insertShiftInfo(PositionShift pShift) throws Exception{
+		UserInfo ui = new UserInfo();
+		Account account= new Account();
+		ui.setAccountId(pShift.getAccountId());
+		account.setAccountId(pShift.getAccountId());
+		ui.setDepartId(pShift.getNewDepartmentId());
+		account.setPositionId(pShift.getNewPositionId());
+		int ua = this.dao.updataAccountPwd(account);
+		int ub = this.dao.updataBaseInfo(ui);
+		System.out.println("updataAccountPwd:"+ua+"   updataBaseInfo:"+ub+"");
+		return this.dao.insertShiftInfo(pShift);
 	}
 
 	/**

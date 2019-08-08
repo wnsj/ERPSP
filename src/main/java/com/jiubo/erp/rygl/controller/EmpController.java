@@ -12,6 +12,7 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import ch.qos.logback.core.net.SyslogOutputStream;
 import org.apache.commons.lang.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
@@ -62,7 +63,6 @@ public class EmpController {
     /**
      * 全员搜索
      *
-     * @param param    属性包括所有人员信息
      * @param response
      * @param request
      * @return
@@ -99,7 +99,6 @@ public class EmpController {
     /**
      * 高级查询,入职、离职、转正
      *
-     * @param param
      * @param request
      * @return
      * @throws Exception
@@ -218,7 +217,6 @@ public class EmpController {
     /**
      * 赛选家庭人员列表
      *
-     * @param param
      * @param response
      * @param request
      * @return
@@ -468,8 +466,7 @@ public class EmpController {
 
 	/**
 	 * 通过账户查找职位名称和ID
-	 * 
-	 * @param account
+	 *
 	 * @return
 	 */
 	public Account requireDepartName(Account accountId) {
@@ -502,7 +499,6 @@ public class EmpController {
 	
 	/**
 	 * 初始化当前账号密码
-	 * @param accountPwd
 	 * @return
 	 * @return 返回值类型  Integer
 	 * @author 作者 mwl
@@ -649,8 +645,7 @@ public class EmpController {
 	}
 	/**
 	 * 个人的家庭成员信息
-	 * 
-	 * @param param
+	 *
 	 * @param response
 	 * @param request
 	 * @return
@@ -687,10 +682,10 @@ public class EmpController {
 		
 	}
 
+
 	/**
-	 * 更新用户基础信息
-	 * 
-	 * @param param
+	 * 更新用户基础信息+详细信息+家庭信息
+	 *
 	 * @param response
 	 * @param request
 	 * @return
@@ -962,8 +957,7 @@ public class EmpController {
 
 	/**
 	 * 插入用户基础信息
-	 * 
-	 * @param param
+	 *
 	 * @param response
 	 * @param request
 	 * @return
@@ -1047,7 +1041,7 @@ public class EmpController {
 			List<UserInfo> userlist = this.service.searchUBInfo(userInfo);
 			Integer userId = userlist.get(0).getId();
 			String uid = String.valueOf(userId);
-			// System.out.println("---------人员ID-----------"+uid);
+			 System.out.println("---------人员ID-----------"+uid);
 
 			// 设置上传时间、上传的人
 			userInfo.setuEmployeeBasicID(Integer.valueOf(uid));
@@ -1066,8 +1060,7 @@ public class EmpController {
 
 	/**
 	 * 插入和更新家庭信息
-	 * 
-	 * @param param
+	 *
 	 * @param response
 	 * @param request
 	 * @return
@@ -1121,8 +1114,8 @@ public class EmpController {
 			if (StringUtils.isBlank(str))
 				throw new MessageException("参数接收失败！");
 			pShift = MapUtil.transJsonStrToObjectIgnoreCase(str, PositionShift.class);
-			psList = this.service.selectShiftInfo(pShift);
-			result.put("resData", psList) ;
+
+			result.put("resData", this.service.selectShiftInfo(pShift)) ;
 		} catch (MessageException e) {
 			retCode = Constant.Result.ERROR;
 			retMsg = e.getMessage();
@@ -1137,6 +1130,42 @@ public class EmpController {
 		}
 	}
 
+    /**
+     * 调动信息 插入
+     *
+     * @param response
+     * @param request
+     * @return
+     */
+    @SuppressWarnings("finally")
+    @ResponseBody
+    @RequestMapping(value = "/insertShiftInfo")
+    public JSONObject insertShiftInfo(HttpServletResponse response, HttpServletRequest request) {
+        PositionShift pShift = new PositionShift();
+
+        JSONObject result = new JSONObject();
+        String retCode = Constant.Result.SUCCESS;
+        String retMsg = Constant.Result.SUCCESS_MSG;
+        try {
+            String str = ToolClass.getStrFromInputStream(request);
+            if (StringUtils.isBlank(str))
+                throw new MessageException("参数接收失败！");
+            pShift = MapUtil.transJsonStrToObjectIgnoreCase(str, PositionShift.class);
+
+            result.put("resData", this.service.insertShiftInfo(pShift));
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = e.getMessage();
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            log.error(Constant.Result.RETMSG, e);
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+            return result;
+        }
+    }
 	/**
 	 * 添加离职原因
 	 * 
@@ -1272,9 +1301,7 @@ public class EmpController {
 
 	/**
 	 * 测试
-	 * 
-	 * @param user
-	 * @param session
+	 *
 	 * @return
 	 */
 	@RequestMapping(value = "/export")

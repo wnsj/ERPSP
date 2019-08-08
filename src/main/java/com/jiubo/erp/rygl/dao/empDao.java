@@ -61,14 +61,17 @@ public interface empDao {
 	Integer insertfamilyInfo(QueryFamilyResult qfr);
 	
 	Integer updatafamilyInfo(QueryFamilyResult qfr);
-	
-	List<PositionShift> selectShiftInfo(PositionShift pShift);
 
-	
 	Integer updateLeaveReason(LeaveResign lResign);
 	
 	Integer deleteLeaveReason(LeaveResign lResign);
 	
 	Integer addLeaveReason(LeaveResign lResign);
+
+	List<PositionShift> selectShiftInfo(PositionShift pShift);
+
+	Integer insertShiftInfo(PositionShift pShift);
+
+
 
 }

@@ -12,8 +12,12 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Profile;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import org.springframework.web.bind.annotation.CrossOrigin;
+
+import javax.sql.DataSource;
 
 /* *
  * @desc:springboot程序入口
@@ -45,6 +49,11 @@ public class ErpApplication extends SpringBootServletInitializer{
 		return builder.sources(ErpApplication.class);
 	}
 
+	// 创建事务管理器1
+	@Bean(name = "txManager")  //给事务管理器命名
+	public PlatformTransactionManager txManager(DataSource dataSource) {
+		return new DataSourceTransactionManager(dataSource);
+	}
 
 	//分页插件
 	@Bean

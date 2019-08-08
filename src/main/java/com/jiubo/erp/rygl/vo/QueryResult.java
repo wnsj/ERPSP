@@ -8,6 +8,7 @@ public class QueryResult {
     private String sex;
     private String departName;//部门名称
     private String positionName;//职位名称
+    private String positionId;//职位ID
     private String ERPAaccount;//ERP账号
     private String birth;//生日
     private String entryDate;//入职日期
@@ -207,4 +208,11 @@ public class QueryResult {
         State = state;
     }
 
+    public String getPositionId() {
+        return positionId;
+    }
+
+    public void setPositionId(String positionId) {
+        this.positionId = positionId;
+    }
 }
