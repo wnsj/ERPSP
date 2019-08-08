@@ -1,30 +1,20 @@
 package com.jiubo.erp;
 
-import com.baomidou.mybatisplus.core.parser.ISqlParser;
-import com.baomidou.mybatisplus.extension.parsers.BlockAttackSqlParser;
 import com.baomidou.mybatisplus.extension.plugins.PaginationInterceptor;
-import com.baomidou.mybatisplus.extension.plugins.PerformanceInterceptor;
 import com.quicksand.push.CorsFilter;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
-import org.springframework.boot.WebApplicationType;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Profile;
+
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
-import org.springframework.web.bind.annotation.CrossOrigin;
 
-<<<<<<< HEAD
 import javax.sql.DataSource;
-=======
-import java.util.ArrayList;
-import java.util.List;
->>>>>>> 2ab5291f6237c1027474381cf19c70c9073a1e0a
 
 /* *
  * @desc:springboot程序入口
@@ -58,10 +48,10 @@ public class ErpApplication extends SpringBootServletInitializer{
 
 
 	// 创建事务管理器1
-//	@Bean(name = "txManager")  //给事务管理器命名
-//	public PlatformTransactionManager txManager(DataSource dataSource) {
-//		return new DataSourceTransactionManager(dataSource);
-//	}
+	@Bean(name = "txManager")  //给事务管理器命名
+	public PlatformTransactionManager txManager(DataSource dataSource) {
+		return new DataSourceTransactionManager(dataSource);
+	}
 
 
 	//分页插件

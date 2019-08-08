@@ -224,7 +224,7 @@
 			<if test="chname !=null and chname !=''">
 				AND AF.name like '%'+#{chname}+'%'
 			</if>
-			<if test="birth!=null and birth!=''">
+			<if test="birth!=null and birth!=0">
 				AND Month(AF.Birthday)=#{birth}
 			</if>
 			AND TEB.isDelete=0
@@ -424,7 +424,6 @@
 			<if test=" resignType !=null and resignType != ''">ResignType=#{resignType},</if>
 			<if test=" resignReason !=null and resignReason != ''">ResignReason=#{resignReason},</if>
 		</trim>
-		where
 		<trim prefix="WHERE" prefixOverrides="AND | OR">
 			<if test="id !=null and id !=''">
 				AND ID=#{id}

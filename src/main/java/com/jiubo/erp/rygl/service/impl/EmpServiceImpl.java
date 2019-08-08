@@ -1,19 +1,12 @@
 package com.jiubo.erp.rygl.service.impl;
 
-import java.nio.charset.Charset;
-import java.util.ArrayList;
+
 import java.util.Collection;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import com.alibaba.fastjson.JSONObject;
-import com.jiubo.erp.common.Constant;
-import com.jiubo.erp.common.MapUtil;
-import com.jiubo.erp.common.MessageException;
 import com.jiubo.erp.rygl.controller.EmpController;
-import org.apache.commons.lang.StringUtils;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,7 +26,6 @@ import com.jiubo.erp.rygl.vo.QueryParam;
 import com.jiubo.erp.rygl.vo.QueryResult;
 import com.jiubo.erp.rygl.vo.UserInfo;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.StreamUtils;
 
 @Service
 public class EmpServiceImpl implements EmpService {
