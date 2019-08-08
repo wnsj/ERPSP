@@ -230,8 +230,9 @@ public class KqParamSetController {
             String str = ToolClass.getStrFromInputStream(request);
             if (StringUtils.isBlank(str)) throw new MessageException("参数接收失败！");
             AttRuleTypeBean attRuleType = MapUtil.transJsonStrToObjectIgnoreCase(str, AttRuleTypeBean.class);
-            if (StringUtils.isBlank(attRuleType.getName()) || StringUtils.isBlank(attRuleType.getEarlyMinutes()) || StringUtils.isBlank(attRuleType.getLateMinutes()))
-                throw new MessageException("考勤规则名为空、最早时间为空或最晚时间为空！");
+            if (StringUtils.isBlank(attRuleType.getName()))throw new MessageException("考勤规则名为空！");
+            if(StringUtils.isBlank(attRuleType.getEarlyMinutes()))attRuleType.setEarlyMinutes("0");
+            if(StringUtils.isBlank(attRuleType.getLateMinutes()))attRuleType.setLateMinutes("0");
             attRuleType.setIsDelete("0");
             attRuleType.setCreateDate(ToolClass.inquirNowDateTime());
             KqParamSetService.addAttRuleType(attRuleType);
@@ -300,9 +301,10 @@ public class KqParamSetController {
             String str = ToolClass.getStrFromInputStream(request);
             if (StringUtils.isBlank(str)) throw new MessageException("参数接收失败！");
             AttRuleTypeBean attRuleType = MapUtil.transJsonStrToObjectIgnoreCase(str, AttRuleTypeBean.class);
-            if (StringUtils.isBlank(attRuleType.getName()) || StringUtils.isBlank(attRuleType.getEarlyMinutes())
-                    || StringUtils.isBlank(attRuleType.getLateMinutes()) || StringUtils.isBlank(attRuleType.getId()))
-                throw new MessageException("考勤规则名为空、最早时间为空、最晚时间为空或考勤规则id为空！");
+            if (StringUtils.isBlank(attRuleType.getName()) || StringUtils.isBlank(attRuleType.getId()))
+                throw new MessageException("考勤规则名为空！");
+            if(StringUtils.isBlank(attRuleType.getEarlyMinutes()))attRuleType.setEarlyMinutes("0");
+            if(StringUtils.isBlank(attRuleType.getLateMinutes()))attRuleType.setLateMinutes("0");
             KqParamSetService.updateAttRuleType(attRuleType);
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
