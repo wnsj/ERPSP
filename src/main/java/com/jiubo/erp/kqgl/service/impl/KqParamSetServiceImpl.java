@@ -339,13 +339,25 @@ public class KqParamSetServiceImpl implements KqParamSetService {
         try {
             Map<String, Object> dataMap = new HashMap<String, Object>();
             Date startDate = TimeUtil.parseAnyDate(startTime);
+            int day = 0;
             if ("30".equals(flag)) {
                 List<String> dataList = new ArrayList<String>();
                 Date endDate = TimeUtil.getFirstDayOfMonth(TimeUtil.dateAdd(startDate, TimeUtil.UNIT_MONTH, 1));
                 startDate = TimeUtil.getFirstDayOfMonth(startDate);
+                day = Integer.parseInt(TimeUtil.getDayStr(TimeUtil.getLastDayOfMonth(startDate)));
                 List<AttShiftBean> attShiftList = kqParamSetDao.queryAttShift(userId, userName, TimeUtil.getDateYYYY_MM_DD_HH_MM_SS(startDate), TimeUtil.getDateYYYY_MM_DD_HH_MM_SS(endDate));
-                for (AttShiftBean attShiftBean : attShiftList)
-                    dataList.add(attShiftBean.getName());
+                if(day == attShiftList.size())
+                    for (AttShiftBean attShiftBean : attShiftList)
+                        dataList.add(attShiftBean.getName());
+                else
+                    for (int i = 0;i < day; i++){
+                        if(i > attShiftList.size() - 1) {
+                            dataList.add("");
+                        }else {
+                            AttShiftBean attShiftBean = attShiftList.get(i);
+                            dataList.add(attShiftBean.getName());
+                        }
+                    }
                 dataMap.put("monData", dataList);
             } else {
                 //开始上班时间
