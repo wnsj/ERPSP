@@ -330,6 +330,32 @@ public class OfficeServiceImpl implements OfficeService {
     }
 
     @Override
+    public List<Map<String, Object>> queryManpowerOfficer(Map<String, Object> params) throws MessageException {
+        return wzbgDao.queryManpowerOfficer();
+    }
+
+    @Override
+    public List<Map<String, Object>> queryApprovalOfficer(Map<String, Object> params) throws MessageException {
+        String postId = null;
+        String postName = null;
+        List<Map<String, Object>> mapList = new ArrayList<Map<String, Object>>();
+        try {
+            postId = MapUtil.getStringIgnoreCase(params, "postId", MapUtil.ALLOW_NULL);
+            postName = MapUtil.getStringIgnoreCase(params, "postName", MapUtil.ALLOW_NULL);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new MessageException(e.getMessage());
+        }
+        if (wzbgDao.isPuGang(postId, postName) > 0)
+            mapList = wzbgDao.queryApprovalOfficer(0);
+        else if (wzbgDao.isBuZhang(postId, postName) > 0)
+            mapList = wzbgDao.queryApprovalOfficer(1);
+        else if (wzbgDao.isFuZong(postId, postName) > 0)
+            mapList = wzbgDao.queryApprovalOfficer(2);
+        return mapList;
+    }
+
+    @Override
     public List<OfficeUserDataBean> queryOfficeUserData(OfficeUserDataBean officeUserDataBean) throws MessageException {
         return wzbgDao.queryOfficeUserData(officeUserDataBean);
     }

@@ -81,6 +81,12 @@ public interface OfficeDao {
     //查询办公用品交接人
     public List<Map<String, Object>> queryOfficeHandover();
 
+    //查询人力负责人
+    public List<Map<String, Object>> queryManpowerOfficer();
+
+    //查询审批负责人
+    public List<Map<String, Object>> queryApprovalOfficer(@Param("postLevel")int postLevel);
+
     //查询会议室申请信息
     public List<OfficeUserDataBean> queryOfficeUserData(OfficeUserDataBean officeUserDataBean);
 

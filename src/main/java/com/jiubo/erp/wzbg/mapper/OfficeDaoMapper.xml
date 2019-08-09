@@ -358,7 +358,8 @@
         SELECT
         ID, DEPARTMENTID, MONTH, NAME, NUM, SPECIFICATION, REMARK, ACCOUNTID_1, ACCOUNTID_2, ADVICE_2,
         ACCOUNTID_3, ADVICE_3, STATE, IS_TIJIAO, RENSHI_ID, RENSHI_ADVICE, RENSHI_SEE, FUZONG_ID, FUZONG_ADVICE,
-        FUZONG_SEE, CAIWU_ID, CAIWU_ADVICE, CAIWU_SEE, ZHU_SEE, REN_SEE, SHEN_SEE, IS_WANCHENG, REN_OTHERSEE,B.ACCOUNT_NAME ACCOUNT3NAME
+        FUZONG_SEE, CAIWU_ID, CAIWU_ADVICE, CAIWU_SEE, ZHU_SEE, REN_SEE, SHEN_SEE, IS_WANCHENG,
+        REN_OTHERSEE,B.ACCOUNT_NAME ACCOUNT3NAME
         FROM OFFICESUPPLIESDATA
         LEFT JOIN ACCOUNT_DATA B
         ON B.ACCOUNT_ID = ACCOUNTID_3
@@ -790,36 +791,36 @@
 
     <!--查询审查人-->
     <select id="queryCensors" resultType="java.util.Map">
-            SELECT EMP_NAME, ACCOUNT_ID, POSITION_NAME, NAME, POSITIONTYPE_NAME
-            FROM V_ACCOUNTDATA
-            LEFT JOIN POSITION_DATA
-            ON POSITION_DATA.POSITION_ID = V_ACCOUNTDATA.POSITION_ID
-            LEFT JOIN T_DEPARTMENT
-            ON T_DEPARTMENT.ID = V_ACCOUNTDATA.DEPARTMENT_ID
-            LEFT JOIN POSITION_TYPE
-            ON POSITION_DATA.POSITIONTYPE_ID = POSITION_TYPE.POSITIONTYPE_ID
-            <where>
-                AND ACCOUNT_STATE = '在用'
-                <choose>
-                    <when test="postLevel == 0">
-                        <if test="deptLevel == 1">
-                            AND DEPARTMENT_ID = (SELECT PARENTID FROM  T_DEPARTMENT WHERE ID = #{deptId})
-                        </if>
-                        <if test="deptLevel == 2">
-                            AND DEPARTMENT_ID = (
-                              SELECT PARENTID FROM  T_DEPARTMENT
-                              WHERE ID = (SELECT PARENTID FROM  T_DEPARTMENT WHERE ID = #{deptId})
-                            )
-                        </if>
-                    </when>
-                    <when test="postLevel == 1">
-                        AND DEPARTMENT_ID = 50 AND POSITION_NAME = '副总经理'
-                    </when>
-                    <when test="postLevel == 2">
-                        AND POSITION_TYPE.POSITIONTYPE_ID = 6 AND DEPARTMENT_ID = 39
-                    </when>
-                </choose>
-            </where>
+        SELECT EMP_NAME, ACCOUNT_ID, POSITION_NAME, NAME, POSITIONTYPE_NAME
+        FROM V_ACCOUNTDATA
+        LEFT JOIN POSITION_DATA
+        ON POSITION_DATA.POSITION_ID = V_ACCOUNTDATA.POSITION_ID
+        LEFT JOIN T_DEPARTMENT
+        ON T_DEPARTMENT.ID = V_ACCOUNTDATA.DEPARTMENT_ID
+        LEFT JOIN POSITION_TYPE
+        ON POSITION_DATA.POSITIONTYPE_ID = POSITION_TYPE.POSITIONTYPE_ID
+        <where>
+            AND ACCOUNT_STATE = '在用'
+            <choose>
+                <when test="postLevel == 0">
+                    <if test="deptLevel == 1">
+                        AND DEPARTMENT_ID = (SELECT PARENTID FROM T_DEPARTMENT WHERE ID = #{deptId})
+                    </if>
+                    <if test="deptLevel == 2">
+                        AND DEPARTMENT_ID = (
+                        SELECT PARENTID FROM T_DEPARTMENT
+                        WHERE ID = (SELECT PARENTID FROM T_DEPARTMENT WHERE ID = #{deptId})
+                        )
+                    </if>
+                </when>
+                <when test="postLevel == 1">
+                    AND DEPARTMENT_ID = 50 AND POSITION_NAME = '副总经理'
+                </when>
+                <when test="postLevel == 2">
+                    AND POSITION_TYPE.POSITIONTYPE_ID = 6 AND DEPARTMENT_ID = 39
+                </when>
+            </choose>
+        </where>
     </select>
 
     <!--查询电脑交接人-->
@@ -840,6 +841,40 @@
         LEFT JOIN ACCOUNT_RULE_DATA ARD
         ON V.ACCOUNT_ID  = ARD.ACCOUNT_ID
         WHERE ACCOUNT_STATE = '在用' AND ARD.RULE_ID = 76
+    </select>
+
+    <!--查询人力负责人-->
+    <select id="queryManpowerOfficer" resultType="java.util.Map">
+        SELECT EMP_NAME, ACCOUNT_ID, POSITION_NAME, NAME, POSITIONTYPE_NAME
+        FROM V_ACCOUNTDATA
+        LEFT JOIN POSITION_DATA
+        ON POSITION_DATA.POSITION_ID = V_ACCOUNTDATA.POSITION_ID
+        LEFT JOIN T_DEPARTMENT
+        ON T_DEPARTMENT.ID = V_ACCOUNTDATA.DEPARTMENT_ID
+        LEFT JOIN POSITION_TYPE
+        ON POSITION_DATA.POSITIONTYPE_ID = POSITION_TYPE.POSITIONTYPE_ID
+        WHERE ACCOUNT_STATE = '在用' AND POSITION_TYPE.POSITIONTYPE_ID = 6
+        AND DEPARTMENT_ID = 39
+    </select>
+
+    <select id="queryApprovalOfficer" resultType="java.util.Map">
+        SELECT EMP_NAME,ACCOUNT_ID,POSITION_NAME,NAME,POSITIONTYPE_NAME
+        FROM V_ACCOUNTDATA
+        LEFT JOIN POSITION_DATA
+        ON POSITION_DATA.POSITION_ID = V_ACCOUNTDATA.POSITION_ID
+        LEFT JOIN T_DEPARTMENT
+        ON T_DEPARTMENT.ID = V_ACCOUNTDATA.DEPARTMENT_ID
+        LEFT JOIN POSITION_TYPE
+        ON POSITION_DATA.POSITIONTYPE_ID = POSITION_TYPE.POSITIONTYPE_ID
+        <where>
+            AND ACCOUNT_STATE = '在用' AND DEPARTMENT_ID = 50
+            <if test="postLevel == 0">
+                AND POSITION_NAME = '副总经理'
+            </if>
+            <if test="postLevel == 1 or postLevel == 2">
+                AND POSITION_NAME = '总经理'
+            </if>
+        </where>
     </select>
 
     <!--查询会议室申请信息-->

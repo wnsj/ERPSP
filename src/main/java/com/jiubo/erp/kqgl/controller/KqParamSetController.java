@@ -6,6 +6,7 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -1104,12 +1105,22 @@ public class KqParamSetController {
         String retMsg = Constant.Result.SUCCESS_MSG;
         try {
             String str = ToolClass.getStrFromInputStream(request);
+            Page page = null;
             if (StringUtils.isBlank(str)) throw new MessageException("参数接收失败！");
             JSONObject jsObj = JSONObject.parseObject(str);
             if (jsObj.get("begDate") == null || jsObj.get("endDate") == null)
                 throw new MessageException("begDate或endDate为空！");
-            List<Map<String, Object>> dataList = KqParamSetService.queryAllEmpAttShift(jsObj.getString("begDate"), jsObj.getString("endDate"));
-            result.put(Constant.Result.RETDATA, dataList);
+
+            if(jsObj.get("page") != null || jsObj.get("limit") != null){
+                page = new Page();
+                int limit = Integer.parseInt(String.valueOf(jsObj.get("limit")));
+                limit = limit > 0 ? limit : 10;
+                int pageInt = Integer.parseInt(String.valueOf(jsObj.get("page")));
+                pageInt = pageInt > 0 ? pageInt : 0;
+                page.setCurrent(pageInt);
+                page.setSize(limit);
+            }
+            result.put(Constant.Result.RETDATA,  KqParamSetService.queryAllEmpAttShift(page,jsObj.getString("begDate"), jsObj.getString("endDate")));
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
             retMsg = e.getMessage();
