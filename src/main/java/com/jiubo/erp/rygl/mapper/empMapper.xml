@@ -162,13 +162,13 @@
 		LEFT JOIN Resign_Reason
 		g ON a.ResignReason = g.Reason_ID
 		<trim prefix="WHERE" prefixOverrides="AND | OR">
-			<if test="departName!=null and departName!=''">
-				AND d.Name=#{departName}
+			<if test="departId!=null and departId!='' and departId != 0">
+				AND a.Department_ID=#{departId}
 			</if>
-			<if test="state!=null and state!=''">
+			<if test="state!=null and state!='' and state != 0">
 				AND a.State=#{state}
 			</if>
-			<if test="projectId!=null and projectId!=''">
+			<if test="projectId!=null and projectId!='' and projectId != 0">
 				AND f.Project_ID=#{projectId}
 			</if>
 			<if test="searchContent !=null and searchContent !=''">
@@ -176,27 +176,27 @@
 				OR d.Name like '%'+#{searchContent}+'%' OR c.Position_Name like '%'+#{searchContent}+'%')
 			</if>
 			<if
-				test="enterStartDate!=null and enterEndDate!=null and enterStartDate!='' and enterEndDate!=''">
-				AND a.EntryDate &gt;= #{enterStartDate} AND a.EntryDate
-				&lt;=#{enterEndDate}
+				test=" searchType == 1">
+				AND a.EntryDate &gt;= #{startDate} AND a.EntryDate
+				&lt;=#{endDate}
 			</if>
 			<if
-				test="leaveStartDate !=null and leaveEndDate !=null and leaveStartDate !='' and leaveEndDate !=''">
-				AND a.ResignDate &gt;= #{leaveStartDate} AND a.ResignDate
-				&lt;=#{leaveEndDate}
+				test=" searchType == 3 ">
+				AND a.ResignDate &gt;= #{startDate} AND a.ResignDate
+				&lt;=#{endDate}
 			</if>
 			<if
-				test="zzStartDate !=null and zzEndDate !=null and zzStartDate !='' and zzEndDate !=''">
-				AND a.PositiveDate &gt;= #{zzStartDate} AND a.PositiveDate
-				&lt;=#{zzEndDate}
+				test=" searchType == 2">
+				AND a.PositiveDate &gt;= #{startDate} AND a.PositiveDate
+				&lt;=#{endDate}
 			</if>
 			<if test="resignType!=null and resignType !=''">
 				AND a.ResignType = #{resignType}
 			</if>
-			<if test="resignReasonId !=null and resignReasonId !=''">
-				AND a.ResignDate = #{resignReasonId}
+			<if test="resignReasonId !=null and resignReasonId !='' and resignReasonId !=0">
+				AND a.ResignReason = #{resignReasonId}
 			</if>
-			<if test="birth!=null and birth!=''">
+			<if test="birth!=null and birth!='' and birth!=0">
 				AND Month(a.Birth)=#{birth}
 			</if>
 			AND a.isDelete='0'

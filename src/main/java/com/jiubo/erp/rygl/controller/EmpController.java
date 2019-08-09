@@ -116,16 +116,7 @@ public class EmpController {
             if (StringUtils.isBlank(str))
                 throw new MessageException("参数接收失败！");
             qp = MapUtil.transJsonStrToObjectIgnoreCase(str, QueryParam.class);
-            if (qp.getSearchType().equals("1")) {
-                qp.setEnterStartDate(qp.getStartDate());
-                qp.setEnterEndDate(qp.getEndDate());
-            } else if (qp.getSearchType().equals("2")) {
-                qp.setZzStartDate(qp.getStartDate());
-                qp.setZzEndDate(qp.getEndDate());
-            } else if (qp.getSearchType().equals("3")) {
-                qp.setLeaveStartDate(qp.getStartDate());
-                qp.setLeaveEndDate(qp.getEndDate());
-            }
+
             result.put("resData", this.service.initEmpList(qp, request));
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
@@ -167,7 +158,7 @@ public class EmpController {
             qp = MapUtil.transJsonStrToObjectIgnoreCase(str, QueryParam.class);
             System.out.println("QueryParam:categry:" + qp.getSearchType());
 
-            qp.setState("1");
+
             result.put("resData", this.service.initEmpList(qp, request));
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
