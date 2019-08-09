@@ -245,7 +245,7 @@
         B.CREATEDATE, B.CREATOR
         FROM T_ATT_PEOPLESHIFT A,T_ATT_SHIFT B,T_EMPLOYEE_BASIC C
         <where>
-            AND C.ID = A.USERID AND A.SHIFTID = B.ID AND B.ISDELETE = 0 AND B.STARTTIME >= #{startTime} AND B.ENDTIME
+            AND C.ACCOUNT = A.USERID AND A.SHIFTID = B.ID AND B.ISDELETE = 0 AND B.STARTTIME >= #{startTime} AND B.ENDTIME
             &lt; #{endTime}
             <if test="userId != null and userId != ''">
                 AND A.USERID = #{userId}
@@ -254,6 +254,7 @@
                 AND C.NAME = #{userName}
             </if>
         </where>
+        ORDER BY B.STARTTIME
     </select>
 
     <!-- 查询全部员工的排班计划AND C.STATE = 1 -->

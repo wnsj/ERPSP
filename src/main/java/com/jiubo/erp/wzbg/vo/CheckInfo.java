@@ -14,7 +14,7 @@ public class CheckInfo {
 	private String accountId;
 	private String accountName;
 	private String deptId;
-	private String positionId;
+	private String deputyId;	// 副总职位id
 	private String[] typeIds;
 	private String[] deptIds;
 }
