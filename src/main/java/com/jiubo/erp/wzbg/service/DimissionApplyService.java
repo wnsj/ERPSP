@@ -24,4 +24,6 @@ public interface DimissionApplyService extends IService<DimissionApplyBean> {
      * @version: 1.0
      **/
     List<DimissionApplyBean> queryDimissionApply(DimissionApplyBean dimissionApplyBean);
+
+    void addDimissionApply(DimissionApplyBean dimissionApplyBean);
 }

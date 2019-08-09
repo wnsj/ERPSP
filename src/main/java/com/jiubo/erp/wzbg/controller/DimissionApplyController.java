@@ -50,4 +50,15 @@ public class DimissionApplyController {
         jsonObject.put(Constant.Result.RETDATA,dimissionApplyService.queryDimissionApply(dimissionApplyBean));
         return jsonObject;
     }
+
+    @PostMapping("/addDimissionApply")
+    public JSONObject addDimissionApply(@RequestBody String params)throws Exception{
+        if(StringUtils.isBlank(params))throw new MessageException("参数接收失败!");
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(Constant.Result.RETCODE,Constant.Result.SUCCESS);
+        jsonObject.put(Constant.Result.RETMSG, Constant.Result.SUCCESS_MSG);
+        DimissionApplyBean dimissionApplyBean = JSONObject.parseObject(params, DimissionApplyBean.class);
+        dimissionApplyService.addDimissionApply(dimissionApplyBean);
+        return jsonObject;
+    }
 }

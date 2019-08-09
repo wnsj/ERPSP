@@ -8,6 +8,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -410,22 +411,23 @@ public class KqParamSetServiceImpl implements KqParamSetService {
     }
 
     @Override
-    public List<Map<String, Object>> queryAllEmpAttShift(String begDate, String endDate) throws MessageException {
-        List<Map<String, Object>> list = null;
+    public Page queryAllEmpAttShift(Page page,String begDate, String endDate) throws MessageException {
+        Page ret = new Page();
         try {
-            list = kqParamSetDao.queryAllEmpAttShift(TimeUtil.getDateYYYY_MM_DD_HH_MM_SS(TimeUtil.parseAnyDate(begDate)), TimeUtil.getDateYYYY_MM_DD_HH_MM_SS(TimeUtil.dateAdd(TimeUtil.parseAnyDate(endDate), TimeUtil.UNIT_DAY, 1)));
-            for (Map<String, Object> map : list) {
-                if (map.get("SHIFTDATE") != null)
-                    map.put("SHIFTDATE", TimeUtil.getDateYYYY_MM_DD_HH_MM(TimeUtil.parseAnyDate(String.valueOf(map.get("SHIFTDATE")))));
-                if (map.get("STARTTIME") != null)
-                    map.put("STARTTIME", TimeUtil.getDateYYYY_MM_DD_HH_MM(TimeUtil.parseAnyDate(String.valueOf(map.get("STARTTIME")))));
-                if (map.get("ENDTIME") != null)
-                    map.put("ENDTIME", TimeUtil.getDateYYYY_MM_DD_HH_MM(TimeUtil.parseAnyDate(String.valueOf(map.get("ENDTIME")))));
-            }
+            ret = kqParamSetDao.queryAllEmpAttShift(page,TimeUtil.getDateYYYY_MM_DD_HH_MM_SS(TimeUtil.parseAnyDate(begDate)), TimeUtil.getDateYYYY_MM_DD_HH_MM_SS(TimeUtil.dateAdd(TimeUtil.parseAnyDate(endDate), TimeUtil.UNIT_DAY, 1)));
+//            for (Map<String, Object> map : list) {
+//                if (map.get("SHIFTDATE") != null)
+//                    map.put("SHIFTDATE", TimeUtil.getDateYYYY_MM_DD_HH_MM(TimeUtil.parseAnyDate(String.valueOf(map.get("SHIFTDATE")))));
+//                if (map.get("STARTTIME") != null)
+//                    map.put("STARTTIME", TimeUtil.getDateYYYY_MM_DD_HH_MM(TimeUtil.parseAnyDate(String.valueOf(map.get("STARTTIME")))));
+//                if (map.get("ENDTIME") != null)
+//                    map.put("ENDTIME", TimeUtil.getDateYYYY_MM_DD_HH_MM(TimeUtil.parseAnyDate(String.valueOf(map.get("ENDTIME")))));
+//            }
         } catch (ParseException e) {
             e.printStackTrace();
+            throw new MessageException("系统异常!");
         }
-        return list;
+        return ret;
     }
 
     @Override
