@@ -23,6 +23,8 @@ public class DimissionApplyBean implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
+    //主键（如果不做更改会出现主键数据很大的情况）
+    @TableId(type=IdType.AUTO)
     private String id;
 
     private String daId;//申请人id
@@ -77,15 +79,19 @@ public class DimissionApplyBean implements Serializable {
 
     private String daPersonnelOfficeSee;
 
-    private String daAuditorId;
+    private String daAuditorId;//人力负责人id
 
-    private String daAuditorAdvice;
+    private String daAuditorName;//人力负责人姓名
+
+    private String daAuditorAdvice;//人力负责人意见【null和1:未审核,2:同意,3:不同意】
 
     private String daAuditorSee;
 
-    private String daApproverId;
+    private String daApproverId;//审批负责人id
 
-    private String daApproverAdvice;
+    private String daApproverName;//审批负责人姓名
+
+    private String daApproverAdvice;//审批负责人意见【null和1:未审核,2:同意,3:不同意】
 
     private String daApproverSee;
 
@@ -99,7 +105,7 @@ public class DimissionApplyBean implements Serializable {
 
     private String daSee;
 
-    private String daType;//离职类型【1:辞职，2：辞退，3：其它】
+    private String daType;//离职类型【0:默认值，1:辞职，2：辞退，3：其它】
 
     private String daMinisterRemark;//审查人备注
 

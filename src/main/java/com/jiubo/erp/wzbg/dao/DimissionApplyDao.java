@@ -16,4 +16,7 @@ import java.util.List;
 public interface DimissionApplyDao extends BaseMapper<DimissionApplyBean>{
     //离职管理查询
     List<DimissionApplyBean> queryDimissionApply(DimissionApplyBean dimissionApplyBean);
+
+    //离职申请审核
+    int examineApprove(DimissionApplyBean dimissionApplyBean);
 }
