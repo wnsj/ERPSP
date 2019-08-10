@@ -509,7 +509,7 @@ public class EmpController {
 			if (StringUtils.isBlank(str))
 				throw new MessageException("参数接收失败！");
 			pwd = MapUtil.transJsonStrToObjectIgnoreCase(str, Account.class);
-			pwd.setAccountPwd(MD5Util.MD5EncodeUtf8("111111"));
+			pwd.setAccountPwd(MD5Util.MD5EncodeUtf8("123456"));
 			
 			result.put("resData", this.service.updataAccountPwd(pwd)) ;
 		} catch (MessageException e) {
@@ -589,7 +589,7 @@ public class EmpController {
 			user = MapUtil.transJsonStrToObjectIgnoreCase(str, UserInfo.class);
 			user.setResignDate(TimeUtil.YYYYMMDD_SHIFT_YYYYMMDDHHMMSSSSS(user.getResignDate()));
 			
-			result.put("resData", this.service.shiftPosition(user)) ;
+			result.put("resData", this.service.employeeResgin(user)) ;
 		} catch (MessageException e) {
 			retCode = Constant.Result.ERROR;
 			retMsg = e.getMessage();
@@ -620,7 +620,7 @@ public class EmpController {
 			user = MapUtil.transJsonStrToObjectIgnoreCase(str, UserInfo.class);
 			
 			
-			result.put("resData", this.service.shiftPosition(user));
+			result.put("resData", this.service.deleteEmployee(user));
 		} catch (MessageException e) {
 			retCode = Constant.Result.ERROR;
 			retMsg = e.getMessage();

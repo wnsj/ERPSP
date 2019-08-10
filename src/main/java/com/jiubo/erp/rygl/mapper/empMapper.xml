@@ -449,7 +449,8 @@
 		update
 		T_Employee_Basic
 		set
-		ResignDate=#{resignDate}
+		ResignDate=#{resignDate},
+		State=#{state}
 		where
 		ID=#{id}
 	</update>

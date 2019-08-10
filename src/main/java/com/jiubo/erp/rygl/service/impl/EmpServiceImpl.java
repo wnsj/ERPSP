@@ -191,7 +191,7 @@ public class EmpServiceImpl implements EmpService {
 	 * 删除状态
 	 */
 	public Integer deleteEmployee(UserInfo userInfo) {
-		return this.deleteEmployee(userInfo);
+		return this.dao.deleteEmployee(userInfo);
 	}
 
 	/**
