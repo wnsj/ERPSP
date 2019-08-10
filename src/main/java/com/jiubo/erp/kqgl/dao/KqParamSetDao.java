@@ -3,6 +3,7 @@ package com.jiubo.erp.kqgl.dao;
 import java.util.List;
 import java.util.Map;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 
 import com.jiubo.erp.common.MessageException;
@@ -109,7 +110,8 @@ public interface KqParamSetDao {
     public List<AttShiftBean> queryAttShift(@Param("userId") String userId, @Param("userName") String userName, @Param("startTime") String startTime, @Param("endTime") String endTime);
 
     //查询全部员工的排班计划
-    public List<Map<String, Object>> queryAllEmpAttShift(@Param("begDate") String begDate, @Param("endDate") String endDate);
+    //public List<Map<String, Object>> queryAllEmpAttShift(Page page,@Param("begDate") String begDate, @Param("endDate") String endDate);
+    public Page queryAllEmpAttShift(Page page,@Param("begDate") String begDate, @Param("endDate") String endDate);
 
     //删除排班计划关系
     //public void deleteAttPeopleShift(String id);

@@ -571,6 +571,75 @@ public class OfficeAction {
     }
 
     /* *
+    * @desc:查询人力负责人
+    * @author: dx
+    * @date: 2019-08-09 10:03:16
+    * @param request :
+    * @param response :
+    * @return: com.alibaba.fastjson.JSONObject
+    * @throws:
+    * @version: 1.0
+    **/
+    //http://127.0.0.1:8080/Erp/officeAction/queryManpowerOfficer
+    @ResponseBody
+    @RequestMapping(value = "/queryManpowerOfficer", method = RequestMethod.POST)
+    public JSONObject queryManpowerOfficer(HttpServletRequest request, HttpServletResponse response) {
+        JSONObject result = new JSONObject();
+        String retCode = Constant.Result.SUCCESS;
+        String retMsg = Constant.Result.SUCCESS_MSG;
+        try {
+            result.put(Constant.Result.RETDATA, wzbgService.queryManpowerOfficer(null));
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = e.getMessage();
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(Constant.Result.RETMSG, e);
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+            return result;
+        }
+    }
+
+     /* *
+     * @desc:查询审批负责人
+     * @author: dx
+     * @date: 2019-08-09 10:29:44
+     * @param request :
+     * @param response :
+     * @param params :
+     * @return: com.alibaba.fastjson.JSONObject
+     * @throws:
+     * @version: 1.0
+     **/
+    //http://127.0.0.1:8080/Erp/officeAction/queryApprovalOfficer?postId=&postName=
+    @ResponseBody
+    @RequestMapping(value = "/queryApprovalOfficer", method = RequestMethod.POST)
+    public JSONObject queryApprovalOfficer(HttpServletRequest request, HttpServletResponse response, @RequestBody String params) {
+        JSONObject result = new JSONObject();
+        String retCode = Constant.Result.SUCCESS;
+        String retMsg = Constant.Result.SUCCESS_MSG;
+        try {
+            if (StringUtils.isBlank(params)) throw new MessageException("参数接收失败!");
+            Map<String, Object> requestMap = JSONObject.parseObject(params, Map.class);
+            result.put(Constant.Result.RETDATA, wzbgService.queryApprovalOfficer(requestMap));
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = e.getMessage();
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(Constant.Result.RETMSG, e);
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+            return result;
+        }
+    }
+
+    /* *
      * @desc:会议室申请信息查询
      * @author: dx
      * @date: 2019-07-23 09:26:25

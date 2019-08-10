@@ -161,9 +161,49 @@ public interface OfficeService {
      **/
     public List<Map<String, Object>> queryCensor(Map<String, Object> params) throws MessageException;
 
+    /* *
+     * @desc:查询电脑交接人
+     * @author: dx
+     * @date: 2019-08-09 09:55:09
+     * @param params :
+     * @return: java.util.List<java.util.Map<java.lang.String,java.lang.Object>>
+     * @throws:
+     * @version: 1.0
+     **/
     public List<Map<String, Object>> queryComputerHandover(Map<String, Object> params) throws MessageException;
 
+    /* *
+     * @desc:查询生活用品交接人
+     * @author: dx
+     * @date: 2019-08-09 09:55:09
+     * @param params :
+     * @return: java.util.List<java.util.Map<java.lang.String,java.lang.Object>>
+     * @throws:
+     * @version: 1.0
+     **/
     public List<Map<String, Object>> queryOfficeHandover(Map<String, Object> params) throws MessageException;
+
+    /* *
+     * @desc:查询人力负责人
+     * @author: dx
+     * @date: 2019-08-09 09:55:09
+     * @param params :
+     * @return: java.util.List<java.util.Map<java.lang.String,java.lang.Object>>
+     * @throws:
+     * @version: 1.0
+     **/
+    public List<Map<String, Object>> queryManpowerOfficer(Map<String, Object> params) throws MessageException;
+
+    /* *
+     * @desc:查询审批负责人
+     * @author: dx
+     * @date: 2019-08-09 09:55:09
+     * @param params :
+     * @return: java.util.List<java.util.Map<java.lang.String,java.lang.Object>>
+     * @throws:
+     * @version: 1.0
+     **/
+    public List<Map<String, Object>> queryApprovalOfficer(Map<String, Object> params) throws MessageException;
 
     /* *
      * @desc:会议室申请信息查询

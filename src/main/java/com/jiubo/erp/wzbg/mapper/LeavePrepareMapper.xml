@@ -346,48 +346,57 @@
         EMP.IsDelete = '0'
         AND EMP.State = '1'
         <choose>
-            <when test="typeIds != null and typeIds != '' ">
-                AND
-                DEPT.ID IN (
-                SELECT ID FROM [dbo].[f_GetChild] ( #{deptId} )
-                UNION
-                SELECT ID FROM [dbo].[fnGetFather] ( #{deptId} ) )
-                AND
-                PD.PositionType_ID IN
-                <foreach index="index" item="item" collection="typeIds" open="(" separator="," close=")">
-                    #{item}
-                </foreach>
-            </when>
-            <when test="typeIds == null or typeIds == '' ">
-                <if test="deptIds != null and deptIds != '' ">
+            <when test="deptId != null and deptId != '' ">
+                <if test="typeIds != null and typeIds.length > 0">
                     AND
-                    DEPT.ID IN
-                    <foreach index="index" item="item" collection="deptIds" open="(" separator="," close=")">
+                    DEPT.ID IN (
+                    SELECT ID FROM [dbo].[f_GetChild] ( #{deptId} )
+                    UNION
+                    SELECT ID FROM [dbo].[fnGetFather] ( #{deptId} ))
+                    AND
+                    PD.PositionType_ID IN
+                    <foreach index="index" item="item" collection="typeIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+                <if test="typeIds == null or typeIds.length == 0">
+                    AND
+                    DEPT.ID IN (
+                    SELECT ID FROM [dbo].[f_GetChild] ( #{deptId} ))
+                </if>
+                <if test="positionIds != null and positionIds.length > 0">
+                    UNION
+                    SELECT
+                    ACC.Account_ID accountId,
+                    ACC.Account_Name accountName,
+                    DEPT.ID deptId
+                    FROM
+                    T_Employee_Basic AS EMP
+                    INNER JOIN Account_Data AS ACC ON EMP.Account = ACC.Account_ID
+                    INNER JOIN Position_Data AS PD ON ACC.Position_ID = PD.Position_ID
+                    INNER JOIN T_Department AS DEPT ON DEPT.ID = EMP.Department_ID
+                    WHERE
+                    EMP.IsDelete = '0'
+                    AND EMP.State = '1'
+                    AND PD.Position_ID IN
+                    <foreach index="index" item="item" collection="positionIds" open="(" separator="," close=")">
+                        #{item}
+                    </foreach>
+                </if>
+            </when>
+            <when test="deptId == null or deptId = '' ">
+                <if test="positionIds != null and positionIds.length > 0">
+                    AND PD.Position_ID IN
+                    <foreach index="index" item="item" collection="positionIds" open="(" separator="," close=")">
                         #{item}
                     </foreach>
                 </if>
             </when>
         </choose>
-        <if test="deputyId != null and deputyId != '' ">
-            UNION
-            SELECT
-            ACC.Account_ID accountId,
-            ACC.Account_Name accountName,
-            DEPT.ID deptId
-            FROM
-            T_Employee_Basic AS EMP
-            INNER JOIN Account_Data AS ACC ON EMP.Account = ACC.Account_ID
-            INNER JOIN Position_Data AS PD ON ACC.Position_ID = PD.Position_ID
-            INNER JOIN T_Department AS DEPT ON DEPT.ID = EMP.Department_ID
-            WHERE
-            EMP.IsDelete = '0'
-            AND EMP.State = '1'
-            AND PD.Position_ID = #{deputyId}
-        </if>
         GROUP BY
-            DEPT.ID, ACC.Account_ID, ACC.Account_Name
+        DEPT.ID, ACC.Account_ID, ACC.Account_Name
         ORDER BY
-            ACC.Account_Name, ACC.Account_ID
+        ACC.Account_Name, ACC.Account_ID
     </select>
 
 

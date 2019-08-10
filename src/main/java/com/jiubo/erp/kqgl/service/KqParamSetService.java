@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import com.alibaba.fastjson.JSONObject;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.jiubo.erp.common.MessageException;
 import com.jiubo.erp.kqgl.bean.AttRuleTypeBean;
 import com.jiubo.erp.kqgl.bean.AttShiftGroupBean;
@@ -315,7 +316,8 @@ public interface KqParamSetService {
      * @author: dx
      * @version: 1.0
      */
-    public List<Map<String, Object>> queryAllEmpAttShift(String begDate, String endDate) throws MessageException;
+    //public List<Map<String, Object>> queryAllEmpAttShift(Page page,String begDate, String endDate) throws MessageException;
+    Page queryAllEmpAttShift(Page page,String begDate, String endDate) throws MessageException;
 
     /**
      * @desc:删除员工的排班计划

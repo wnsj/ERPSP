@@ -27,4 +27,9 @@ public class DimissionApplyServiceImpl extends ServiceImpl<DimissionApplyDao, Di
     public List<DimissionApplyBean> queryDimissionApply(DimissionApplyBean dimissionApplyBean) {
         return dimissionApplyDao.queryDimissionApply(dimissionApplyBean);
     }
+
+    @Override
+    public void addDimissionApply(DimissionApplyBean dimissionApplyBean) {
+        int count = dimissionApplyDao.insert(dimissionApplyBean);
+    }
 }
