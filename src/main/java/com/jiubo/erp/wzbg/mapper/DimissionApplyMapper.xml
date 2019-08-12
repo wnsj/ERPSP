@@ -52,13 +52,32 @@
                 WHEN DA_TYPE = 1 THEN '辞职'
                 WHEN DA_TYPE = 2 THEN '辞退'
                 WHEN DA_TYPE = 3 THEN '其他'
-            END AS DA_TYPE
+            END AS DA_TYPE,
+            DA.DA_AUDITOR_ID,AD6.ACCOUNT_NAME DAAUDITORNAME,
+            CASE
+            WHEN DA_AUDITOR_ADVICE IS NULL
+            OR DA_AUDITOR_ADVICE = 1 THEN '未审核'
+            WHEN DA_AUDITOR_ADVICE = 2 THEN '同意'
+            WHEN DA_AUDITOR_ADVICE = 3 THEN '不同意'
+            END AS DA_AUDITOR_ADVICE,
+            DA.DA_APPROVER_ID,AD7.ACCOUNT_NAME DAAPPROVERNAME,
+            CASE
+            WHEN DA_APPROVER_ADVICE IS NULL
+            OR DA_APPROVER_ADVICE = 1 THEN '未审核'
+            WHEN DA_APPROVER_ADVICE = 2 THEN '同意'
+            WHEN DA_APPROVER_ADVICE = 3 THEN '不同意'
+            END AS DA_APPROVER_ADVICE,
+            CASE WHEN DA_IS_COLLECT IS NULL THEN '点击完成'
+            WHEN DA_IS_COLLECT = 1 THEN '已完成'
+            END AS DA_IS_COLLECT
         FROM DIMISSION_APPLY DA
             LEFT JOIN ACCOUNT_DATA AD1 ON DA.DA_ID = AD1.ACCOUNT_ID
             LEFT JOIN ACCOUNT_DATA AD2 ON DA.DA_CHARGE_ID = AD2.ACCOUNT_ID
             LEFT JOIN ACCOUNT_DATA AD3 ON DA.DA_MINISTER_ID = AD3.ACCOUNT_ID
             LEFT JOIN ACCOUNT_DATA AD4 ON DA.DA_CONNECT_ID = AD4.ACCOUNT_ID
             LEFT JOIN ACCOUNT_DATA AD5 ON DA.DA_PERSONNEL_OFFICE_ID = AD5.ACCOUNT_ID
+            LEFT JOIN ACCOUNT_DATA AD6 ON DA.DA_AUDITOR_ID = AD6.ACCOUNT_ID
+            LEFT JOIN ACCOUNT_DATA AD7 ON DA.DA_APPROVER_ID = AD7.ACCOUNT_ID
             LEFT JOIN T_DEPARTMENT TD ON DA.DA_DEPARTMENT_ID = TD.ID
             LEFT JOIN POSITION_DATA PD ON DA.DA_POSITION_ID = PD.POSITION_ID
             LEFT JOIN T_EMPLOYEE_BASIC TB ON DA.DA_ID = TB.ACCOUNT
@@ -140,4 +159,67 @@
             </if>
         </where>
     </select>
+
+    <!--离职申请审核-->
+    <update id="examineApprove">
+        UPDATE  DIMISSION_APPLY
+        SET
+        <trim prefixOverrides=",">
+            <if test="daChargeAdvice != null and daChargeAdvice != ''">
+                ,DA_CHARGE_ADVICE = #{daChargeAdvice}
+            </if>
+            <if test="daMinisterAdvice != null and daMinisterAdvice != ''">
+                ,DA_MINISTER_ADVICE = #{daMinisterAdvice}
+            </if>
+            <if test="daMinisterRemark != null and daMinisterRemark != ''">
+                ,DA_MINISTER_REMARK = #{daMinisterRemark}
+            </if>
+            <if test="daConnectAdvice != null and daConnectAdvice != ''">
+                ,DA_CONNECT_ADVICE = #{daConnectAdvice}
+            </if>
+            <if test="daPersonnelOfficeAdvice != null and daPersonnelOfficeAdvice != ''">
+                ,DA_PERSONNEL_OFFICE_ADVICE = #{daPersonnelOfficeAdvice}
+            </if>
+            <if test="daAuditorAdvice != null and daAuditorAdvice != ''">
+                ,DA_AUDITOR_ADVICE = #{daAuditorAdvice}
+            </if>
+            <if test="daType != null and daType != ''">
+                ,DA_TYPE = #{daType}
+            </if>
+            <if test="daApproverAdvice != null and daApproverAdvice != ''">
+                ,DA_APPROVER_ADVICE = #{daApproverAdvice}
+            </if>
+            <if test="daIsCollect != null and daIsCollect != ''">
+                ,DA_IS_COLLECT = #{daIsCollect}
+            </if>
+        </trim>
+        WHERE ID = #{id}
+        <if test="daChargeAdvice != null and daChargeAdvice != ''">
+            AND (DA_CHARGE_ADVICE IS NULL OR  DA_CHARGE_ADVICE = 1)
+        </if>
+        <if test="daMinisterAdvice != null and daMinisterAdvice != ''">
+            AND DA_CHARGE_ADVICE = 2
+            AND (DA_MINISTER_ADVICE IS NULL OR  DA_MINISTER_ADVICE = 1)
+        </if>
+        <if test="daConnectAdvice != null and daConnectAdvice != ''">
+            AND DA_MINISTER_ADVICE = 2
+            AND (DA_CONNECT_ADVICE IS NULL OR  DA_CONNECT_ADVICE = 1)
+        </if>
+        <if test="daPersonnelOfficeAdvice != null and daPersonnelOfficeAdvice != ''">
+            AND DA_CONNECT_ADVICE = 2
+            AND (DA_PERSONNEL_OFFICE_ADVICE IS NULL OR  DA_PERSONNEL_OFFICE_ADVICE = 1)
+        </if>
+        <if test="daAuditorAdvice != null and daAuditorAdvice != ''">
+            AND DA_PERSONNEL_OFFICE_ADVICE = 2
+            AND (DA_AUDITOR_ADVICE IS NULL OR  DA_AUDITOR_ADVICE = 1)
+        </if>
+        <if test="daApproverAdvice != null and daApproverAdvice != ''">
+            AND DA_AUDITOR_ADVICE = 2
+            AND (DA_APPROVER_ADVICE IS NULL OR  DA_APPROVER_ADVICE = 1)
+        </if>
+        <if test="daIsCollect != null and daIsCollect != ''">
+            AND DA_APPROVER_ADVICE = 2
+            AND DA_IS_COLLECT IS NULL
+        </if>
+    </update>
 </mapper>

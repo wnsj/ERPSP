@@ -51,6 +51,16 @@ public class DimissionApplyController {
         return jsonObject;
     }
 
+    /* *
+    * @desc:离职申请
+    * @author: dx
+    * @date: 2019-08-10 10:09:43
+    * @param params :
+    * @return: com.alibaba.fastjson.JSONObject
+    * @throws:
+    * @version: 1.0
+    **/
+    //http://127.0.0.1:8080/dimissionApplyController/addDimissionApply
     @PostMapping("/addDimissionApply")
     public JSONObject addDimissionApply(@RequestBody String params)throws Exception{
         if(StringUtils.isBlank(params))throw new MessageException("参数接收失败!");
@@ -59,6 +69,48 @@ public class DimissionApplyController {
         jsonObject.put(Constant.Result.RETMSG, Constant.Result.SUCCESS_MSG);
         DimissionApplyBean dimissionApplyBean = JSONObject.parseObject(params, DimissionApplyBean.class);
         dimissionApplyService.addDimissionApply(dimissionApplyBean);
+        return jsonObject;
+    }
+
+    /* *
+     * @desc:修改离职申请
+     * @author: dx
+     * @date: 2019-08-10 15:19:15
+     * @param params :
+     * @return: com.alibaba.fastjson.JSONObject
+     * @throws:
+     * @version: 1.0
+     **/
+    //http://127.0.0.1:8080/dimissionApplyController/addDimissionApply
+    @PostMapping("/updateDimissionApply")
+    public JSONObject updateDimissionApply(@RequestBody String params)throws Exception{
+        if(StringUtils.isBlank(params))throw new MessageException("参数接收失败!");
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(Constant.Result.RETCODE,Constant.Result.SUCCESS);
+        jsonObject.put(Constant.Result.RETMSG, Constant.Result.SUCCESS_MSG);
+        DimissionApplyBean dimissionApplyBean = JSONObject.parseObject(params, DimissionApplyBean.class);
+        dimissionApplyService.updateDimissionApply(dimissionApplyBean);
+        return jsonObject;
+    }
+
+    /* *
+     * @desc:离职申请审核
+     * @author: dx
+     * @date: 2019-08-10 15:19:33
+     * @param params :
+     * @return: com.alibaba.fastjson.JSONObject
+     * @throws:
+     * @version: 1.0
+     **/
+    //http://127.0.0.1:8080/dimissionApplyController/examineApprove
+    @PostMapping("/examineApprove")
+    public JSONObject examineApprove(@RequestBody String params)throws Exception{
+         if(StringUtils.isBlank(params))throw new MessageException("参数接收失败!");
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(Constant.Result.RETCODE,Constant.Result.SUCCESS);
+        jsonObject.put(Constant.Result.RETMSG, Constant.Result.SUCCESS_MSG);
+        DimissionApplyBean dimissionApplyBean = JSONObject.parseObject(params, DimissionApplyBean.class);
+        dimissionApplyService.examineApprove(dimissionApplyBean);
         return jsonObject;
     }
 }
