@@ -13,6 +13,9 @@ public interface kqglDao {
     //加载考勤基础信息列表
     List<KqInfoResult> selectKqInfoList(AttParam ap);
 
+    //公司考勤
+    List<KqInfoResult> allEMPOfFirmKQList(AttParam ap);
+
     //搜索考勤信息列表
     List<KqInfoResult> searchKqInfoList(AttParam ap);
 
@@ -23,7 +26,7 @@ public interface kqglDao {
     List<PunchRecord> selectPunchRecordList(PunchRecord pRecord);
 
     //查询所有部门
-    List<DepartKQ> selectDepartKqInfoList();
+    List<DepartKQ> selectDepartKqInfoList(AttParam ap);
 
     //搜索部门考勤
     List<DepartKQ> searchDepartKqInfoList(DepartKQ departKQ);

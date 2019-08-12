@@ -21,9 +21,12 @@ public class AttParam {
     private String departName;//部门
     private String departId;//部门id
     private String positionName;//职位
-    private String beginDate;//职位
-    private String endDate;//职位
+    private String positionId;//职位id
+    private String beginDate;//开始时间
+    private String endDate;//结束时间
     private String accountName;//账号的名字
+    private String accountId;//账号id
+
 
     /**
      *
@@ -35,12 +38,36 @@ public class AttParam {
 
     @Override
     public String toString() {
-        return "AttParam [name=" + name + ", projectId=" + projectId + ", jobNum=" + jobNum + ", departName="
-                + departName + ", departId=" + departId + ", positionName=" + positionName + ", beginDate=" + beginDate
-                + ", endDate=" + endDate + ", accountName=" + accountName + "]";
+        return "AttParam{" +
+                "name='" + name + '\'' +
+                ", projectId='" + projectId + '\'' +
+                ", jobNum='" + jobNum + '\'' +
+                ", departName='" + departName + '\'' +
+                ", departId='" + departId + '\'' +
+                ", positionName='" + positionName + '\'' +
+                ", positionId='" + positionId + '\'' +
+                ", beginDate='" + beginDate + '\'' +
+                ", endDate='" + endDate + '\'' +
+                ", accountName='" + accountName + '\'' +
+                ", accountId='" + accountId + '\'' +
+                '}';
     }
 
+    public String getPositionId() {
+        return positionId;
+    }
 
+    public void setPositionId(String positionId) {
+        this.positionId = positionId;
+    }
+
+    public String getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(String accountId) {
+        this.accountId = accountId;
+    }
     public String getAccountName() {
         return accountName;
     }
