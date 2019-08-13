@@ -10,11 +10,14 @@ import com.jiubo.erp.kqgl.vo.KqInfoResult;
 import com.jiubo.erp.kqgl.vo.PunchRecord;
 
 public interface kqglDao {
-    //加载考勤基础信息列表
-    List<KqInfoResult> selectKqInfoList(AttParam ap);
-
     //公司考勤
     List<KqInfoResult> allEMPOfFirmKQList(AttParam ap);
+
+    //部门考勤
+    List<KqInfoResult> departOfFirmKQList(AttParam ap);
+
+    //加载考勤基础信息列表
+    List<KqInfoResult> selectKqInfoList(AttParam ap);
 
     //搜索考勤信息列表
     List<KqInfoResult> searchKqInfoList(AttParam ap);

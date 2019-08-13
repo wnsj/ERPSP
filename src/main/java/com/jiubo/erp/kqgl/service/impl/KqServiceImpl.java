@@ -39,6 +39,12 @@ public class KqServiceImpl implements KqService {
     }
 
     @Override
+    public List<KqInfoResult> departOfFirmKQList(AttParam ap){
+
+        return this.dao.departOfFirmKQList(ap);
+    }
+
+    @Override
     public List<KqInfoResult> allEMPOfFirmKQList(AttParam ap) {
 
         return this.dao.allEMPOfFirmKQList(ap);

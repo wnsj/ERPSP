@@ -603,7 +603,13 @@ public class EmpController {
 			return result;
 		}
 	}
-	
+
+    /**
+     * 删除员工
+     * @param response
+     * @param request
+     * @return
+     */
 	@SuppressWarnings("finally")
 	@ResponseBody
 	@RequestMapping(value = "/deleteEmployee")
@@ -656,8 +662,8 @@ public class EmpController {
 			if (StringUtils.isBlank(str))
 				throw new MessageException("参数接收失败！");
 			qf = MapUtil.transJsonStrToObjectIgnoreCase(str, QueryFamilyResult.class);
-			qfrList = this.service.singleFamilyList(qf);
-			result.put("resData", qfrList) ;
+
+			result.put("resData", this.service.singleFamilyList(qf)) ;
 		} catch (MessageException e) {
 			retCode = Constant.Result.ERROR;
 			retMsg = e.getMessage();
@@ -673,6 +679,42 @@ public class EmpController {
 		
 	}
 
+    /**
+     * 删除家庭信息
+     * @param response
+     * @param request
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/deletFamilyInfo")
+    public JSONObject deletFamilyInfo(HttpServletResponse response, HttpServletRequest request) {
+        QueryFamilyResult qf = new QueryFamilyResult();
+
+        JSONObject result = new JSONObject();
+        String retCode = Constant.Result.SUCCESS;
+        String retMsg = Constant.Result.SUCCESS_MSG;
+        try {
+            List<QueryFamilyResult> qfrList = new ArrayList<>();
+            String str = ToolClass.getStrFromInputStream(request);
+            if (StringUtils.isBlank(str))
+                throw new MessageException("参数接收失败！");
+            qf = MapUtil.transJsonStrToObjectIgnoreCase(str, QueryFamilyResult.class);
+
+            result.put("resData", this.service.deletFamilyInfo(qf)) ;
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = e.getMessage();
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            log.error(Constant.Result.RETMSG, e);
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+            return result;
+        }
+
+    }
 
 	/**
 	 * 更新用户基础信息+详细信息+家庭信息
@@ -714,14 +756,13 @@ public class EmpController {
 				}else {
 					resultMap.put("message", "基础信息更新失败");
 				}
-				System.out.println("baseInfoInt:"+baseInfoInt);
 				resultMap.put("userBase", String.valueOf(baseInfoInt));
 			}
 			if (jsonData.containsKey("userDetail")) {
 				userDetail = jsonData.getJSONObject("userDetail");
 				if (!userDetail.isEmpty()) {
 					ui= MapUtil.transJsonToObjectIgnoreCase(userDetail, UserInfo.class);
-					System.out.println("userDetail:"+ui.getuIdNum());
+
 					Integer detailInfoInt = this.service.updataDetialInfo(ui);
 					if (detailInfoInt==1) {
 						resultMap.put("userDetail", "1");
@@ -739,14 +780,14 @@ public class EmpController {
 				for (int i = 0; i < userFamily.size(); i++) {
 					JSONObject jsonObject = userFamily.getJSONObject(i);
 					qfr= MapUtil.transJsonToObjectIgnoreCase(jsonObject, QueryFamilyResult.class);
-					if (qfr.getType().equals("add")) {
+					if (!StringUtils.isEmpty(qfr.getType()) && "add".equals(qfr.getType())) {
 						Integer add = this.service.insertUserFmInfo(qfr);
 						if (add==0) {
 							resultMap.put("add", "0");
 							resultMap.put("message", "家庭成员添加失败");
 						}
 					}
-					if (qfr.getType().equals("modify")) {
+					if (!StringUtils.isEmpty(qfr.getType()) && "modify".equals(qfr.getType())) {
 						Integer modify = this.service.updatafamilyInfo(qfr);
 						if (modify==0) {
 							resultMap.put("modify", "0");

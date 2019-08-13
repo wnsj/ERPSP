@@ -55,8 +55,6 @@ public class UserInfo {
     private String createUser;
     private String remark;
 
-    //家庭成员
-    private List<QueryFamilyResult> qFRs;
 
 
     public UserInfo() {
@@ -513,14 +511,6 @@ public class UserInfo {
     }
 
 
-    public List<QueryFamilyResult> getqFRs() {
-        return qFRs;
-    }
-
-
-    public void setqFRs(List<QueryFamilyResult> qFRs) {
-        this.qFRs = qFRs;
-    }
 
 
 }
