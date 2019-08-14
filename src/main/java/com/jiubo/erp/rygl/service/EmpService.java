@@ -93,8 +93,10 @@ public interface EmpService {
 	
 	//更新家庭信息
 	public Integer updatafamilyInfo(QueryFamilyResult qfr);
-	
-	
+
+	//删除家庭信息
+	public Integer deletFamilyInfo(QueryFamilyResult qfr);
+
 	//查询调动信息
 	public List<PositionShift> selectShiftInfo(PositionShift pShift);
 

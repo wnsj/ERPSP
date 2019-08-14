@@ -39,6 +39,18 @@ public class KqServiceImpl implements KqService {
     }
 
     @Override
+    public List<KqInfoResult> departOfFirmKQList(AttParam ap){
+
+        return this.dao.departOfFirmKQList(ap);
+    }
+
+    @Override
+    public List<KqInfoResult> allEMPOfFirmKQList(AttParam ap) {
+
+        return this.dao.allEMPOfFirmKQList(ap);
+    }
+
+    @Override
     public List<KqInfoResult> searchKqInfoList(AttParam ap) {
         List<KqInfoResult> kqInfoList = this.dao.searchKqInfoList(ap);
         return kqInfoList;
@@ -50,9 +62,9 @@ public class KqServiceImpl implements KqService {
     }
 
     @Override
-    public List<DepartKQ> selectDepartKqInfoList() {
+    public List<DepartKQ> selectDepartKqInfoList(AttParam ap) {
         // TODO Auto-generated method stub
-        return this.dao.selectDepartKqInfoList();
+        return this.dao.selectDepartKqInfoList(ap);
     }
 
     @Override

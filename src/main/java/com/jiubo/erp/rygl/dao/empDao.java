@@ -62,6 +62,8 @@ public interface empDao {
 	
 	Integer updatafamilyInfo(QueryFamilyResult qfr);
 
+	Integer deletFamilyInfo(QueryFamilyResult qfr);
+
 	Integer updateLeaveReason(LeaveResign lResign);
 	
 	Integer deleteLeaveReason(LeaveResign lResign);

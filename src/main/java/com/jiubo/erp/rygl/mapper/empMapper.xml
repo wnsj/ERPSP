@@ -243,12 +243,10 @@
 		ID AS ID,
 		appellation AS appellation,
 		name AS chname,
-		workaddress AS
-		workAddress,
+		workaddress AS workAddress,
 		position AS position,
 		phone AS phone,
-		wechat
-		AS wechat,
+		wechat AS wechat,
 		address AS famAddress,
 		Birthday AS birth
 
@@ -376,6 +374,27 @@
 
 	</insert>
 
+	<!-- 查询 单个成员 家庭信息 -->
+	<select id="singleFamilyList" parameterType="com.jiubo.erp.rygl.vo.QueryFamilyResult"
+			resultType="com.jiubo.erp.rygl.vo.QueryFamilyResult">
+		SELECT
+		ID AS ID,
+		appellation AS appellation,
+		name AS chname,
+		workaddress AS workAddress,
+		position AS position,
+		phone AS phone,
+		wechat AS wechat,
+		address AS famAddress,
+		Birthday AS birth
+
+		FROM
+		dbo.Account_Family
+
+		where
+		Account_ID=#{uAccountId}
+	</select>
+
 	<!-- 插入 员工入职 家庭信息 -->
 	<insert id="insertfamilyInfo" parameterType="com.jiubo.erp.rygl.vo.QueryFamilyResult">
 		insert into
@@ -387,6 +406,10 @@
 		#{phone},#{wechat},#{famAddress})
 	</insert>
 
+	<!--删除家庭成员-->
+	<delete id="deletFamilyInfo" parameterType="com.jiubo.erp.rygl.vo.QueryFamilyResult">
+		DELETE Account_Family WHERE ID=#{ID}
+	</delete>
 
 	<!-- 插入 离职原因 -->
 	<insert id="addLeaveReason" parameterType="com.jiubo.erp.rygl.vo.LeaveResign">
@@ -455,7 +478,7 @@
 		ID=#{id}
 	</update>
 
-	<!-- 更新 基本信息 删除 -->
+	<!-- 基本信息 删除 -->
 	<update id="deleteEmployee" parameterType="com.jiubo.erp.rygl.vo.UserInfo">
 		update
 		T_Employee_Basic
@@ -490,9 +513,7 @@
 		name=#{name},Birthday=#{birth},appellation=#{appellation},workaddress=#{workaddress},position=#{position},
 		phone=#{phone},wechat=#{wechat},address=#{famAddress}
 		where
-		Account_ID =
-		#{accountId}
-
+		Account_ID = #{accountId}
 	</update>
 
 	<!-- 员工异动   查询  -->

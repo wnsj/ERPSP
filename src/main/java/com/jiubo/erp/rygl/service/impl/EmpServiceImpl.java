@@ -250,17 +250,18 @@ public class EmpServiceImpl implements EmpService {
 		return this.dao.insertfamilyInfo(qfr);
 	}
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * com.jiubo.erp.rygl.service.EmpService#updatafamilyInfo(com.jiubo.erp.rygl.vo.
-	 * QueryFamilyResult)
+	/**
+	 * 修改家庭信息
 	 */
 	@Override
 	public Integer updatafamilyInfo(QueryFamilyResult qfr) {
 		// TODO Auto-generated method stub
 		return this.dao.updatafamilyInfo(qfr);
+	}
+
+	public Integer deletFamilyInfo(QueryFamilyResult qfr){
+
+		return this.dao.deletFamilyInfo(qfr);
 	}
 
 	/**

@@ -14,6 +14,12 @@ public interface KqService {
     //查询考勤人员基础信息列表
     List<KqInfoResult> selectKqInfoList(AttParam ap);
 
+    //公司考勤
+    public List<KqInfoResult> allEMPOfFirmKQList(AttParam ap);
+
+    //部门考勤
+    public List<KqInfoResult> departOfFirmKQList(AttParam ap);
+
     //查询考勤人员班次信息列表
     List<KqInfoResult> searchKqInfoList(AttParam ap);
 
@@ -24,7 +30,7 @@ public interface KqService {
     List<PunchRecord> selectPunchRecordList(PunchRecord pRecord);
 
     //查询部门列表
-    List<DepartKQ> selectDepartKqInfoList();
+    List<DepartKQ> selectDepartKqInfoList(AttParam ap);
 
     //搜索部门考勤
     List<DepartKQ> searchDepartKqInfoList(DepartKQ departKQ);
