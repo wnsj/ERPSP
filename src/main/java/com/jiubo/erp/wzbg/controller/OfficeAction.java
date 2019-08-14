@@ -38,16 +38,16 @@ public class OfficeAction {
     private OfficeService wzbgService;
 
     /* *
-    * @desc:办公用品管理查询
-    * @author: dx
-    * @date: 2019-07-09 09:13:56
-    * @param request :
-    * @param response :
-    * @param params :
-    * @return: com.alibaba.fastjson.JSONObject
-    * @throws:
-    * @version: 1.0
-    **/
+     * @desc:办公用品管理查询
+     * @author: dx
+     * @date: 2019-07-09 09:13:56
+     * @param request :
+     * @param response :
+     * @param params :
+     * @return: com.alibaba.fastjson.JSONObject
+     * @throws:
+     * @version: 1.0
+     **/
     //http://127.0.0.1:8080/Erp/officeAction/queryOfficeSuppliesData?month=2019-08&accountId1=&departmentId=&name=
     @ResponseBody
     @RequestMapping(value = "/queryOfficeSuppliesData", method = RequestMethod.POST)
@@ -288,16 +288,16 @@ public class OfficeAction {
     }
 
     /* *
-      * @desc:查询审核意见
-      * @author: dx
-      * @date: 2019-07-17 13:59:55
-      * @param request :
-      * @param response :
-      * @param params :
-      * @return: com.alibaba.fastjson.JSONObject
-      * @throws:
-      * @version: 1.0
-      **/
+     * @desc:查询审核意见
+     * @author: dx
+     * @date: 2019-07-17 13:59:55
+     * @param request :
+     * @param response :
+     * @param params :
+     * @return: com.alibaba.fastjson.JSONObject
+     * @throws:
+     * @version: 1.0
+     **/
     //http://127.0.0.1:8080/Erp/officeAction/queryAdvance?month=2019-08
     @ResponseBody
     @RequestMapping(value = "/queryAdvance", method = RequestMethod.POST)
@@ -515,9 +515,9 @@ public class OfficeAction {
      * @version: 1.0
      **/
     //http://127.0.0.1:8080/Erp/officeAction/queryComputerHandover
-     @ResponseBody
-     @RequestMapping(value = "/queryComputerHandover", method = RequestMethod.POST)
-     public JSONObject queryComputerHandover(HttpServletRequest request, HttpServletResponse response) {
+    @ResponseBody
+    @RequestMapping(value = "/queryComputerHandover", method = RequestMethod.POST)
+    public JSONObject queryComputerHandover(HttpServletRequest request, HttpServletResponse response) {
         JSONObject result = new JSONObject();
         String retCode = Constant.Result.SUCCESS;
         String retMsg = Constant.Result.SUCCESS_MSG;
@@ -571,15 +571,15 @@ public class OfficeAction {
     }
 
     /* *
-    * @desc:查询人力负责人
-    * @author: dx
-    * @date: 2019-08-09 10:03:16
-    * @param request :
-    * @param response :
-    * @return: com.alibaba.fastjson.JSONObject
-    * @throws:
-    * @version: 1.0
-    **/
+     * @desc:查询人力负责人
+     * @author: dx
+     * @date: 2019-08-09 10:03:16
+     * @param request :
+     * @param response :
+     * @return: com.alibaba.fastjson.JSONObject
+     * @throws:
+     * @version: 1.0
+     **/
     //http://127.0.0.1:8080/Erp/officeAction/queryManpowerOfficer
     @ResponseBody
     @RequestMapping(value = "/queryManpowerOfficer", method = RequestMethod.POST)
@@ -603,7 +603,7 @@ public class OfficeAction {
         }
     }
 
-     /* *
+    /* *
      * @desc:查询审批负责人
      * @author: dx
      * @date: 2019-08-09 10:29:44
@@ -767,6 +767,42 @@ public class OfficeAction {
             if (StringUtils.isBlank(params)) throw new MessageException("参数接收失败!");
             OfficeUserDataBean officeUserDataBean = JSONObject.parseObject(params, OfficeUserDataBean.class);
             wzbgService.updateOfficeUserDataState(officeUserDataBean);
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = e.getMessage();
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(Constant.Result.RETMSG, e);
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+            return result;
+        }
+    }
+
+    /* *
+     * @desc:查询通知人
+     * @author: dx
+     * @date: 2019-08-13 13:29:50
+     * @param request :
+     * @param response :
+     * @param params :
+     * @return: com.alibaba.fastjson.JSONObject
+     * @throws:
+     * @version: 1.0
+     **/
+    //http://127.0.0.1:8080/Erp/officeAction/queryNotice?{accountArr:[{postId:98,deptId:54,step:1}]}
+    @ResponseBody
+    @RequestMapping(value = "/queryNotice", method = RequestMethod.POST)
+    public JSONObject queryNotice(HttpServletRequest request, HttpServletResponse response, @RequestBody String params) {
+        JSONObject result = new JSONObject();
+        String retCode = Constant.Result.SUCCESS;
+        String retMsg = Constant.Result.SUCCESS_MSG;
+        try {
+            if (StringUtils.isBlank(params)) throw new MessageException("参数接收失败!");
+            JSONObject jsonObject = JSONObject.parseObject(params);
+            result.put(Constant.Result.RETDATA, wzbgService.queryNotice(jsonObject));
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
             retMsg = e.getMessage();

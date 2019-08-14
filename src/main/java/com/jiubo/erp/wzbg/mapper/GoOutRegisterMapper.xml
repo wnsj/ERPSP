@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiubo.erp.wzbg.dao.GoOutRegisterDao">
+    <!--    外出登记查询-->
+    <select id="queryGoOutRegister" resultType="com.jiubo.erp.wzbg.bean.GoOutRegisterBean">
+        SELECT
+        G.ID AS ID, G.GO_OUT_APPLY_TIME ,
+        G.GO_OUT_DEPARTMENT_ID,
+        T.NAME AS GOOUTDEPARTMENTNAME, GO_OUT_NAME,
+        G.GO_OUT_APPLY_ID ,
+        A2.ACCOUNT_NAME AS GOOUTAPPLYNAME
+        , G.GO_OUT_ADDRESS , G.GO_OUT_REGION ,
+        G.GO_OUT_GO_TIME,
+        G.GO_OUT_TONGZHI_ID ,
+        A3.ACCOUNT_NAME AS GOOUTTONGZHINAME,
+        GO_OUT_TONGZHI_ADVICE ,
+        GO_OUT_COME_TIME
+        , CASE
+        WHEN GO_OUT_OTHERTYPE = 1 THEN '班中外出'
+        WHEN GO_OUT_OTHERTYPE = 2 THEN '班前外出'
+        END AS GO_OUT_OTHERTYPE
+        , CASE
+        WHEN GO_OUT_TYPE = 1 THEN '是'
+        WHEN GO_OUT_TYPE = 2 THEN '否'
+        END AS GO_OUT_TYPE
+        , CASE
+        WHEN GO_OUT_DELETE IS NULL THEN '点击取消'
+        WHEN GO_OUT_DELETE = 1 THEN '已取消'
+        END AS GO_OUT_DELETE
+        FROM GO_OUT_REGISTER G
+        LEFT JOIN ACCOUNT_DATA A2 ON A2.ACCOUNT_ID = G.GO_OUT_APPLY_ID
+        LEFT JOIN T_DEPARTMENT T ON T.ID = G.GO_OUT_DEPARTMENT_ID
+        LEFT JOIN ACCOUNT_DATA A3 ON A3.ACCOUNT_ID = G.GO_OUT_TONGZHI_ID
+        <where>
+            <if test="goOutDepartmentId != null and goOutDepartmentId != ''">
+                AND GO_OUT_DEPARTMENT_ID = #{goOutDepartmentId}
+            </if>
+            <if test="goOutName != null and goOutName != ''">
+                AND GO_OUT_NAME LIKE #{goOutName} + '%'
+            </if>
+            <if test="begDate != null and begDate != '' and endDate != null and endDate !=  ''">
+                <if test="goOutApplyTime != null and goOutApplyTime != ''">
+                    AND G.GO_OUT_APPLY_TIME >= #{begDate}
+                    AND G.GO_OUT_APPLY_TIME &lt; #{endDate}
+                </if>
+                <if test="goOutComeTime != null and goOutComeTime != ''">
+                    AND G.GO_OUT_COME_TIME >= #{begDate}
+                    AND G.GO_OUT_COME_TIME &lt; #{endDate}
+                </if>
+                <if test="goOutGoTime != null and goOutGoTime != ''">
+                    AND G.GO_OUT_GO_TIME >= #{begDate}
+                    AND G.GO_OUT_GO_TIME &lt; #{endDate}
+                </if>
+            </if>
+            <if test="goOutDelete != null and goOutDelete != ''">
+                <choose>
+                    <when test="goOutDelete == 1">
+                        AND G.GO_OUT_DELETE = 1
+                    </when>
+                    <when test="goOutDelete == 2">
+                        AND G.GO_OUT_DELETE IS NULL
+                    </when>
+                </choose>
+            </if>
+            <if test="id != null and id != ''">
+                AND G.ID = #{id}
+            </if>
+        </where>
+    </select>
+
+    <!--    新增外出登记
+    GO_OUT_APPLY_ID = #{goOutApplyId}
+     , GO_OUT_DEPARTMENT_ID = #{goOutDepartmentId}
+     , GO_OUT_NAME = #{goOutName}
+    -->
+    <update id="updateGoOutRegister">
+        UPDATE GO_OUT_REGISTER
+        SET
+             GO_OUT_COME_TIME = #{goOutComeTime}
+            , GO_OUT_GO_TIME = #{goOutGoTime}
+            , GO_OUT_TYPE = #{goOutType}
+            , GO_OUT_ADDRESS = #{goOutAddress}
+            , GO_OUT_REGION = #{goOutRegion}
+            , GO_OUT_TONGZHI_ID = #{goOutTongzhiId}
+            , GO_OUT_TONGZHI_ADVICE = #{goOutTongzhiAdvice}
+            , GO_OUT_OTHERTYPE = #{goOutOthertype}
+        WHERE ID = #{id} AND  GO_OUT_DELETE IS NULL AND GO_OUT_GO_TIME > GETDATE()
+    </update>
+
+    <!--    修改外出登记-->
+    <insert id="addGoOutRegister">
+        <if test="registerBeanList != null and registerBeanList.size() > 0">
+            INSERT INTO GO_OUT_REGISTER
+            (
+            GO_OUT_APPLY_ID, GO_OUT_NAME, GO_OUT_APPLY_TIME, GO_OUT_COME_TIME, GO_OUT_GO_TIME,
+            GO_OUT_TYPE, GO_OUT_ADDRESS, GO_OUT_REGION, GO_OUT_DEPARTMENT_ID, GO_OUT_INFORM_ID,
+            GO_OUT_SUM, GO_OUT_SUM_TYPE, GO_OUT_DELETE, GO_OUT_TONGZHI_ID, GO_OUT_TONGZHI_ADVICE,
+            GO_OUT_IS_SEE, GO_OUT_OTHERTYPE, GO_REPORT_ID, GO_REPORT_SEE, GO_REPORT_ADVICE
+            )
+            VALUES
+            <foreach collection="registerBeanList" item="item" separator=",">
+                (
+                #{item.goOutApplyId}, #{item.goOutName}, #{item.goOutApplyTime}, #{item.goOutComeTime},
+                #{item.goOutGoTime},
+                #{item.goOutType}, #{item.goOutAddress}, #{item.goOutRegion}, #{item.goOutDepartmentId},
+                #{item.goOutInformId},
+                #{item.goOutSum}, #{item.goOutSumType}, #{item.goOutDelete}, #{item.goOutTongzhiId},
+                #{item.goOutTongzhiAdvice},
+                #{item.goOutIsSee}, #{item.goOutOthertype}, #{item.goReportId}, #{item.goReportSee},
+                #{item.goReportAdvice}
+                )
+            </foreach>
+        </if>
+    </insert>
+
+    <!--    查询部门下的员工-->
+    <select id="getOutData" resultType="java.util.Map">
+         SELECT
+             EMP_NAME, GENDER, JOBNUM, DEPARTMENT_ID, BIRTH, ENTRYDATE, POSITIVEDATE, RESIGNDATE,
+             UPDATEDATE, CREATEDATE, ISDELETE, STATE, CREATEUSER, ACCOUNT, ACCOUNT_ID,
+             ACCOUNT_NAME, REMARK, ID, POSITION_ID, ACCOUNT_STATE
+         FROM V_ACCOUNTDATA
+         <where>
+             <if test="params.deptId != null and params.deptId != ''">
+                 AND DEPARTMENT_ID = #{params.deptId}
+             </if>
+             <if test="params.state != null and params.state != ''">
+                 AND STATE = #{params.state}
+             </if>
+             <if test="params.positionId != null and params.positionId != ''">
+                AND POSITION_ID = #{params.positionId}
+             </if>
+            <if test="params.account != null and params.account != ''">
+                AND ACCOUNT = #{params.account}
+            </if>
+            <if test="params.accountId != null and params.accountId != ''">
+                AND ACCOUNT_ID = #{params.accountId}
+            </if>
+         </where>
+    </select>
+</mapper>

@@ -108,8 +108,8 @@ public class OfficeServiceImpl implements OfficeService {
             //判断本月是否已经汇总
             if (StringUtils.isNotBlank(officeSuppliesDataBean.getIsTiJiao())) {
                 dataMap.put("isHuiZong", "9999");
-                dataMap.put("huiZongRenId",officeSuppliesDataBean.getAccountId3());
-                dataMap.put("huiZongRenName",officeSuppliesDataBean.getAccount3Name());
+                dataMap.put("huiZongRenId", officeSuppliesDataBean.getAccountId3());
+                dataMap.put("huiZongRenName", officeSuppliesDataBean.getAccount3Name());
                 return dataMap;
             }
         }
@@ -309,13 +309,13 @@ public class OfficeServiceImpl implements OfficeService {
             if (wzbgDao.queryDeptLevel(deptLevel = i, deptId) > 0) break;
         }
         if (wzbgDao.isPuGang(postId, postName) > 0)
-            mapList = wzbgDao.queryCensors(0,deptLevel,deptId);
+            mapList = wzbgDao.queryCensors(0, deptLevel, deptId);
         else if (wzbgDao.isBuZhang(postId, postName) > 0)
-            mapList = wzbgDao.queryCensors(1,deptLevel,deptId);
+            mapList = wzbgDao.queryCensors(1, deptLevel, deptId);
         else if (wzbgDao.isFuZong(postId, postName) > 0)
-            mapList = wzbgDao.queryCensors(2,deptLevel,deptId);
+            mapList = wzbgDao.queryCensors(2, deptLevel, deptId);
         else
-            mapList = wzbgDao.queryCensors(3,deptLevel,deptId);
+            mapList = wzbgDao.queryCensors(3, deptLevel, deptId);
         return mapList;
     }
 
@@ -578,7 +578,41 @@ public class OfficeServiceImpl implements OfficeService {
     public void updateOfficeUserDataState(OfficeUserDataBean officeUserDataBean) throws MessageException {
         if (StringUtils.isBlank(officeUserDataBean.getId())) throw new MessageException("id不能为空!");
         if (wzbgDao.updateOfficeUserDataState(officeUserDataBean) <= 0) throw new MessageException("修改失败!");
-        //int i = 1 / 0;
+    }
+
+    @Override
+    public List<Map<String, Object>> queryNotice(JSONObject jsonObject) throws MessageException {
+        List<Map<String, Object>> dataList = new ArrayList<Map<String, Object>>();
+        JSONArray accountArr = jsonObject.getJSONArray("accountArr");
+        if (accountArr == null || accountArr.size() <= 0) return dataList;
+        int step = 0;
+        for (int i = 0; i < accountArr.size(); i++) {
+            JSONObject account = accountArr.getJSONObject(i);
+            String postId = null;
+            String postName = null;
+            String deptId = null;
+            if (account.get("postId") == null || StringUtils.isBlank(postId = account.getString("postId"))
+                    || account.get("deptId") == null || StringUtils.isBlank(deptId = account.getString("deptId")))
+                continue;
+            step = account.get("step") == null || StringUtils.isBlank(account.getString("step")) ? 0 : Integer.parseInt(account.getString("step"));
+            if (wzbgDao.isBuZhang(postId, postName) > 0) {
+                dataList = wzbgDao.queryBuZhangNotice();
+            } else if (wzbgDao.isZhuGuan(postId, postName) > 0) {
+                dataList = wzbgDao.queryZhuGuanNotice("6", deptId, step);
+                break;
+            } else {
+                if (step == 0) {
+                    dataList = wzbgDao.queryPuGangNotice("5", deptId, step, -1);
+                } else {
+                    for (int j = 0; j < 3; j++) {
+                        if (wzbgDao.queryDeptLevel(j, deptId) > 0) {
+                            dataList = wzbgDao.queryPuGangNotice("5", deptId, step, j);
+                        }
+                    }
+                }
+            }
+        }
+        return dataList;
     }
 }
   /*if ("1".equals(officeUserDataBean.getOfficeId()) && "3".equals(dataBean.getOfficeId())||
