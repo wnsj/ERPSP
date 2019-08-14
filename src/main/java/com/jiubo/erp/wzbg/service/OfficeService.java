@@ -1,5 +1,6 @@
 package com.jiubo.erp.wzbg.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.jiubo.erp.common.MessageException;
 import com.jiubo.erp.wzbg.bean.OfficeSuppliesDataBean;
 import com.jiubo.erp.wzbg.bean.OfficeUserDataBean;
@@ -260,4 +261,6 @@ public interface OfficeService {
      * @version: 1.0
      **/
     public void updateOfficeUserDataState(OfficeUserDataBean officeUserDataBean) throws MessageException;
+
+    public List<Map<String,Object>> queryNotice(JSONObject jsonObject)throws MessageException;
 }

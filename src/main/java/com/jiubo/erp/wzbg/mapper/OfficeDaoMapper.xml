@@ -762,6 +762,21 @@
         </where>
     </select>
 
+    <!--    主管-->
+    <select id="isZhuGuan" resultType="int">
+        SELECT COUNT(1)
+        FROM POSITION_DATA
+        <where>
+            <if test="postId != null and postId != ''">
+                AND POSITION_ID = #{postId}
+            </if>
+            <if test="postName != null and postName != ''">
+                AND POSITION_NAME = #{postName}
+            </if>
+            AND (POSITIONTYPE_ID = 5 OR POSITION_NAME = '项目经理')
+        </where>
+    </select>
+
     <!--查询审查人（暂不使用）-->
     <select id="queryCensor" resultType="java.util.Map">
         SELECT EMP_NAME, ACCOUNT_ID, POSITION_NAME, NAME, POSITIONTYPE_NAME
@@ -857,6 +872,7 @@
         AND DEPARTMENT_ID = 39
     </select>
 
+    <!--    查询审批负责人-->
     <select id="queryApprovalOfficer" resultType="java.util.Map">
         SELECT EMP_NAME,ACCOUNT_ID,POSITION_NAME,NAME,POSITIONTYPE_NAME
         FROM V_ACCOUNTDATA
@@ -963,4 +979,60 @@
             AND GETDATE() > STARTTIME
         </if>
     </update>
+
+    <!--    查询部长的通知人(即通知副总)-->
+    <select id="queryBuZhangNotice" resultType="java.util.Map">
+        SELECT ACCOUNT_NAME, ACCOUNT_ID
+        FROM V_ACCOUNTDATA
+        LEFT JOIN POSITION_DATA  ON V_ACCOUNTDATA .POSITION_ID = POSITION_DATA .POSITION_ID
+        WHERE POSITION_DATA.POSITION_NAME = '副总经理' AND STATE = 1
+    </select>
+
+    <!--    查询主管的通知人（即通知部长）-->
+    <select id="queryZhuGuanNotice" resultType="java.util.Map">
+        SELECT ACCOUNT_NAME ,ACCOUNT_ID
+        FROM V_ACCOUNTDATA
+        LEFT JOIN POSITION_DATA ON V_ACCOUNTDATA .POSITION_ID = POSITION_DATA .POSITION_ID
+        WHERE POSITION_DATA.POSITIONTYPE_ID = #{postTypeId}
+        <if test="step == 0">
+            AND DEPARTMENT_ID = (SELECT PARENTID FROM T_DEPARTMENT WHERE T_DEPARTMENT.ID = #{deptId})
+        </if>
+        AND STATE = 1 AND POSITION_DATA.POSITION_NAME != '项目经理'
+    </select>
+
+    <!--    查询普通通知人（即通知主管）-->
+    <select id="queryPuGangNotice" resultType="java.util.Map">
+        SELECT ACCOUNT_NAME,ACCOUNT_ID,POSITION_NAME,NAME,POSITIONTYPE_NAME
+        FROM V_ACCOUNTDATA
+        LEFT JOIN POSITION_DATA ON POSITION_DATA.POSITION_ID = V_ACCOUNTDATA.POSITION_ID
+        LEFT JOIN T_DEPARTMENT ON T_DEPARTMENT.ID = V_ACCOUNTDATA.DEPARTMENT_ID
+        LEFT JOIN POSITION_TYPE ON POSITION_DATA.POSITIONTYPE_ID = POSITION_TYPE.POSITIONTYPE_ID
+        WHERE STATE = '1' AND ISDELETE = '0' AND (POSITION_TYPE .POSITIONTYPE_ID = #{postTypeId} OR POSITION_NAME =
+        '项目经理')
+        <if test="step == 0">
+            AND DEPARTMENT_ID = #{deptId}
+        </if>
+        <if test="step == 1">
+            <choose>
+                <when test="deptLevel == 0">
+                    AND (DEPARTMENT_ID IN (SELECT ID FROM T_DEPARTMENT
+                    WHERE PARENTID IN (SELECT ID FROM T_DEPARTMENT WHERE PARENTID = #{deptId}))
+                    OR DEPARTMENT_ID IN (SELECT ID FROM T_DEPARTMENT WHERE PARENTID = #{deptId})
+                    OR DEPARTMENT_ID = #{deptId})
+                </when>
+                <when test="deptLevel == 1">
+                    AND (DEPARTMENT_ID = #{deptId} OR DEPARTMENT_ID IN (SELECT ID FROM T_DEPARTMENT WHERE
+                    PARENTID = #{deptId} ) OR DEPARTMENT_ID IN (SELECT ID FROM T_DEPARTMENT WHERE PARENTID IN
+                    (SELECT PARENTID FROM T_DEPARTMENT WHERE ID = #{deptId} )))
+                </when>
+                <when test="deptLevel == 2">
+                    AND (DEPARTMENT_ID = #{deptId} OR DEPARTMENT_ID = (SELECT PARENTID FROM T_DEPARTMENT WHERE
+                    ID = #{deptId}) OR DEPARTMENT_ID IN (SELECT ID FROM T_DEPARTMENT WHERE PARENTID IN (SELECT
+                    PARENTID FROM T_DEPARTMENT WHERE ID = #{deptId} )) OR DEPARTMENT_ID IN (SELECT ID FROM
+                    T_DEPARTMENT WHERE PARENTID IN (SELECT PARENTID FROM T_DEPARTMENT WHERE ID IN (SELECT PARENTID FROM
+                    T_DEPARTMENT WHERE ID = #{deptId}))))
+                </when>
+            </choose>
+        </if>
+    </select>
 </mapper>

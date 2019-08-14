@@ -69,6 +69,9 @@ public interface OfficeDao {
     //副总
     public int isFuZong(@Param("postId")String postId,@Param("postName")String postName);
 
+    //主管
+    public int isZhuGuan(@Param("postId")String postId,@Param("postName")String postName);
+
     //查询审查人（暂不使用）
     public List<Map<String, Object>> queryCensor(@Param("level") int level);
 
@@ -100,4 +103,13 @@ public interface OfficeDao {
     public void updateOfficeUserData(OfficeUserDataBean officeUserDataBean);
 
     public int updateOfficeUserDataState(OfficeUserDataBean officeUserDataBean);
+
+    //查询主管的通知人（即通知部长）
+    public List<Map<String,Object>> queryZhuGuanNotice(@Param("postTypeId") String postTypeId,@Param("deptId") String deptId,@Param("step") int step);
+
+    //查询部长的通知人(即通知副总)
+    public List<Map<String,Object>> queryBuZhangNotice();
+
+    //查询普通通知人（即通知主管）
+    public List<Map<String,Object>> queryPuGangNotice(@Param("postTypeId") String postTypeId,@Param("deptId") String deptId,@Param("step") int step,@Param("deptLevel")int deptLevel);
 }
