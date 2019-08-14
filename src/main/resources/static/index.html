@@ -23,6 +23,23 @@
     var websocket = null;
 
     function startConection() {
+        if (websocket != null) {
+            switch (websocket.readyState) {
+                case WebSocket.CONNECTING:
+                    // 值为0，表示正在连接。
+                    break;
+                case WebSocket.OPEN:
+                    // 值为1，表示连接成功，可以通信了
+                    alert("已经连接了!");
+                    return;
+                case WebSocket.CLOSING:
+                    // 值为2，表示连接正在关闭。
+                    break;
+                case WebSocket.CLOSED:
+                    // 值为3，表示连接已经关闭，或者打开连接失败
+                    break;
+            }
+        }
         var accountId = document.getElementById('accountId').value;
         //判断当前浏览器是否支持WebSocket
         if ('WebSocket' in window) {
