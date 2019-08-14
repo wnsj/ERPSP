@@ -16,6 +16,10 @@ public interface kqglDao {
     //部门考勤
     List<KqInfoResult> departOfFirmKQList(AttParam ap);
 
+    //部门考勤---双击部门考勤
+    List<KqInfoResult> singleDepartOfFirmKQList(AttParam ap);
+
+
     //加载考勤基础信息列表
     List<KqInfoResult> selectKqInfoList(AttParam ap);
 
