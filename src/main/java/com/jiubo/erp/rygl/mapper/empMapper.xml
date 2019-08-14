@@ -139,11 +139,10 @@
 		a.Birth AS birth,
 		a.EntryDate AS entryDate,
 		a.PositiveDate AS PositiveDate,
-		CASE WHEN a.ResignDate&lt;a.EntryDate  THEN NULL
+		CASE WHEN a.ResignDate&lt;a.EntryDate OR a.State=1 THEN NULL
 		ELSE a.ResignDate 
 		END AS ResignDate,
-		a.State AS
-		State,
+		a.State AS State,
 		a.ResignType AS resignType,
 		g.Reason_Id AS resignReasonId,
 		g.Reason_Name AS resignName
@@ -270,8 +269,7 @@
 		a.ID AS positionId,
 		a.EntryDate AS entryDate,
 		a.PositiveDate AS positiveDate,
-		a.ResignDate
-		AS resignDate,
+		CASE WHEN a.State==1 THEN '' ELSE a.ResignDate AS resignDate,
 		a.ResignType AS resignType,
 		a.ResignReason AS
 		resignReason,

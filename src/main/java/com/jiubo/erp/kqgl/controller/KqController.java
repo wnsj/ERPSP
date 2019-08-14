@@ -124,6 +124,45 @@ public class KqController {
         }
     }
 
+
+    /**
+     * 部门考勤--双击单个部门考勤--修改
+     *
+     * @param request
+     * @param response
+     * @return
+     * @throws ParseException
+     */
+    @SuppressWarnings("finally")
+    @ResponseBody
+    @RequestMapping(value = "/sdofkqList")
+    private JSONObject singleDepartOfFirmKQList(HttpServletRequest request, HttpServletResponse response){
+        AttParam ap = new AttParam();
+
+        JSONObject result = new JSONObject();
+        String retCode = Constant.Result.SUCCESS;
+        String retMsg = Constant.Result.SUCCESS_MSG;
+        try {
+            String str = ToolClass.getStrFromInputStream(request);
+            if (StringUtils.isBlank(str))
+                throw new MessageException("参数接收失败！");
+            ap = MapUtil.transJsonStrToObjectIgnoreCase(str, AttParam.class);
+
+            result.put("resData", this.service.singleDepartOfFirmKQList(ap));
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = e.getMessage();
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            log.error(Constant.Result.RETMSG, e);
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+            return result;
+        }
+    }
+
     /**
      * 公司考勤
      *

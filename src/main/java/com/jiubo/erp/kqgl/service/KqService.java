@@ -20,6 +20,9 @@ public interface KqService {
     //部门考勤
     public List<KqInfoResult> departOfFirmKQList(AttParam ap);
 
+    //部门考勤---双击部门考勤
+    public List<KqInfoResult> singleDepartOfFirmKQList(AttParam ap);
+
     //查询考勤人员班次信息列表
     List<KqInfoResult> searchKqInfoList(AttParam ap);
 

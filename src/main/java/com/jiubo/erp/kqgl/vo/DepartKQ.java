@@ -4,6 +4,7 @@ package com.jiubo.erp.kqgl.vo;
 public class DepartKQ {
 
     private String departKQName;//部门名称
+    private String departKQId;//部门id
     private String laterTimes;//迟到次数
     private String leaveEarlyTimes;//早退次数
     private String minersTimes;//矿工次数
@@ -29,7 +30,13 @@ public class DepartKQ {
         this.overTimesDays = overTimesDays;
     }
 
+    public String getDepartKQId() {
+        return departKQId;
+    }
 
+    public void setDepartKQId(String departKQId) {
+        this.departKQId = departKQId;
+    }
     public String getDepartKQName() {
         return departKQName;
     }
