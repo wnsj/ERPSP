@@ -1,12 +1,12 @@
 package com.jiubo.erp.zpgl.service;
 
-import java.util.List;
-
 import com.jiubo.erp.common.MessageException;
 import com.jiubo.erp.zpgl.bean.RecruitChannelBean;
 import com.jiubo.erp.zpgl.bean.RecruitDataBean;
 import com.jiubo.erp.zpgl.bean.ZpPlanBean;
 import com.jiubo.erp.zpgl.bean.ZpPublishBean;
+
+import java.util.List;
 
 public interface ZpglService {
 
@@ -18,7 +18,7 @@ public interface ZpglService {
      * @author: dx
      * @version: 1.0
      */
-    public List<RecruitChannelBean> queryRecruitChannel() throws MessageException;
+    List<RecruitChannelBean> queryRecruitChannel() throws MessageException;
 
     /**
      * @desc:添加招聘渠道
@@ -28,7 +28,7 @@ public interface ZpglService {
      * @author: dx
      * @version: 1.0
      */
-    public void addRecruitChannel(RecruitChannelBean recruitChannelBean) throws MessageException;
+    void addRecruitChannel(RecruitChannelBean recruitChannelBean) throws MessageException;
 
     /**
      * @desc:删除招聘渠道
@@ -38,7 +38,7 @@ public interface ZpglService {
      * @author: dx
      * @version: 1.0
      */
-    public void deleteRecruitChannel(String id) throws MessageException;
+    void deleteRecruitChannel(String id) throws MessageException;
 
     /**
      * @desc:修改招聘渠道
@@ -48,7 +48,7 @@ public interface ZpglService {
      * @author: dx
      * @version: 1.0
      */
-    public void updateRecruitChannel(RecruitChannelBean recruitChannelBean) throws MessageException;
+    void updateRecruitChannel(RecruitChannelBean recruitChannelBean) throws MessageException;
 
     /**
      * @desc:查询面试信息
@@ -58,7 +58,7 @@ public interface ZpglService {
      * @author: dx
      * @version: 1.0
      */
-    public List<RecruitDataBean> queryRecruitData(RecruitDataBean recruitDataBean) throws MessageException;
+    List<RecruitDataBean> queryRecruitData(RecruitDataBean recruitDataBean) throws MessageException;
 
     /**
      * @desc:添加面试信息
@@ -68,7 +68,7 @@ public interface ZpglService {
      * @author: dx
      * @version: 1.0
      */
-    public void addRecruitData(RecruitDataBean recruitDataBean) throws MessageException;
+    void addRecruitData(RecruitDataBean recruitDataBean) throws MessageException;
 
     /**
      * @desc:修改面试信息
@@ -78,7 +78,7 @@ public interface ZpglService {
      * @author: dx
      * @version: 1.0
      */
-    public void updateRecruitData(RecruitDataBean recruitDataBean) throws MessageException;
+    void updateRecruitData(RecruitDataBean recruitDataBean) throws MessageException;
 
     /**
      * @desc:删除面试信息（逻辑删除）
@@ -88,7 +88,7 @@ public interface ZpglService {
      * @author: dx
      * @version: 1.0
      */
-    public void updateRecruitData(String id) throws MessageException;
+    void updateRecruitData(String id) throws MessageException;
 
     /**
      * @desc:查询招聘计划
@@ -98,7 +98,7 @@ public interface ZpglService {
      * @author: dx
      * @version: 1.0
      */
-    public List<ZpPlanBean> queryZpPlan(ZpPlanBean zpPlanBean) throws MessageException;
+    List<ZpPlanBean> queryZpPlan(ZpPlanBean zpPlanBean) throws MessageException;
 
     /**
      * @desc:添加招聘计划
@@ -108,7 +108,7 @@ public interface ZpglService {
      * @author: dx
      * @version: 1.0
      */
-    public void addZpPlan(ZpPlanBean zpPlanBean) throws MessageException;
+    void addZpPlan(ZpPlanBean zpPlanBean) throws MessageException;
 
     /**
      * @desc:删除招聘计划
@@ -118,7 +118,7 @@ public interface ZpglService {
      * @author: dx
      * @version: 1.0
      */
-    public void deleteZpPlan(String id) throws MessageException;
+    void deleteZpPlan(String id) throws MessageException;
 
     /**
      * @desc:修改招聘计划
@@ -128,7 +128,7 @@ public interface ZpglService {
      * @author: dx
      * @version: 1.0
      */
-    public void updateZpPlan(ZpPlanBean zpPlanBean) throws MessageException;
+    void updateZpPlan(ZpPlanBean zpPlanBean) throws MessageException;
 
     /**
      * @desc:查询招聘发布信息
@@ -138,7 +138,7 @@ public interface ZpglService {
      * @author: dx
      * @version: 1.0
      */
-    public List<ZpPublishBean> queryZpPublish(ZpPublishBean zpPublishBean) throws MessageException;
+    List<ZpPublishBean> queryZpPublish(ZpPublishBean zpPublishBean) throws MessageException;
 
     /**
      * @desc:添加招聘发布信息
@@ -148,7 +148,7 @@ public interface ZpglService {
      * @author: dx
      * @version: 1.0
      */
-    public void addZpPublish(ZpPublishBean zpPublishBean) throws MessageException;
+    void addZpPublish(ZpPublishBean zpPublishBean) throws MessageException;
 
 
     /**
@@ -159,7 +159,7 @@ public interface ZpglService {
      * @author: dx
      * @version: 1.0
      */
-    public void deleteZpPublish(String id) throws MessageException;
+    void deleteZpPublish(String id) throws MessageException;
 
     /**
      * @desc:修改招聘发布信息
@@ -169,7 +169,7 @@ public interface ZpglService {
      * @author: dx
      * @version: 1.0
      */
-    public void updateZpPublish(ZpPublishBean zpPublishBean) throws MessageException;
+    void updateZpPublish(ZpPublishBean zpPublishBean) throws MessageException;
 
-    public void test() throws MessageException;
+    void test() throws MessageException;
 }
