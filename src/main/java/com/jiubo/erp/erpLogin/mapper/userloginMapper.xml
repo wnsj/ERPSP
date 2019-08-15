@@ -15,6 +15,7 @@
         <result property="positionName" column="POSITION_NAME"/>
         <result property="departId" column="ID"/>
         <result property="departName" column="NAME"/>
+        <result property="positionTypeId" column="POSITIONTYPE_ID"/>
     </resultMap>
 
     <!--根据用户名查询账号信息-->
@@ -26,6 +27,7 @@
           AD.ACCOUNT_STATE,
           AD.POSITION_ID,
           PD.POSITION_NAME,
+          PD.POSITIONTYPE_ID,
           TD.ID,
           TD.NAME
         FROM

@@ -14,7 +14,8 @@ public class AccountDataBean {
     private String departId;
     private String departName;
     private String positionName;
-    
+    private String positionTypeId;
+
 
     public String getDepartId() {
 		return departId;
@@ -87,5 +88,12 @@ public class AccountDataBean {
     public void setAccount_Mac(String account_Mac) {
         Account_Mac = account_Mac;
     }
-    
+
+    public String getPositionTypeId() {
+        return positionTypeId;
+    }
+
+    public void setPositionTypeId(String positionTypeId) {
+        this.positionTypeId = positionTypeId;
+    }
 }

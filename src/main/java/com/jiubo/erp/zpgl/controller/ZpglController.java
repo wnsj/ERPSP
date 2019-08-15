@@ -1,10 +1,15 @@
 package com.jiubo.erp.zpgl.controller;
 
-import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.alibaba.fastjson.JSONObject;
+import com.jiubo.erp.common.Constant;
+import com.jiubo.erp.common.MapUtil;
+import com.jiubo.erp.common.MessageException;
+import com.jiubo.erp.zpgl.bean.RecruitChannelBean;
+import com.jiubo.erp.zpgl.bean.RecruitDataBean;
+import com.jiubo.erp.zpgl.bean.ZpPlanBean;
+import com.jiubo.erp.zpgl.bean.ZpPublishBean;
+import com.jiubo.erp.zpgl.service.ZpglService;
+import com.quicksand.push.ToolClass;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,23 +21,18 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import com.alibaba.fastjson.JSONObject;
-import com.jiubo.erp.common.Constant;
-import com.jiubo.erp.common.MapUtil;
-import com.jiubo.erp.common.MessageException;
-import com.jiubo.erp.zpgl.bean.RecruitChannelBean;
-import com.jiubo.erp.zpgl.bean.RecruitDataBean;
-import com.jiubo.erp.zpgl.bean.ZpPlanBean;
-import com.jiubo.erp.zpgl.bean.ZpPublishBean;
-import com.jiubo.erp.zpgl.service.ZpglService;
-import com.quicksand.push.ToolClass;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @Scope("prototype")
 @RequestMapping("/zpglController")
 public class ZpglController {
 
-    public static Logger log = LoggerFactory.getLogger(ZpglController.class);
+    private final static Logger logger = LoggerFactory.getLogger(ZpglController.class);
 
     @Autowired
     private ZpglService zpglService;
@@ -60,7 +60,7 @@ public class ZpglController {
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            log.error(Constant.Result.RETMSG, e);
+            logger.error(Constant.Result.RETMSG, e);
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
@@ -94,7 +94,7 @@ public class ZpglController {
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            log.error(Constant.Result.RETMSG, e);
+            logger.error(Constant.Result.RETMSG, e);
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
@@ -126,7 +126,7 @@ public class ZpglController {
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            log.error(Constant.Result.RETMSG, e);
+            logger.error(Constant.Result.RETMSG, e);
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
@@ -159,7 +159,7 @@ public class ZpglController {
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            log.error(Constant.Result.RETMSG, e);
+            logger.error(Constant.Result.RETMSG, e);
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
@@ -172,32 +172,50 @@ public class ZpglController {
      * @param:
      * @return: JSONObject
      * @Create at: 2019-05-10
-     * @author: dx
+     * @author: dx / DingDong
      * @version: 1.0
      */
     //
     @ResponseBody
     @RequestMapping(value = "/queryRecruitData", method = {RequestMethod.POST})
-    public JSONObject queryRecruitData(HttpServletRequest request, HttpServletResponse response) {
+    public JSONObject queryRecruitData(HttpServletRequest request) {
         JSONObject result = new JSONObject();
-        String retCode = Constant.Result.SUCCESS;
-        String retMsg = Constant.Result.SUCCESS_MSG;
+        String retCode = null;
+        String retMsg = null;
+        String retData = null;
+        logger.info("----------请求接口:computerController/queryPreApplication----------");
         try {
             String str = ToolClass.getStrFromInputStream(request);
-            if (StringUtils.isBlank(str)) throw new MessageException("参数接收失败！");
+            if (StringUtils.isBlank(str)) {
+                throw new MessageException("参数接收失败！");
+            }
             RecruitDataBean recruitDataBean = MapUtil.transJsonStrToObjectIgnoreCase(str, RecruitDataBean.class);
-            result.put(Constant.Result.RETDATA, zpglService.queryRecruitData(recruitDataBean));
+            List<RecruitDataBean> list = zpglService.queryRecruitData(recruitDataBean);
+            retCode = Constant.Result.SUCCESS;
+            retMsg = Constant.Result.SUCCESS_MSG;
+            retData = Constant.Result.RETDATA;
+
+            result.put(retData, list);
+            logger.info("----------查询面试信息接口成功----------");
+            return result;
+        } catch (IOException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
-            retMsg = e.getMessage();
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            log.error(Constant.Result.RETMSG, e);
+            logger.error(e.getMessage(), e);
+            return result;
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
-            return result;
         }
     }
 
@@ -210,29 +228,42 @@ public class ZpglController {
      * @version: 1.0
      */
     //http://127.0.0.1:8080/Erp/zpglController/addRecruitData
-    //参数：{name:'小强',/*姓名（必填）*/sex:'男',birth:'2012-10-01'/*生日*/,idNum:'42187752136255245'/*身份证*/,phone:'110'/*手机*/,mail:'123456@qq.com'/*邮箱*/,qq:'123456'/*qq*/,address:'地球'/*现在地址*/,homeAddress:'地球村'/*家庭地址*/,homeTown:'地球省'/*籍贯*/,accountProp:'农村'/*户口性质*/,ploitical:'团员'/*政治面貌*/,marital:'未婚'/*婚姻*/,nationality:'汉族'/*民族*/,height:'170'/*身高*/,weight:'100'/*体重*/,bloodType:'A'/*血型*/,education:'大专'/*学历*/,school:'地球学校'/*毕业院校*/,graduation:'2016-06-01'/*毕业时间*/,profession:'软件技术'/*专业*/,atSchool:'0'/*是否在校*/,workCompany:'地球公司'/*工作单位*/,workexp:'2'/*相关经验*/,certificate:'OAT'/*技能证书*/,channel:'3'/*应聘渠道（必填）*/,position:'3'/*职位（必填）*/,department:'2'/*部门（必填）*/,wages:'100000'/*期望薪资*/,interviewer:'面试官'/*面试官*/,recruitDate:'2016-01-01'/*面试时间（必填）*/,invitationDate:'2016-01-02'/*邀约时间（必填）*/,score:'60'/*成绩*/,isQualified:'待定'/*是否合格*/,isPay:'0'/*报销路费*/,remark:'备注'/*备注*/,updateAccount:'2020'/*修改人账户id*/}
     @ResponseBody
     @RequestMapping(value = "/addRecruitData", method = {RequestMethod.POST})
-    public JSONObject addRecruitData(HttpServletRequest request, HttpServletResponse response) {
+    public JSONObject addRecruitData(HttpServletRequest request) {
         JSONObject result = new JSONObject();
-        String retCode = Constant.Result.SUCCESS;
-        String retMsg = Constant.Result.SUCCESS_MSG;
+        String retCode = null;
+        String retMsg = null;
+        logger.info("----------请求接口:zpglController/addRecruitData----------");
         try {
             String str = ToolClass.getStrFromInputStream(request);
-            if (StringUtils.isBlank(str)) throw new MessageException("参数接收失败！");
+            if (StringUtils.isBlank(str)) {
+                throw new MessageException("参数接收失败！");
+            }
             RecruitDataBean recruitDataBean = MapUtil.transJsonStrToObjectIgnoreCase(str, RecruitDataBean.class);
             zpglService.addRecruitData(recruitDataBean);
+            retCode = Constant.Result.SUCCESS;
+            retMsg = Constant.Result.SUCCESS_MSG;
+            logger.info("----------添加面试信息接口请求成功----------");
+            return result;
+        } catch (IOException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
-            retMsg = e.getMessage();
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            log.error(Constant.Result.RETMSG, e);
+            logger.error(e.getMessage(), e);
+            return result;
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
-            return result;
         }
     }
 
@@ -245,29 +276,42 @@ public class ZpglController {
      * @version: 1.0
      */
     //http://127.0.0.1:8080/Erp/zpglController/updateRecruitData
-    //参数：{id:5/*（必填）*/,name:'小强9',/*姓名（必填）*/sex:'女',birth:'2012-10-09'/*生日*/,idNum:'42187752136255249'/*身份证*/,phone:'1109'/*手机*/,mail:'1234569@qq.com'/*邮箱*/,qq:'1234569'/*qq*/,address:'地球9'/*现在地址*/,homeAddress:'地球村9'/*家庭地址*/,homeTown:'地球省9'/*籍贯*/,accountProp:'农村9'/*户口性质*/,ploitical:'团员9'/*政治面貌*/,marital:'未婚9'/*婚姻*/,nationality:'汉族9'/*民族*/,height:'1709'/*身高*/,weight:'1009'/*体重*/,bloodType:'A9'/*血型*/,education:'大专9'/*学历*/,school:'地球学校9'/*毕业院校*/,graduation:'2016-06-09'/*毕业时间*/,profession:'软件技术9'/*专业*/,atSchool:'1'/*是否在校*/,workCompany:'地球公司9'/*工作单位*/,workexp:'29'/*相关经验*/,certificate:'OAT9'/*技能证书*/,channel:'9'/*应聘渠道（必填）*/,position:'9'/*职位（必填）*/,department:'9'/*部门（必填）*/,wages:'100009'/*期望薪资*/,interviewer:'面试官9'/*面试官*/,recruitDate:'2016-01-09'/*面试时间（必填）*/,invitationDate:'2016-01-09'/*邀约时间（必填）*/,score:'69'/*成绩*/,isQualified:'合格'/*是否合格*/,isPay:'1'/*报销路费*/,remark:'备注9'/*备注*/}
     @ResponseBody
     @RequestMapping(value = "/updateRecruitData", method = {RequestMethod.POST})
-    public JSONObject updateRecruitData(HttpServletRequest request, HttpServletResponse response) {
+    public JSONObject updateRecruitData(HttpServletRequest request) {
         JSONObject result = new JSONObject();
-        String retCode = Constant.Result.SUCCESS;
-        String retMsg = Constant.Result.SUCCESS_MSG;
+        String retCode = null;
+        String retMsg = null;
+        logger.info("----------请求接口:zpglController/updateRecruitData----------");
         try {
             String str = ToolClass.getStrFromInputStream(request);
-            if (StringUtils.isBlank(str)) throw new MessageException("参数接收失败！");
+            if (StringUtils.isBlank(str)) {
+                throw new MessageException("参数接收失败！");
+            }
             RecruitDataBean recruitDataBean = MapUtil.transJsonStrToObjectIgnoreCase(str, RecruitDataBean.class);
             zpglService.updateRecruitData(recruitDataBean);
+            retCode = Constant.Result.SUCCESS;
+            retMsg = Constant.Result.SUCCESS_MSG;
+            logger.info("----------修改面试信息成功----------");
+            return result;
+        } catch (IOException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
-            retMsg = e.getMessage();
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            log.error(Constant.Result.RETMSG, e);
-        } finally {
+            logger.error(e.getMessage(), e);
+            return result;
+        }finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
-            return result;
         }
     }
 
@@ -294,7 +338,7 @@ public class ZpglController {
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            log.error(Constant.Result.RETMSG, e);
+            logger.error(Constant.Result.RETMSG, e);
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
@@ -328,7 +372,7 @@ public class ZpglController {
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            log.error(Constant.Result.RETMSG, e);
+            logger.error(Constant.Result.RETMSG, e);
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
@@ -362,7 +406,7 @@ public class ZpglController {
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            log.error(Constant.Result.RETMSG, e);
+            logger.error(Constant.Result.RETMSG, e);
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
@@ -396,7 +440,7 @@ public class ZpglController {
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            log.error(Constant.Result.RETMSG, e);
+            logger.error(Constant.Result.RETMSG, e);
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
@@ -428,7 +472,7 @@ public class ZpglController {
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            log.error(Constant.Result.RETMSG, e);
+            logger.error(Constant.Result.RETMSG, e);
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
@@ -462,7 +506,7 @@ public class ZpglController {
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            log.error(Constant.Result.RETMSG, e);
+            logger.error(Constant.Result.RETMSG, e);
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
@@ -496,7 +540,7 @@ public class ZpglController {
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            log.error(Constant.Result.RETMSG, e);
+            logger.error(Constant.Result.RETMSG, e);
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
@@ -528,7 +572,7 @@ public class ZpglController {
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            log.error(Constant.Result.RETMSG, e);
+            logger.error(Constant.Result.RETMSG, e);
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
@@ -562,7 +606,7 @@ public class ZpglController {
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            log.error(Constant.Result.RETMSG, e);
+            logger.error(Constant.Result.RETMSG, e);
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);

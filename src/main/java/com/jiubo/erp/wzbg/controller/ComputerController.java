@@ -141,7 +141,7 @@ public class ComputerController {
 	 */
 	//http://127.0.0.1:8080/Erp/computerController/updatePreApplication
 	@RequestMapping(value="/updatePreApplication", method=RequestMethod.POST)
-	public JSONObject updatePreApplication(HttpServletRequest request,HttpServletResponse response) {
+	public JSONObject updatePreApplication(HttpServletRequest request) {
 		JSONObject result = new JSONObject();
 		String retCode = null;
 		String retMsg = null;

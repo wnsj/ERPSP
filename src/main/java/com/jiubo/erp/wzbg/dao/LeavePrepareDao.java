@@ -18,33 +18,36 @@ import java.util.List;
 public interface LeavePrepareDao {
 
     // 查询某个部门下的员工姓名和员工ERP账户
-    public List<DeptWithEmp> queryEmpInfoByDept(String id);
+    List<DeptWithEmp> queryEmpInfoByDept(String id);
 
     // 添加请假报备信息
-    public void addLeavePrepare(LeavePrepareBean leavePrepare);
+    void addLeavePrepare(LeavePrepareBean leavePrepare);
 
     // 查询请假报备信息
-    public List<LeavePrepareBean> queryLeavePrepare(LeavePrepareBean leavePrepareBean);
+    List<LeavePrepareBean> queryLeavePrepare(LeavePrepareBean leavePrepareBean);
 
     // 查询报备审批权限表
-    public ApprovalBaoBeiBean queryApprovalAuth();
+    ApprovalBaoBeiBean queryApprovalAuth();
 
     // 通过职位id查询报备审批权限账户信息
-    public List<AccWithApprovalLeaveAuth> queryAuthAccount(String id);
+    List<AccWithApprovalLeaveAuth> queryAuthAccount(String id);
 
     // 查询请假代理人列表
-    public List<DeptWithEmp> queryAgentList(DeptWithEmp deptWithEmp);
+    List<DeptWithEmp> queryAgentList(DeptWithEmp deptWithEmp);
 
     // 查询所在部门以及子部门的员工信息
-    public List<DeptWithEmp> queryEmpByDeptOrParentDept(DeptWithEmp deptWithEmp);
+    List<DeptWithEmp> queryEmpByDeptOrParentDept(DeptWithEmp deptWithEmp);
 
     //	更新请假报备信息
-    public void updateLeavePrepare(LeavePrepareBean leavePrepareBean);
-    
+    void updateLeavePrepare(LeavePrepareBean leavePrepareBean);
+
     // 	查询审查人信息
-    public List<CheckInfo> queryCheckInfo(CheckInfo checkInfo);
-    
+    List<CheckInfo> queryCheckInfo(CheckInfo checkInfo);
+
     // 查询父级部门ID
-    public String queryParentDept(String deptId);
+    String queryParentDept(String deptId);
+
+    // 查询请假表的报备ID
+    List<String> queryIdsForLeave();
 
 }
