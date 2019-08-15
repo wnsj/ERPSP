@@ -234,27 +234,6 @@
 
 	</select>
 
-	<!-- 查询 单个成员 家庭信息 -->
-	<select id="singleFamilyList" parameterType="com.jiubo.erp.rygl.vo.QueryFamilyResult"
-		resultType="com.jiubo.erp.rygl.vo.QueryFamilyResult">
-		SELECT
-		ID AS ID,
-		appellation AS appellation,
-		name AS chname,
-		workaddress AS workAddress,
-		position AS position,
-		phone AS phone,
-		wechat AS wechat,
-		address AS famAddress,
-		Birthday AS birth
-
-		FROM
-		dbo.Account_Family
-
-		where
-		Account_ID=#{uAccountId}
-	</select>
-
 	<!-- 查询 员工入职 基本信息 -->
 	<select id="searchUBInfo" parameterType="com.jiubo.erp.rygl.vo.UserInfo"
 		resultType="com.jiubo.erp.rygl.vo.UserInfo">
