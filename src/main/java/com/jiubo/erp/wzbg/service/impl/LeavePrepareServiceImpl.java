@@ -190,4 +190,16 @@ public class LeavePrepareServiceImpl implements LeavePrepareService {
 		}
 		return parentId;
 	}
+
+	@Override
+	public List<String> queryIdsForLeave() throws MessageException {
+		List<String> list;
+		logger.info("----------开始查询查询父级部门ID,方法:queryParentDept----------");
+		try {
+			list = leavePrepareDao.queryIdsForLeave();
+		} catch (Exception e) {
+			throw new MessageException(e.getMessage());
+		}
+		return list;
+	}
 }

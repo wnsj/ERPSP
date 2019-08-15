@@ -399,7 +399,6 @@
         ACC.Account_Name, ACC.Account_ID
     </select>
 
-
     <!-- 查询父级部门ID -->
     <select id="queryParentDept" parameterType="java.lang.String" resultType="java.lang.String">
 		SELECT
@@ -409,4 +408,14 @@
 		WHERE
 			DEPT.ID = #{deptId}
 	</select>
+
+    <!-- 查询请假表的报备ID -->
+    <select id="queryIdsForLeave" resultType="java.lang.String">
+        SELECT
+            LQ.BaobeiID
+        FROM
+            Leave_Qingjia LQ
+        WHERE
+            LQ.BaobeiID IS NOT NULL
+    </select>
 </mapper>
