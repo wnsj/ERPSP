@@ -9,7 +9,8 @@
     <select id="allEMPOfFirmKQList" parameterType="com.jiubo.erp.kqgl.vo.AttParam"
             resultType="com.jiubo.erp.kqgl.vo.KqInfoResult">
         SELECT
-            YTT.YYYYMMDD,YTT.uId ,YTT.name,YTT.accountName,YTT.jobNum,YTT.departName,YTT.departId,YTT.accountId
+            DISTINCT
+            YTT.uId ,YTT.name,YTT.accountName,YTT.jobNum,YTT.departName,YTT.departId,YTT.accountId
             ,YTT.positionName,YTT.classTimeName,YTT.classTimeType,YTT.shiftDate,YTT.startTime,YTT.endTime,YTT.foreAttTime AS firstTime,YTT.afterAttTime AS lastTime
             ,(CASE WHEN YTT.classTimeType=1 AND YTT.foreAttTime &lt;= YTT.startTime THEN '正常'
             WHEN YTT.classTimeType=1 AND DATEDIFF(minute, YTT.startTime, YTT.foreAttTime)&lt;=30 THEN '迟到'
@@ -73,6 +74,9 @@
                         <if test="accountName !=null and accountName !=''">
                             AND c.Account_Name=#{accountName}
                         </if>
+                        <if test="accountId !=null and accountId !=''">
+                            AND c.Account_ID=#{accountId}
+                        </if>
                         <if test="positionName!=null and positionName!=''">
                             AND d.Position_Name=#{positionName}
                         </if>
@@ -100,7 +104,7 @@
                         AND f.ShiftDate&gt;=#{beginDate}
                     </if>
                     <if test="endDate!=null and endDate!=''">
-                        AND f.ShiftDate&lt;=#{endDate}
+                        AND f.ShiftDate &lt;= #{endDate}
                     </if>
                 </trim>
             )TAPC ON YMD_TDP.accountId = TAPC.accountId AND YMD_TDP.YYYYMMDD = CONVERT(varchar(100), TAPC.shiftDate, 23)
@@ -117,7 +121,7 @@
                 ,YMD_TDP.accountId,YMD_TDP.positionName,TAPC.classTimeName,TAPC.classTimeType,TAPC.shiftDate,TAPC.startTime,TAPC.endTime
             )YTT
         ORDER BY
-        YTT.uId,YTT.YYYYMMDD
+        YTT.uId,firstTimeState,YTT.shiftDate
     </select>
 
     <!-- 部门考勤 -->
@@ -127,13 +131,13 @@
         SELECT
         YTTD.departName AS departKQName
         ,YTTD.departId AS departKQId
-        ,SUM(CASE WHEN YTTD.firstTimeState='迟到' THEN 1 ELSE 0 END) AS 'laterTimes'
-        ,SUM(CASE WHEN YTTD.lastTimeState='早退' THEN 2 ELSE 0 END) AS 'leaveEarlyTimes'
-        ,SUM(CASE WHEN YTTD.firstTimeState='旷工' OR YTTD.lastTimeState='旷工' THEN 3 ELSE 0 END) AS 'minersTimes'
-        ,SUM(CASE WHEN YTTD.firstTimeState='打卡异常' THEN 4 ELSE 0 END) AS 'onPA'
-        ,SUM(CASE WHEN YTTD.lastTimeState='打卡异常' THEN 5 ELSE 0 END) AS 'downPA'
-        ,SUM(CASE WHEN YTTD.firstTimeState='休息天数' THEN 6 ELSE 0 END) AS 'restDays'
-        ,SUM(CASE WHEN YTTD.firstTimeState='加班天数' THEN 7 ELSE 0 END) AS 'overTimesDays'
+        ,COUNT(CASE WHEN YTTD.firstTimeState='迟到' THEN 1 END) AS 'laterTimes'
+        ,COUNT(CASE WHEN YTTD.lastTimeState='早退' THEN 2 END) AS 'leaveEarlyTimes'
+        ,COUNT(CASE WHEN YTTD.firstTimeState='旷工' OR YTTD.lastTimeState='旷工' THEN 3 END) AS 'minersTimes'
+        ,COUNT(CASE WHEN YTTD.firstTimeState='打卡异常' THEN 4 END) AS 'onPA'
+        ,COUNT(CASE WHEN YTTD.lastTimeState='打卡异常' THEN 5 END) AS 'downPA'
+        ,COUNT(CASE WHEN YTTD.firstTimeState='休息天数' THEN 6 END) AS 'restDays'
+        ,COUNT(CASE WHEN YTTD.firstTimeState='加班天数' THEN 7 END) AS 'overTimesDays'
         FROM
         (SELECT
         YTT.YYYYMMDD,YTT.uId ,YTT.name,YTT.accountName,YTT.jobNum,YTT.departName,YTT.departId,YTT.accountId
@@ -284,8 +288,11 @@
                     YMD.YYYYMMDD,TDP.uId,TDP.name,TDP.accountName,TDP.jobNum,TDP.departName,TDP.departId,TDP.accountId,TDP.positionName
                     FROM
                     (   SELECT
-                            CONVERT(CHAR(10), DATEADD(DD,NUMBER,'2019-05-13 00:00:00.000'),120) AS YYYYMMDD
-                            FROM   MASTER..SPT_VALUES  WHERE  TYPE = 'P' AND DATEDIFF(MI,DATEADD(DD,NUMBER, '2019-05-13 00:00:00.000'),'2019-08-13 23:59:59.000')>=0
+                            CONVERT(CHAR(10), DATEADD(DD,NUMBER,#{beginDate}),120) AS YYYYMMDD
+                            FROM
+                            MASTER..SPT_VALUES
+                            WHERE
+                            TYPE = 'P' AND DATEDIFF(MI,DATEADD(DD,NUMBER, #{beginDate}),#{endDate})>=0
                         )YMD
                         ,
                         (SELECT
@@ -357,6 +364,137 @@
         ORDER BY
             YTTG.uId
     </select>
+
+    <!-- 人员考勤  -->
+    <select id="empkqList" parameterType="com.jiubo.erp.kqgl.vo.AttParam"
+            resultType="com.jiubo.erp.kqgl.bean.PersonalKQBean">
+        SELECT
+        YTTD.uId AS ryKQId ,YTTD.name AS ryKQName,YTTD.jobNum AS ryJobNum,YTTD.accountId AS accountId
+        ,YTTD.departName AS ryDepartKQName,YTTD.departId AS ryDepartKQId,YTTD.positionName AS ryPositionKQName
+        ,COUNT(CASE WHEN YTTD.firstTimeState='正常' THEN 1 END) AS 'ryOnNomalPA'
+        ,COUNT(CASE WHEN YTTD.lastTimeState='正常' THEN 2 END) AS 'ryDownNomalPA'
+        ,COUNT(CASE WHEN YTTD.firstTimeState='迟到' THEN 3 END) AS 'ryLaterTimes'
+        ,COUNT(CASE WHEN YTTD.lastTimeState='早退' THEN 4 END) AS 'ryLeaveEarlyTimes'
+        ,COUNT(CASE WHEN YTTD.firstTimeState='旷工' OR YTTD.lastTimeState='旷工' THEN 5  END) AS 'ryMinersTimes'
+        ,COUNT(CASE WHEN YTTD.firstTimeState='打卡异常' THEN 6 END) AS 'ryOnPA'
+        ,COUNT(CASE WHEN YTTD.lastTimeState='打卡异常' THEN 7 END) AS 'ryDownPA'
+        ,COUNT(CASE WHEN YTTD.classTimeType=2 THEN 8  END) AS 'ryRestDays'
+        ,COUNT(CASE WHEN YTTD.firstTimeState='加班天数' THEN 9 END) AS 'ryOverTimesDays'
+        FROM
+        (SELECT
+        YTT.YYYYMMDD,YTT.uId ,YTT.name,YTT.accountName,YTT.jobNum,YTT.departName,YTT.departId,YTT.accountId
+        ,YTT.positionName,YTT.classTimeName,YTT.classTimeType,YTT.shiftDate,YTT.startTime,YTT.endTime,YTT.foreAttTime AS firstTime,YTT.afterAttTime AS lastTime
+        ,(CASE WHEN YTT.classTimeType=1 AND YTT.foreAttTime &lt;= YTT.startTime THEN '正常'
+        WHEN YTT.classTimeType=1 AND DATEDIFF(minute, YTT.startTime, YTT.foreAttTime)&lt;=30 THEN '迟到'
+        WHEN YTT.classTimeType=1 AND DATEDIFF(minute, YTT.startTime, YTT.foreAttTime) BETWEEN 30 AND 120 THEN '旷工'
+        WHEN YTT.classTimeType=1 AND DATEDIFF(minute, YTT.startTime, YTT.foreAttTime) > 120 THEN '打卡异常'
+        WHEN YTT.classTimeType=1 AND YTT.foreAttTime IS NULL THEN '未打卡'
+        WHEN YTT.classTimeType=2 THEN YTT.classTimeName
+        END)AS firstTimeState
+        ,(CASE WHEN YTT.classTimeType=1 AND YTT.afterAttTime>YTT.endTime THEN '正常'
+        WHEN YTT.classTimeType=1 AND DATEDIFF(minute, YTT.afterAttTime, YTT.endTime)&lt;=30 THEN '迟到'
+        WHEN YTT.classTimeType=1 AND DATEDIFF(minute, YTT.afterAttTime, YTT.endTime) BETWEEN 30 AND 120 THEN '旷工'
+        WHEN YTT.classTimeType=1 AND DATEDIFF(minute, YTT.afterAttTime, YTT.endTime) > 120 THEN '打卡异常'
+        END)AS lastTimeState
+        FROM
+        (SELECT
+        YMD_TDP.YYYYMMDD,YMD_TDP.uId,YMD_TDP.name,YMD_TDP.accountName,YMD_TDP.jobNum,YMD_TDP.departName,YMD_TDP.departId,YMD_TDP.accountId,YMD_TDP.positionName
+        ,TAPC.classTimeName,TAPC.classTimeType,TAPC.shiftDate,TAPC.startTime,TAPC.endTime
+        ,max(TAA.attTime) AS afterAttTime
+        ,min(TAA.attTime) AS foreAttTime
+        FROM
+        (
+        SELECT
+        YMD.YYYYMMDD,TDP.uId,TDP.name,TDP.accountName,TDP.jobNum,TDP.departName,TDP.departId,TDP.accountId,TDP.positionName
+        FROM
+        (SELECT
+            CONVERT(CHAR(10), DATEADD(DD,NUMBER,#{beginDate}),120) AS YYYYMMDD
+            FROM
+            MASTER..SPT_VALUES
+            WHERE
+            TYPE = 'P' AND DATEDIFF(MI,DATEADD(DD,NUMBER, #{beginDate}),#{endDate})>=0
+        )YMD
+        ,
+        (SELECT
+        DISTINCT
+        a.ID AS uId,a.Name AS name,c.Account_Name AS accountName, a.JobNum AS jobNum,b.Name AS departName,b.ID AS departId,a.Account AS accountId,
+        d.Position_Name AS positionName
+        FROM Account_Data c
+        LEFT JOIN T_Employee_Basic a ON a.Account=c.Account_ID
+        LEFT JOIN T_Department b ON a.Department_ID=b.ID
+        LEFT JOIN Position_Data d ON c.Position_ID=d.Position_ID
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="name!=null and name!=''">
+                AND a.Name=#{name}
+            </if>
+            <if test="departName!=null and departName!=''">
+                AND b.Name=#{departName}
+            </if>
+            <if test="departId !=null and departId !='' and departId !=0">
+                AND (b.ID=#{departId}
+                OR b.ID IN (
+                SELECT ID FROM T_Department TD WHERE TD.ParentID=#{departId}
+                )
+                OR b.ID IN (
+                SELECT ID FROM T_Department TD WHERE TD.ParentID
+                IN(
+                SELECT ID FROM T_Department TD WHERE TD.ParentID=#{departId}
+                )
+                )
+                )
+            </if>
+            <if test="accountName !=null and accountName !=''">
+                AND c.Account_Name=#{accountName}
+            </if>
+            <if test="positionName!=null and positionName!=''">
+                AND d.Position_Name=#{positionName}
+            </if>
+            <if test="jobNum!=null and jobNum!=''">
+                AND a.JobNum=#{jobNum}
+            </if>
+            <if test="beginDate!=null and beginDate!=''">
+                AND (a.ResignDate&gt;#{beginDate} OR a.ResignDate IS NULL or a.ResignDate='1900-01-01 00:00:00.000')
+            </if>
+            <if test="endDate!=null and endDate!=''">
+                AND a.entryDate&lt;#{endDate}
+            </if>
+            AND a.JobNum != '0' AND a.IsDelete='0'
+        </trim>
+        )TDP
+        )YMD_TDP
+        LEFT JOIN
+        (SELECT
+        e.UserID AS accountId,f.Name AS classTimeName,f.Type AS classTimeType,f.ShiftDate AS shiftDate,f.StartTime AS startTime,f.EndTime AS endTime
+        FROM
+        T_Att_PeopleShift e
+        LEFT JOIN T_Att_Shift f ON e.ShiftID=f.ID
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="beginDate!=null and beginDate!=''">
+                AND f.ShiftDate&gt;=#{beginDate}
+            </if>
+            <if test="endDate!=null and endDate!=''">
+                AND f.ShiftDate &lt;=#{endDate}
+            </if>
+        </trim>
+        )TAPC ON YMD_TDP.accountId = TAPC.accountId AND YMD_TDP.YYYYMMDD = CONVERT(varchar(100), TAPC.shiftDate, 23)
+        LEFT JOIN
+        (SELECT
+        a.AttTime AS attTime
+        ,a.Userid AS accountId
+        FROM
+        T_Att_Attendance a
+        INNER JOIN T_AttLog b ON a.AttLogID=b.ID
+        )TAA ON TAA.accountId = YMD_TDP.accountId AND YMD_TDP.YYYYMMDD = CONVERT(varchar(100), TAA.attTime, 23)
+        GROUP BY
+        YMD_TDP.YYYYMMDD,YMD_TDP.uId,YMD_TDP.name,YMD_TDP.accountName,YMD_TDP.jobNum,YMD_TDP.departName,YMD_TDP.departId
+        ,YMD_TDP.accountId,YMD_TDP.positionName,TAPC.classTimeName,TAPC.classTimeType,TAPC.shiftDate,TAPC.startTime,TAPC.endTime
+        )YTT
+
+        )YTTD
+        GROUP BY YTTD.uId,YTTD.name,YTTD.jobNum,YTTD.accountId
+        ,YTTD.departName,YTTD.departId,YTTD.positionName
+    </select>
+
 
 
     <select id="selectKqInfoList" parameterType="com.jiubo.erp.kqgl.vo.AttParam"

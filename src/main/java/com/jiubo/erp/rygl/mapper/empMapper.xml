@@ -177,17 +177,16 @@
 			<if
 				test=" searchType == 1">
 				AND a.EntryDate &gt;= #{startDate} AND a.EntryDate
-				&lt;=#{endDate}
+				&lt;=#{endDate} AND a.State=1
 			</if>
 			<if
 				test=" searchType == 3 ">
 				AND a.ResignDate &gt;= #{startDate} AND a.ResignDate
-				&lt;=#{endDate}
+				&lt;=#{endDate} AND a.State=2
 			</if>
-			<if
-				test=" searchType == 2">
+			<if test=" searchType == 2">
 				AND a.PositiveDate &gt;= #{startDate} AND a.PositiveDate
-				&lt;=#{endDate}
+				&lt;=#{endDate} AND a.State=1
 			</if>
 			<if test="resignType!=null and resignType !=''">
 				AND a.ResignType = #{resignType}
@@ -470,7 +469,12 @@
 		update
 		T_Employee_Basic
 		set
-		ResignDate=#{resignDate},
+		<if test="state==1">
+			ResignDate='',
+		</if>
+		<if test="state==2">
+			ResignDate=#{resignDate},
+		</if>
 		State=#{state}
 		where
 		ID=#{id}

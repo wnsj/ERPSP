@@ -8,6 +8,7 @@ import javax.print.DocFlavor.STRING;
 public class PersonalKQBean {
 
     private String ryKQId;//人员考勤ID
+    private String accountId;//账号ID
     private String ryKQName;//人员考勤名称
     private String ryJobNum;//工号
     private String ryDepartKQName;//部门名称
@@ -33,6 +34,15 @@ public class PersonalKQBean {
 
     public String getRyEnteryTime() {
         return ryEnteryTime;
+    }
+
+
+    public String getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(String accountId) {
+        this.accountId = accountId;
     }
 
 

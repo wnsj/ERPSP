@@ -3,6 +3,7 @@ package com.jiubo.erp.kqgl.service;
 import java.util.List;
 
 
+import com.jiubo.erp.kqgl.bean.PersonalKQBean;
 import com.jiubo.erp.kqgl.vo.AttParam;
 import com.jiubo.erp.kqgl.vo.ClassTime;
 import com.jiubo.erp.kqgl.vo.DepartKQ;
@@ -22,6 +23,9 @@ public interface KqService {
 
     //部门考勤---双击部门考勤
     public List<KqInfoResult> singleDepartOfFirmKQList(AttParam ap);
+
+    //人员考勤
+    public List<PersonalKQBean> empkqList(AttParam ap);
 
     //查询考勤人员班次信息列表
     List<KqInfoResult> searchKqInfoList(AttParam ap);

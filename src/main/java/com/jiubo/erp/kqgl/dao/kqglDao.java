@@ -3,6 +3,7 @@ package com.jiubo.erp.kqgl.dao;
 import java.util.List;
 
 
+import com.jiubo.erp.kqgl.bean.PersonalKQBean;
 import com.jiubo.erp.kqgl.vo.AttParam;
 import com.jiubo.erp.kqgl.vo.ClassTime;
 import com.jiubo.erp.kqgl.vo.DepartKQ;
@@ -18,6 +19,9 @@ public interface kqglDao {
 
     //部门考勤---双击部门考勤
     List<KqInfoResult> singleDepartOfFirmKQList(AttParam ap);
+
+    //人员考勤empkqList
+    List<PersonalKQBean> empkqList(AttParam ap);
 
 
     //加载考勤基础信息列表
