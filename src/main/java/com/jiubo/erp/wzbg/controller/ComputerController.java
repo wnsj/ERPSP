@@ -63,7 +63,6 @@ public class ComputerController {
 			retCode = Constant.Result.SUCCESS;
 			retMsg = Constant.Result.SUCCESS_MSG;
 			retData = Constant.Result.RETDATA;
-
 			result.put(retData, list);
 			logger.info("----------查询电脑预申请接口成功----------");
 			return result;

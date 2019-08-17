@@ -102,7 +102,9 @@
                 AND A.NAME LIKE '%' + #{name} + '%'
             </if>
             <if test="phone != null and phone != ''">
-                AND A.PHONE LIKE '%' + #{phone} + '%'
+                AND (A.PHONE LIKE '%' + #{phone} + '%'
+                OR A.MAIL LIKE '%' + #{phone} + '%'
+                OR A.QQ LIKE '%' + #{phone} + '%')
             </if>
             <if test="sex != null and sex !=''">
                 <choose>
@@ -208,6 +210,8 @@
         , ISQUALIFIED = #{isQualified}
         , ISPAY = #{isPay}
         , REMARK = #{remark}
+        , UPDATEDATE = #{updateDate}
+        , UPDATEACCOUNT = #{updateAccount}
         WHERE ID = #{id}
     </update>
 
@@ -355,5 +359,4 @@
         , PUBLISHDATE = #{publishDate}
         WHERE PUBLISH_ID = #{publishId}
     </update>
-
 </mapper>

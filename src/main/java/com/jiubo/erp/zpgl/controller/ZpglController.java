@@ -48,23 +48,32 @@ public class ZpglController {
     //http://127.0.0.1:8080/Erp/zpglController/queryRecruitChannel
     @ResponseBody
     @RequestMapping(value = "/queryRecruitChannel", method = {RequestMethod.POST})
-    public JSONObject queryRecruitChannel(HttpServletRequest request, HttpServletResponse response) {
+    public JSONObject queryRecruitChannel() {
         JSONObject result = new JSONObject();
-        String retCode = Constant.Result.SUCCESS;
-        String retMsg = Constant.Result.SUCCESS_MSG;
+        String retCode = null;
+        String retMsg = null;
+        String retData;
+        logger.info("----------请求接口:zpglController/queryRecruitChannel----------");
         try {
-            result.put(Constant.Result.RETDATA, zpglService.queryRecruitChannel());
+            retCode = Constant.Result.SUCCESS;
+            retMsg = Constant.Result.SUCCESS_MSG;
+            retData = Constant.Result.RETDATA;
+            result.put(retData, zpglService.queryRecruitChannel());
+            logger.info("----------查询招聘渠道接口请求成功----------");
+            return result;
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
-            retMsg = e.getMessage();
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            logger.error(Constant.Result.RETMSG, e);
+            logger.error(e.getMessage(), e);
+            return result;
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
-            return result;
         }
     }
 
@@ -79,26 +88,86 @@ public class ZpglController {
     //http://127.0.0.1:8080/Erp/zpglController/addRecruitChannel?recruitChannelName=Boss
     @ResponseBody
     @RequestMapping(value = "/addRecruitChannel", method = {RequestMethod.POST})
-    public JSONObject addRecruitChannel(HttpServletRequest request, HttpServletResponse response) {
+    public JSONObject addRecruitChannel(HttpServletRequest request) {
         JSONObject result = new JSONObject();
-        String retCode = Constant.Result.SUCCESS;
-        String retMsg = Constant.Result.SUCCESS_MSG;
+        String retCode = null;
+        String retMsg = null;
+        logger.info("----------请求接口:zpglController/addRecruitChannel----------");
         try {
             String str = ToolClass.getStrFromInputStream(request);
-            if (StringUtils.isBlank(str)) throw new MessageException("参数接收失败！");
+            if (StringUtils.isBlank(str)) {
+                throw new MessageException("参数接收失败！");
+            }
             RecruitChannelBean recruitChannelBean = MapUtil.transJsonStrToObjectIgnoreCase(str, RecruitChannelBean.class);
             zpglService.addRecruitChannel(recruitChannelBean);
+            retCode = Constant.Result.SUCCESS;
+            retMsg = Constant.Result.SUCCESS_MSG;
+            logger.info("----------添加招聘渠道接口请求成功----------");
+            return result;
+        } catch (IOException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
-            retMsg = e.getMessage();
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            logger.error(Constant.Result.RETMSG, e);
+            logger.error(e.getMessage(), e);
+            return result;
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
+        }
+    }
+
+    /**
+     * @desc:修改招聘渠道
+     * @param:
+     * @return: JSONObject
+     * @Create at: 2019-05-13
+     * @author: dx
+     * @version: 1.0
+     */
+    @ResponseBody
+    @RequestMapping(value = "/updateRecruitChannel", method = {RequestMethod.POST})
+    public JSONObject updateRecruitChannel(HttpServletRequest request, HttpServletResponse response) {
+        JSONObject result = new JSONObject();
+        String retCode = null;
+        String retMsg = null;
+        try {
+            String str = ToolClass.getStrFromInputStream(request);
+            if (StringUtils.isBlank(str)) {
+                throw new MessageException("参数接收失败！");
+            }
+            RecruitChannelBean recruitChannelBean = MapUtil.transJsonStrToObjectIgnoreCase(str, RecruitChannelBean.class);
+            zpglService.updateRecruitChannel(recruitChannelBean);
+            retCode = Constant.Result.SUCCESS;
+            retMsg = Constant.Result.SUCCESS_MSG;
+            logger.info("----------修改招聘渠道接口请求成功----------");
             return result;
+        } catch (IOException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
         }
     }
 
@@ -115,57 +184,36 @@ public class ZpglController {
     @RequestMapping(value = "/deleteRecruitChannel", method = {RequestMethod.POST})
     public JSONObject deleteRecruitChannel(@RequestBody Map<String, Object> requestMap, HttpServletRequest request, HttpServletResponse response) {
         JSONObject result = new JSONObject();
-        String retCode = Constant.Result.SUCCESS;
-        String retMsg = Constant.Result.SUCCESS_MSG;
+        String retCode = null;
+        String retMsg = null;
         try {
             String id = MapUtil.getStringIgnoreCase(requestMap, "id", MapUtil.NOT_NULL);
             zpglService.deleteRecruitChannel(id);
+            retCode = Constant.Result.SUCCESS;
+            retMsg = Constant.Result.SUCCESS_MSG;
+            logger.info("----------删除招聘渠道接口请求成功----------");
+            return result;
+        } catch (IOException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
-            retMsg = e.getMessage();
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            logger.error(Constant.Result.RETMSG, e);
+            logger.error(e.getMessage(), e);
+            return result;
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
-            return result;
         }
     }
 
-    /**
-     * @desc:修改招聘渠道
-     * @param:
-     * @return: JSONObject
-     * @Create at: 2019-05-13
-     * @author: dx
-     * @version: 1.0
-     */
-    @ResponseBody
-    @RequestMapping(value = "/updateRecruitChannel", method = {RequestMethod.POST})
-    public JSONObject updateRecruitChannel(HttpServletRequest request, HttpServletResponse response) {
-        JSONObject result = new JSONObject();
-        String retCode = Constant.Result.SUCCESS;
-        String retMsg = Constant.Result.SUCCESS_MSG;
-        try {
-            String str = ToolClass.getStrFromInputStream(request);
-            if (StringUtils.isBlank(str)) throw new MessageException("参数接收失败！");
-            RecruitChannelBean recruitChannelBean = MapUtil.transJsonStrToObjectIgnoreCase(str, RecruitChannelBean.class);
-            zpglService.updateRecruitChannel(recruitChannelBean);
-        } catch (MessageException e) {
-            retCode = Constant.Result.ERROR;
-            retMsg = e.getMessage();
-        } catch (Exception e) {
-            retCode = Constant.Result.ERROR;
-            retMsg = Constant.Result.ERROR_MSG;
-            logger.error(Constant.Result.RETMSG, e);
-        } finally {
-            result.put(Constant.Result.RETCODE, retCode);
-            result.put(Constant.Result.RETMSG, retMsg);
-            return result;
-        }
-    }
 
     /**
      * @desc:查询面试信息
@@ -182,7 +230,7 @@ public class ZpglController {
         JSONObject result = new JSONObject();
         String retCode = null;
         String retMsg = null;
-        String retData = null;
+        String retData;
         logger.info("----------请求接口:computerController/queryPreApplication----------");
         try {
             String str = ToolClass.getStrFromInputStream(request);
@@ -194,7 +242,6 @@ public class ZpglController {
             retCode = Constant.Result.SUCCESS;
             retMsg = Constant.Result.SUCCESS_MSG;
             retData = Constant.Result.RETDATA;
-
             result.put(retData, list);
             logger.info("----------查询面试信息接口成功----------");
             return result;
@@ -309,7 +356,7 @@ public class ZpglController {
             retMsg = Constant.Result.ERROR_MSG;
             logger.error(e.getMessage(), e);
             return result;
-        }finally {
+        } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
         }
@@ -332,17 +379,28 @@ public class ZpglController {
         try {
             String id = MapUtil.getStringIgnoreCase(requestMap, "id", MapUtil.NOT_NULL);
             zpglService.updateRecruitData(id);
+            retCode = Constant.Result.SUCCESS;
+            retMsg = Constant.Result.SUCCESS_MSG;
+            logger.info("----------修改面试信息成功----------");
+            return result;
+        } catch (IOException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
-            retMsg = e.getMessage();
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            logger.error(Constant.Result.RETMSG, e);
+            logger.error(e.getMessage(), e);
+            return result;
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
-            return result;
         }
     }
 
@@ -613,4 +671,5 @@ public class ZpglController {
             return result;
         }
     }
+
 }
