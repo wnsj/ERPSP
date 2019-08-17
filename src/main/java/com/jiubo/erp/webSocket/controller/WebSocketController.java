@@ -1,5 +1,7 @@
 package com.jiubo.erp.webSocket.controller;
 
+import com.alibaba.fastjson.JSONObject;
+import com.jiubo.erp.common.Constant;
 import com.jiubo.erp.webSocket.service.CustomWebSocketService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,8 +21,12 @@ public class WebSocketController {
     private CustomWebSocketService webSocketService;
 
     @GetMapping("/sendMessage")
-    public String sendMessage(String accountId, String message) throws Exception {
+    public JSONObject sendMessage(String accountId, String message) throws Exception {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(Constant.Result.RETCODE,Constant.Result.SUCCESS);
+        jsonObject.put(Constant.Result.RETMSG, Constant.Result.SUCCESS_MSG);
         webSocketService.sendInfo(message, accountId);
-        return "发送成功!";
+        jsonObject.put(Constant.Result.RETDATA,"发送成功!");
+        return jsonObject;
     }
 }

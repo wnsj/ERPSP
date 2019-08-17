@@ -8,9 +8,14 @@ import com.jiubo.erp.wzbg.bean.DimissionApplyBean;
 import com.jiubo.erp.wzbg.dao.DimissionApplyDao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Date;
+import java.util.Map;
 
 /**
  * @desc:
@@ -40,5 +45,17 @@ public class TestAction {
         //if(true)throw new MessageException("自定义异常!");
 
         return result;
+    }
+
+    @Scheduled(cron = "0/2 * * * * ?")
+    public void task02() {
+        System.out.println(Thread.currentThread().getName() + " | task02 " + new Date().toLocaleString());
+    }
+
+    //异步task
+    @Async
+    @Scheduled(cron = "0/3 * * * * ?")
+    public void task03(Map<String, Object> map) throws InterruptedException {
+        System.out.println(Thread.currentThread().getName() + " | task03 " + new Date().toLocaleString());
     }
 }
