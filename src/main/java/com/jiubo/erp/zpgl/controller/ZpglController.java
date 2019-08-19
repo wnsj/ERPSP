@@ -135,7 +135,7 @@ public class ZpglController {
      */
     @ResponseBody
     @RequestMapping(value = "/updateRecruitChannel", method = {RequestMethod.POST})
-    public JSONObject updateRecruitChannel(HttpServletRequest request, HttpServletResponse response) {
+    public JSONObject updateRecruitChannel(HttpServletRequest request) {
         JSONObject result = new JSONObject();
         String retCode = null;
         String retMsg = null;
@@ -223,7 +223,6 @@ public class ZpglController {
      * @author: dx / DingDong
      * @version: 1.0
      */
-    //
     @ResponseBody
     @RequestMapping(value = "/queryRecruitData", method = {RequestMethod.POST})
     public JSONObject queryRecruitData(HttpServletRequest request) {
@@ -231,7 +230,7 @@ public class ZpglController {
         String retCode = null;
         String retMsg = null;
         String retData;
-        logger.info("----------请求接口:computerController/queryPreApplication----------");
+        logger.info("----------请求接口:zpglController/queryRecruitData----------");
         try {
             String str = ToolClass.getStrFromInputStream(request);
             if (StringUtils.isBlank(str)) {
@@ -372,10 +371,11 @@ public class ZpglController {
      */
     @ResponseBody
     @RequestMapping(value = "/updateRecruitDataById", method = {RequestMethod.POST})
-    public JSONObject updateRecruitDataById(@RequestBody Map<String, Object> requestMap, HttpServletRequest request, HttpServletResponse response) {
+    public JSONObject updateRecruitDataById(@RequestBody Map<String, Object> requestMap) {
         JSONObject result = new JSONObject();
-        String retCode = Constant.Result.SUCCESS;
-        String retMsg = Constant.Result.SUCCESS_MSG;
+        String retCode = null;
+        String retMsg = null;
+        logger.info("----------请求接口:zpglController/updateRecruitDataById----------");
         try {
             String id = MapUtil.getStringIgnoreCase(requestMap, "id", MapUtil.NOT_NULL);
             zpglService.updateRecruitData(id);
@@ -415,26 +415,43 @@ public class ZpglController {
     //http://127.0.0.1:8080/Erp/zpglController/queryZpPlan?begDate=2017-05&endDate=2017-06&department=1&position=24
     @ResponseBody
     @RequestMapping(value = "/queryZpPlan", method = {RequestMethod.GET, RequestMethod.POST})
-    public JSONObject queryZpPlan(HttpServletRequest request, HttpServletResponse response) {
+    public JSONObject queryZpPlan(HttpServletRequest request) {
         JSONObject result = new JSONObject();
-        String retCode = Constant.Result.SUCCESS;
-        String retMsg = Constant.Result.SUCCESS_MSG;
+        String retCode = null;
+        String retMsg = null;
+        String retData;
+        logger.info("----------请求接口:zpglController/queryZpPlan----------");
         try {
             String str = ToolClass.getStrFromInputStream(request);
-            if (StringUtils.isBlank(str)) throw new MessageException("参数接收失败！");
+            if (StringUtils.isBlank(str)) {
+                throw new MessageException("参数接收失败！");
+            }
             ZpPlanBean zpPlanBean = MapUtil.transJsonStrToObjectIgnoreCase(str, ZpPlanBean.class);
-            result.put(Constant.Result.RETDATA, zpglService.queryZpPlan(zpPlanBean));
+            List<ZpPlanBean> list = zpglService.queryZpPlan(zpPlanBean);
+            retCode = Constant.Result.SUCCESS;
+            retMsg = Constant.Result.SUCCESS_MSG;
+            retData = Constant.Result.RETDATA;
+            result.put(retData, list);
+            logger.info("----------查询查询招聘计划接口请求成功----------");
+            return result;
+        } catch (IOException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
-            retMsg = e.getMessage();
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            logger.error(Constant.Result.RETMSG, e);
+            logger.error(e.getMessage(), e);
+            return result;
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
-            return result;
         }
     }
 
@@ -449,26 +466,40 @@ public class ZpglController {
     //http://127.0.0.1:8080/Erp/zpglController/addZpPlan?department=&position=66&lackNum=1&planNum=2&phoneNum=3&planDate=2019-06-01
     @ResponseBody
     @RequestMapping(value = "/addZpPlan", method = {RequestMethod.GET, RequestMethod.POST})
-    public JSONObject addZpPlan(HttpServletRequest request, HttpServletResponse response) {
+    public JSONObject addZpPlan(HttpServletRequest request) {
         JSONObject result = new JSONObject();
-        String retCode = Constant.Result.SUCCESS;
-        String retMsg = Constant.Result.SUCCESS_MSG;
+        String retCode = null;
+        String retMsg = null;
+        logger.info("----------请求接口:zpglController/addZpPlan----------");
         try {
             String str = ToolClass.getStrFromInputStream(request);
-            if (StringUtils.isBlank(str)) throw new MessageException("参数接收失败！");
+            if (StringUtils.isBlank(str)) {
+                throw new MessageException("参数接收失败！");
+            }
             ZpPlanBean zpPlanBean = MapUtil.transJsonStrToObjectIgnoreCase(str, ZpPlanBean.class);
             zpglService.addZpPlan(zpPlanBean);
+            retCode = Constant.Result.SUCCESS;
+            retMsg = Constant.Result.SUCCESS_MSG;
+            logger.info("----------添加招聘计划接口请求成功----------");
+            return result;
+        } catch (IOException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
-            retMsg = e.getMessage();
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            logger.error(Constant.Result.RETMSG, e);
+            logger.error(e.getMessage(), e);
+            return result;
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
-            return result;
         }
     }
 
@@ -483,26 +514,40 @@ public class ZpglController {
     //http://127.0.0.1:8080/Erp/zpglController/updateZpPlan?department=9&position=9&lackNum=9&planNum=9&phoneNum=9&planDate=2019-06-09&planId=7
     @ResponseBody
     @RequestMapping(value = "/updateZpPlan", method = {RequestMethod.GET, RequestMethod.POST})
-    public JSONObject updateZpPlan(HttpServletRequest request, HttpServletResponse response) {
+    public JSONObject updateZpPlan(HttpServletRequest request) {
         JSONObject result = new JSONObject();
-        String retCode = Constant.Result.SUCCESS;
-        String retMsg = Constant.Result.SUCCESS_MSG;
+        String retCode = null;
+        String retMsg = null;
+        logger.info("----------请求接口:zpglController/updateZpPlan----------");
         try {
             String str = ToolClass.getStrFromInputStream(request);
-            if (StringUtils.isBlank(str)) throw new MessageException("参数接收失败！");
+            if (StringUtils.isBlank(str)) {
+                throw new MessageException("参数接收失败！");
+            }
             ZpPlanBean zpPlanBean = MapUtil.transJsonStrToObjectIgnoreCase(str, ZpPlanBean.class);
             zpglService.updateZpPlan(zpPlanBean);
+            retCode = Constant.Result.SUCCESS;
+            retMsg = Constant.Result.SUCCESS_MSG;
+            logger.info("----------修改招聘计划接口请求成功----------");
+            return result;
+        } catch (IOException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
-            retMsg = e.getMessage();
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            logger.error(Constant.Result.RETMSG, e);
+            logger.error(e.getMessage(), e);
+            return result;
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
-            return result;
         }
     }
 
@@ -517,24 +562,36 @@ public class ZpglController {
     //http://127.0.0.1:8080/Erp/zpglController/deleteZpPlan?id=7
     @ResponseBody
     @RequestMapping(value = "/deleteZpPlan", method = {RequestMethod.POST})
-    public JSONObject deleteZpPlan(@RequestBody Map<String, Object> requestMap, HttpServletRequest request, HttpServletResponse response) {
+    public JSONObject deleteZpPlan(@RequestBody Map<String, Object> requestMap) {
         JSONObject result = new JSONObject();
-        String retCode = Constant.Result.SUCCESS;
-        String retMsg = Constant.Result.SUCCESS_MSG;
+        String retCode = null;
+        String retMsg = null;
+        logger.info("----------请求接口:zpglController/deleteZpPlan----------");
         try {
             String id = MapUtil.getStringIgnoreCase(requestMap, "id", MapUtil.NOT_NULL);
             zpglService.deleteZpPlan(id);
+            retCode = Constant.Result.SUCCESS;
+            retMsg = Constant.Result.SUCCESS_MSG;
+            logger.info("----------删除招聘计划接口请求成功----------");
+            return result;
+        } catch (IOException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
-            retMsg = e.getMessage();
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            logger.error(Constant.Result.RETMSG, e);
+            logger.error(e.getMessage(), e);
+            return result;
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
-            return result;
         }
     }
 

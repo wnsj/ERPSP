@@ -281,11 +281,6 @@
         VALUES(#{department},#{position},#{lackNum},#{planNum},#{phoneNum},#{planDate})
     </insert>
 
-    <!-- 删除招聘计划 -->
-    <delete id="deleteZpPlan">
-        DELETE FROM ZP_PLAN WHERE PLAN_ID = #{id}
-    </delete>
-
     <!-- 修改招聘计划 -->
     <update id="updateZpPlan" parameterType="ZpPlanBean">
         UPDATE ZP_PLAN
@@ -317,6 +312,11 @@
         </trim>
         WHERE PLAN_ID = #{planId}
     </update>
+
+    <!-- 删除招聘计划 -->
+    <delete id="deleteZpPlan">
+        DELETE FROM ZP_PLAN WHERE PLAN_ID = #{id}
+    </delete>
 
     <!-- 查询招聘发布信息 -->
     <select id="queryZpPublish" parameterType="ZpPublishBean" resultType="ZpPublishBean">
