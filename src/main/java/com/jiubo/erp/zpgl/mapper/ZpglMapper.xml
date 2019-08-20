@@ -273,6 +273,7 @@
                 </choose>
             </if>
         </where>
+        ORDER BY  B.ParentID, B.OrderNum
     </select>
 
     <!-- 添加招聘计划 -->
@@ -320,20 +321,34 @@
 
     <!-- 查询招聘发布信息 -->
     <select id="queryZpPublish" parameterType="ZpPublishBean" resultType="ZpPublishBean">
-        SELECT A.PUBLISH_ID,A.CHANNEL,B.RECRUITCHANNEL_NAME CHANNELNAME,A.POSITION,
-        C.POSITION_NAME,A.PUBLISHNUM, A.PHONENUM, A.PUBLISHDATE
-        FROM ZP_PUBLISH A,ZP_RECRUITCHANNEL B,POSITION_DATA C
-        WHERE A.CHANNEL = B.RECRUITCHANNEL_ID AND A.POSITION = C.POSITION_ID
-        <if test="begDate != null and begDate != '' and endDate != null and endDate != ''">
-            AND A.PUBLISHDATE >= #{begDate}
-            <![CDATA[ AND A.PUBLISHDATE < #{endDate} ]]>
-        </if>
-        <if test="channel != null and channel != ''">
-            AND A.CHANNEL = #{channel}
-        </if>
-        <if test="position != null and position != ''">
-            AND A.POSITION = #{position}
-        </if>
+        SELECT
+            P.Publish_ID publishId,
+            P.Channel,
+            P.Position,
+            C.RecruitChannel_Name channelName,
+            PD.Position_Name positionName,
+            P.PublishDate,
+            P.PublishNum,
+            P.PhoneNum
+        FROM
+            ZP_Publish P
+        LEFT JOIN ZP_RecruitChannel C ON P.Channel = C.RecruitChannel_ID
+        LEFT JOIN Position_Data PD ON PD.Position_ID = P.Position
+        <where>
+            <if test="begDate != null and begDate != '' ">
+                AND P.PublishDate <![CDATA[ >= ]]> #{begDate}
+            </if>
+            <if test="endDate != null and endDate != '' ">
+                AND P.PublishDate <![CDATA[ <= ]]> #{endDate}
+            </if>
+            <if test="channel != null and channel != '' ">
+                AND P.Channel = #{channel}
+            </if>
+            <if test="position != null and position != '' ">
+                AND P.Position = #{position}
+            </if>
+        </where>
+        ORDER BY P.PublishDate, P.Channel, P.Position
     </select>
 
     <!-- 添加招聘发布信息 -->

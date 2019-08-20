@@ -432,7 +432,7 @@ public class ZpglController {
             retMsg = Constant.Result.SUCCESS_MSG;
             retData = Constant.Result.RETDATA;
             result.put(retData, list);
-            logger.info("----------查询查询招聘计划接口请求成功----------");
+            logger.info("----------查询招聘计划接口请求成功----------");
             return result;
         } catch (IOException e) {
             retCode = Constant.Result.ERROR;
@@ -608,13 +608,23 @@ public class ZpglController {
     @RequestMapping(value = "/queryZpPublish", method = {RequestMethod.GET, RequestMethod.POST})
     public JSONObject queryZpPublish(HttpServletRequest request, HttpServletResponse response) {
         JSONObject result = new JSONObject();
-        String retCode = Constant.Result.SUCCESS;
-        String retMsg = Constant.Result.SUCCESS_MSG;
+        String retCode = null;
+        String retMsg = null;
+        String retData;
+        logger.info("----------请求接口:zpglController/queryZpPublish----------");
         try {
             String str = ToolClass.getStrFromInputStream(request);
-            if (StringUtils.isBlank(str)) throw new MessageException("参数接收失败！");
+            if (StringUtils.isBlank(str)) {
+                throw new MessageException("参数接收失败！");
+            }
             ZpPublishBean zpPublishBean = MapUtil.transJsonStrToObjectIgnoreCase(str, ZpPublishBean.class);
-            result.put(Constant.Result.RETDATA, zpglService.queryZpPublish(zpPublishBean));
+            List<ZpPublishBean> list = zpglService.queryZpPublish(zpPublishBean);
+            retCode = Constant.Result.SUCCESS;
+            retMsg = Constant.Result.SUCCESS_MSG;
+            retData = Constant.Result.RETDATA;
+            result.put(retData, list);
+            logger.info("----------查询招聘发布信息接口请求成功----------");
+            return result;
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
             retMsg = e.getMessage();
@@ -640,58 +650,40 @@ public class ZpglController {
     //http://127.0.0.1:8080/Erp/zpglController/addZpPublish?publishDate=2019-05-12&channel=3&position=23&publishNum=2&phoneNum=0
     @ResponseBody
     @RequestMapping(value = "/addZpPublish", method = {RequestMethod.GET, RequestMethod.POST})
-    public JSONObject addZpPublish(HttpServletRequest request, HttpServletResponse response) {
+    public JSONObject addZpPublish(HttpServletRequest request) {
         JSONObject result = new JSONObject();
-        String retCode = Constant.Result.SUCCESS;
-        String retMsg = Constant.Result.SUCCESS_MSG;
+        String retCode = null;
+        String retMsg = null;
+        logger.info("----------请求接口:zpglController/addZpPublish----------");
         try {
             String str = ToolClass.getStrFromInputStream(request);
-            if (StringUtils.isBlank(str)) throw new MessageException("参数接收失败！");
+            if (StringUtils.isBlank(str)) {
+                throw new MessageException("参数接收失败！");
+            }
             ZpPublishBean zpPublishBean = MapUtil.transJsonStrToObjectIgnoreCase(str, ZpPublishBean.class);
             zpglService.addZpPublish(zpPublishBean);
+            retCode = Constant.Result.SUCCESS;
+            retMsg = Constant.Result.SUCCESS_MSG;
+            logger.info("----------添加招聘发布信息接口请求成功----------");
+            return result;
+        } catch (IOException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
-            retMsg = e.getMessage();
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            logger.error(Constant.Result.RETMSG, e);
+            logger.error(e.getMessage(), e);
+            return result;
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
-            return result;
-        }
-    }
-
-    /**
-     * @desc:删除招聘发布信息
-     * @param:
-     * @return: JSONObject
-     * @Create at: 2019-05-11
-     * @author: dx
-     * @version: 1.0
-     */
-    //http://127.0.0.1:8080/Erp/zpglController/deleteZpPublish?id=3
-    @ResponseBody
-    @RequestMapping(value = "/deleteZpPublish", method = {RequestMethod.POST})
-    public JSONObject deleteZpPublish(@RequestBody Map<String, Object> requestMap, HttpServletRequest request, HttpServletResponse response) {
-        JSONObject result = new JSONObject();
-        String retCode = Constant.Result.SUCCESS;
-        String retMsg = Constant.Result.SUCCESS_MSG;
-        try {
-            String id = MapUtil.getStringIgnoreCase(requestMap, "id", MapUtil.NOT_NULL);
-            zpglService.deleteZpPublish(id);
-        } catch (MessageException e) {
-            retCode = Constant.Result.ERROR;
-            retMsg = e.getMessage();
-        } catch (Exception e) {
-            retCode = Constant.Result.ERROR;
-            retMsg = Constant.Result.ERROR_MSG;
-            logger.error(Constant.Result.RETMSG, e);
-        } finally {
-            result.put(Constant.Result.RETCODE, retCode);
-            result.put(Constant.Result.RETMSG, retMsg);
-            return result;
         }
     }
 
@@ -708,25 +700,82 @@ public class ZpglController {
     @RequestMapping(value = "/updateZpPublish", method = {RequestMethod.GET, RequestMethod.POST})
     public JSONObject updateZpPublish(HttpServletRequest request, HttpServletResponse response) {
         JSONObject result = new JSONObject();
-        String retCode = Constant.Result.SUCCESS;
-        String retMsg = Constant.Result.SUCCESS_MSG;
+        String retCode = null;
+        String retMsg = null;
+        logger.info("----------请求接口:zpglController/updateZpPublish----------");
         try {
             String str = ToolClass.getStrFromInputStream(request);
-            if (StringUtils.isBlank(str)) throw new MessageException("参数接收失败！");
+            if (StringUtils.isBlank(str)) {
+                throw new MessageException("参数接收失败！");
+            }
             ZpPublishBean zpPublishBean = MapUtil.transJsonStrToObjectIgnoreCase(str, ZpPublishBean.class);
             zpglService.updateZpPublish(zpPublishBean);
+            retCode = Constant.Result.SUCCESS;
+            retMsg = Constant.Result.SUCCESS_MSG;
+            logger.info("----------修改招聘发布信息接口请求成功----------");
+            return result;
+        } catch (IOException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
-            retMsg = e.getMessage();
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
-            logger.error(Constant.Result.RETMSG, e);
+            logger.error(e.getMessage(), e);
+            return result;
         } finally {
             result.put(Constant.Result.RETCODE, retCode);
             result.put(Constant.Result.RETMSG, retMsg);
-            return result;
         }
     }
 
+    /**
+     * @desc:删除招聘发布信息
+     * @param:
+     * @return: JSONObject
+     * @Create at: 2019-05-11
+     * @author: dx
+     * @version: 1.0
+     */
+    //http://127.0.0.1:8080/Erp/zpglController/deleteZpPublish?id=3
+    @ResponseBody
+    @RequestMapping(value = "/deleteZpPublish", method = {RequestMethod.POST})
+    public JSONObject deleteZpPublish(@RequestBody Map<String, Object> requestMap, HttpServletRequest request, HttpServletResponse response) {
+        JSONObject result = new JSONObject();
+        String retCode = null;
+        String retMsg = null;
+        logger.info("----------请求接口:zpglController/deleteZpPublish----------");
+        try {
+            String id = MapUtil.getStringIgnoreCase(requestMap, "id", MapUtil.NOT_NULL);
+            zpglService.deleteZpPublish(id);
+            retCode = Constant.Result.SUCCESS;
+            retMsg = Constant.Result.SUCCESS_MSG;
+            logger.info("----------删除招聘发布信息接口请求成功----------");
+            return result;
+        } catch (IOException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+        }
+    }
 }
