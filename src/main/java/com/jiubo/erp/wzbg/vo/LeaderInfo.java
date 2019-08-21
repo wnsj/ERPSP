@@ -13,4 +13,5 @@ import lombok.Data;
 public class LeaderInfo {
 	private String leaderId;
 	private String leaderName;
+	private String deptId;
 }
