@@ -217,6 +217,7 @@
             AND DEPT.ID = 50
             AND (PD.Position_Name = '副总经理' OR PD.Position_Name = '集团总经理助理')
         </if>
+        ORDER BY A.Account_ID, A.Account_Name
     </select>
 
     <!-- 查询对接人信息  -->
