@@ -173,10 +173,10 @@
 	</select>
 
     <!-- 查询所在部门主管信息  -->
-    <select id="queryLeaderInfo" resultType="LeaderInfo">
+    <select id="queryLeaderInfo" parameterType="LeaderInfo" resultType="LeaderInfo">
         SELECT
-        Account_ID leaderId,
-        Account_Name leaderName
+        A.Account_ID leaderId,
+        A.Account_Name leaderName
         FROM
         Account_Data A
         LEFT JOIN T_Employee_Basic EMP ON A.Account_ID = EMP.Account
@@ -189,13 +189,23 @@
             AND (PT.PositionType_ID = 5 OR PD.Position_Name = '项目经理' or PT.PositionType_ID = 6)
             AND (DEPT.ID
             <choose>
+                <when test="deptLeave == 0">
+                    IN (#{deptId}))
+                </when>
                 <when test="deptLeave == 1">
-                    IN (SELECT ID FROM [dbo].[f_GetChild] (#{deptId}))
+                    IN (SELECT ID FROM [dbo].[f_GetChild] (#{deptId})))
                 </when>
                 <when test="deptLeave == 2">
                     IN(SELECT ID FROM T_Department WHERE ParentID = #{deptId})
                     OR DEPT.ID IN(SELECT ID FROM T_Department WHERE ParentID
                     IN (SELECT ParentID FROM T_Department WHERE ID = #{deptId})))
+                </when>
+                <when test="deptLeave == 3">
+                    = #{deptId}
+                    OR DEPT.ID = (SELECT ParentID FROM T_Department WHERE ID = #{deptId})
+                    OR DEPT.ID IN (SELECT ID FROM T_Department WHERE ParentID IN (SELECT ParentID FROM T_Department WHERE ID = #{deptId}))
+                    OR DEPT.ID IN (SELECT ID FROM T_Department WHERE ParentID IN (SELECT ParentID FROM T_Department WHERE ID IN
+                    (SELECT ParentID FROM T_Department WHERE ID = #{deptId}))))
                 </when>
             </choose>
         </if>
@@ -223,6 +233,7 @@
 			AND EMP.Department_ID = 23
 	</select>
 
+    <!-- 审批对接操作   -->
     <update id="checkPreApp" parameterType="ComputerBean">
         UPDATE Computer
         <trim prefix="set" suffixOverrides=",">
@@ -257,4 +268,24 @@
         WHERE
         ID = #{id}
     </update>
+
+    <!--  是否是一级部门   -->
+    <select id="isZeroForDept" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM T_Department WHERE ParentID = 0 AND  ID = #{deptId}
+    </select>
+
+    <!--  是否是二级部门   -->
+    <select id="isOneForDept" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM T_Department WHERE ID
+        IN (SELECT ID FROM T_Department WHERE ParentID
+        IN (SELECT ID FROM T_Department WHERE ParentID = 0)) AND ID = #{deptId}
+    </select>
+
+    <!--  是否是三级部门   -->
+    <select id="isTwoForDept" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM T_Department WHERE ID
+        IN (SELECT ID FROM T_Department WHERE ParentID
+        IN (SELECT ID FROM T_Department WHERE ParentID
+        IN (SELECT ID FROM T_Department WHERE ParentID = 0))) AND ID = #{deptId}
+    </select>
 </mapper>
