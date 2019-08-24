@@ -49,7 +49,9 @@ public class ComputerBean implements Serializable {
     // 交接人
     private String handId; // 交接人ID
     private String handName; // 交接人姓名
-    private String handIsSee; // 是否查看
+    private String handIsSee; // 交接人是否查看
+    private String peiJieName;// 配接单姓名
+    private String peiJieIsSee;// 配接单是否查看
     // 负责人
     private String principalId; // 负责人ID
     private String principalName; // 负责人姓名
