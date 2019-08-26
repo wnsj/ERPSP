@@ -152,11 +152,9 @@
         SELECT
         TD.ID AS departId
         ,TD.Name AS departName
-        ,AD.Account_ID AS
-        employeeId
+        ,AD.Account_ID AS employeeId
         ,AD.Account_Name AS employeeName
-        ,PD.Position_Name AS
-        positionName
+        ,PD.Position_Name AS positionName
         ,PD.Position_ID AS positionId
         from
         T_Department TD
@@ -170,7 +168,19 @@
                 prefix="WHERE"
                 prefixOverrides="AND | OR">
             <if test=" departId !=null and departId !=''">
-                AND TD.ID =#{departId}
+                AND (
+                EXISTS
+                (SELECT
+                TDC.ID,TDC.Name,TDC.OrderNum,TDC.ParentID
+                FROM
+                T_Department TDC
+                WHERE
+                TDC.ParentID=#{departId} AND TD.ParentID= TDC.ID)
+                OR
+                TD.ParentID=#{departId}
+                OR
+                TD.ID=#{departId}
+                )
             </if>
             <if test=" name !=null and name !=''">
                 AND AD.Account_Name =#{name}
@@ -209,11 +219,12 @@
         UPDATE
         Leave_Qingjia
         SET
+        <trim suffixOverrides=",">
         <if test="leaveType !=null and leaveType !=''">LeaveType=#{leaveType} ,</if>
         <if test="agentAccount !=null and agentAccount !=''">AgentAccount=#{agentAccount},</if>
         <if test="startTime !=null and startTime !=''">StartTime=#{startTime},</if>
         <if test="endTime !=null and endTime !=''">EndTime=#{endTime} ,</if>
-        <if test="leaveRemark !=null and leaveRemark !=''">LeaveRemark=#{leaveRemark} ,</if>
+        <if test="leaveRemark !=null and leaveRemark !=''">Leave_Remark=#{leaveRemark} ,</if>
 
         <if test="account1 !=null and account1 !=''">Account1=#{account1},</if>
         <if test="time1 !=null and time1 !=''">Time1=#{time1},</if>
@@ -235,6 +246,7 @@
         <if test="result4 !=null and result4 !=''">Result4=#{result4},</if>
         <if test="remark4 !=null and remark4 !=''">Remark4=#{remark4},</if>
         <if test="account4 !=null and account4 !=''">Account4=#{account4}</if>
+        </trim>
         <trim
                 prefix="WHERE"
                 prefixOverrides="AND | OR">
@@ -255,39 +267,37 @@
         or markup 报错由于小于号的问题 -->
     <select
             id="checkOfEmpList"
+            parameterType="com.jiubo.erp.wzbg.vo.PLOParam"
             resultType="com.jiubo.erp.wzbg.bean.EmployeeOfCheck">
         SELECT
         ATTP.Account_Name AS accountName,
         ATTP.Account_ID AS accountId
         FROM
-        (
-        <choose>
+        (<choose>
             <when test="clickTimes == 0">
                 SELECT
                 TD.ID
                 FROM
                 T_Department TD
                 WHERE
-                TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID
-                !=0)
+                TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID !=0)
                 OR TD.ID=#{departId}
-                OR TD.ID=(CASE WHEN 54=#{departId} THEN 55 END)
+                OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=#{departId} AND TD.ID !=0)
+                OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 39 END)
             </when>
             <when test="clickTimes == 1">
+
                 SELECT
                 TD.ID
                 FROM
                 T_Department TD
                 WHERE
-                TD.ParentID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID
-                !=0)
+                TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID !=0)
                 OR TD.ID=#{departId}
-            </when>
-            <when test="clickTimes == 2">
-                SELECT
-                TD.ID
-                FROM
-                T_Department TD
+                OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=#{departId})
+                OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId}))
+                OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 39 END)
+                OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 50 END)
             </when>
             <when test="clickTimes == 3">
                 SELECT
@@ -295,24 +305,30 @@
                 FROM
                 T_Department TD
                 WHERE
-                TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE
                 TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID
-                !=0))
+                !=0)
+                OR TD.ID=#{departId}
+                OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=#{departId} AND TD.ID
+                !=0)
+                OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 39 END)
+                OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})>=5 THEN 50 END)
             </when>
             <when test="clickTimes == 4">
+
                 SELECT
                 TD.ID
                 FROM
                 T_Department TD
                 WHERE
-                TD.ParentID=(SELECT TD.ParentID FROM T_Department TD WHERE
                 TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID
-                !=0))
-                OR TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE
-                TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID
-                !=0))
+                !=0)
+                OR TD.ID=#{departId}
+                OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=#{departId})
+                OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId}))
+                OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 39 END)
+                OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})>=5 THEN 50 END)
             </when>
-            <when test="clickTimes == 5">
+            <when test="clickTimes == 2 or clickTimes == 5 or clickTimes == 9">
                 SELECT
                 TD.ID
                 FROM
@@ -324,43 +340,51 @@
                 FROM
                 T_Department TD
                 WHERE
-                TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=(SELECT TD.ParentID
-                FROM T_Department TD WHERE
-                TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID
-                !=0)))
+                TD.ID=#{departId} AND TD.ID !=0
             </when>
             <when test="clickTimes == 7">
-                SELECT
-                TD.ID
-                FROM
-                T_Department TD
-                WHERE
-                TD.ParentID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=(SELECT TD.ParentID
-                FROM T_Department TD WHERE
-                TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID
-                !=0)))
-                OR TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=(SELECT
-                TD.ParentID FROM T_Department TD WHERE
-                TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID
-                !=0)))
+                SELECT TDA.ID FROM
+                    (SELECT TD.ID,TD.ParentID FROM T_Department TD  )TDA
+                WHERE EXISTS (SELECT TD.ID FROM T_Department TD WHERE
+                    TD.ParentID=( SELECT ParentID FROM T_Department WHERE ID=#{departId}  ) AND TDA.ParentID= TD.ID
+                )
+                OR
+                TDA.ParentID=( SELECT ParentID FROM T_Department WHERE ID=#{departId}  )
+                OR
+                TDA.ID=( SELECT ParentID FROM T_Department WHERE ID=#{departId} )
             </when>
             <when test="clickTimes == 8">
-                SELECT
-                TD.ID
-                FROM
-                T_Department TD
+                SELECT  TDA.ID FROM
+                    (SELECT TD.ID,TD.ParentID  FROM T_Department TD )TDA
+                WHERE EXISTS
+                (SELECT TD.ID FROM T_Department TD
+                WHERE
+                TD.ParentID=(
+                SELECT ParentID FROM T_Department WHERE ID=(SELECT ParentID FROM T_Department WHERE ID=#{departId}) ) AND TDA.ParentID= TD.ID)
+                OR
+                TDA.ParentID=( SELECT ParentID FROM T_Department WHERE ID=(SELECT ParentID FROM T_Department WHERE ID=#{departId})  )
+                OR
+                TDA.ID=( SELECT ParentID FROM T_Department WHERE ID=(SELECT ParentID FROM T_Department WHERE ID=#{departId}) )
             </when>
-        </choose>
-        )
+            <when test="clickTimes == 15">
+                SELECT  TDA.ID FROM
+                (SELECT TD.ID,TD.ParentID  FROM T_Department TD )TDA
+                WHERE EXISTS
+                (SELECT TD.ID FROM T_Department TD
+                WHERE
+                TD.ParentID=(
+                SELECT ParentID FROM T_Department WHERE ID=(SELECT ParentID FROM T_Department WHERE ID=#{departId}) ) AND TDA.ParentID= TD.ID)
+                OR
+                TDA.ParentID=( SELECT ParentID FROM T_Department WHERE ID=(SELECT ParentID FROM T_Department WHERE ID=#{departId})  )
+                OR
+                TDA.ID=( SELECT ParentID FROM T_Department WHERE ID=(SELECT ParentID FROM T_Department WHERE ID=#{departId}) )
+            </when>
+        </choose>)
         TDS
 
         LEFT JOIN
-        (SELECT
-        AD.Account_Name,
-        TD.ID,
-        AD.Account_ID
-        FROM
-        Account_Data AD
+        (SELECT AD.Account_Name, TD.ID, AD.Account_ID
+        FROM Account_Data AD
         LEFT JOIN
         T_Employee_Basic TEB ON TEB.Account=AD.Account_ID
         LEFT JOIN
@@ -368,25 +392,594 @@
         LEFT JOIN Position_Data PD
         ON PD.Position_ID=AD.Position_ID
         WHERE
-        AD.Account_State='在用'
-        AND
-        PD.PositionType_ID=(CASE
-        WHEN
-        (SELECT PD.PositionType_ID FROM Position_Data PD WHERE
-        PD.Position_ID=#{positionId})&lt;4 THEN 4+#{level}
-        WHEN
-        (SELECT PD.PositionType_ID FROM Position_Data PD WHERE
-        PD.Position_ID=#{positionId})=4 THEN 5+#{level}
-        WHEN
-        (SELECT PD.PositionType_ID FROM Position_Data PD WHERE
-        PD.Position_ID=#{positionId})=5 THEN 6+#{level}
-        WHEN
-        (SELECT PD.PositionType_ID FROM Position_Data PD WHERE
-        PD.Position_ID=#{positionId})>=6 THEN ''
-        END)
+        AD.Account_State='在用' AND TEB.State=1 AND TEB.isDelete=0 AND AD.Account_ID != #{accountId}
+        <choose>
+            <when test="clickTimes == 0">
+                AND (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt; 4 THEN 4
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=4 THEN 5
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6
+                    OR ((SELECT ID FROM T_Department WHERE ID=#{departId})=39 AND (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) = 4) THEN 74 END)
+                )
+            </when>
+            <when test="clickTimes == 1">
+                AND (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt; 4 THEN 4
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=4 THEN 5
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 74 END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 33 END)
+                )
+            </when>
+            <when test="clickTimes == 2">
+                AND (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt; 4 THEN 4
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=4 THEN 5
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 74 END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 33 END)
+                )
+            </when>
+            <when test="clickTimes == 3">
+                AND ((PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt; 4 THEN 4
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=4 THEN 5
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 74 END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 33 END)
+                )
+                OR
+                (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt; 4 THEN 5
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=4 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 74 END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 33 END)
+                ))
+                AND PD.Position_ID !=93
+            </when>
+            <when test="clickTimes == 4">
+                AND ((PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt; 4 THEN 4
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=4 THEN 5
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 74 END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 33 END)
+                )
+                OR
+                (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt; 4 THEN 5
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=4 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 33 END)
+                ))
+                AND PD.Position_ID !=93
+            </when>
+            <when test="clickTimes == 5">
+                AND ((PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt; 4 THEN 4
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=4 THEN 5
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 74 END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 33 END)
+                )
+                OR
+                (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt; 4 THEN 5
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=4 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 33 END)
+                ))
+            </when>
+        </choose>
+
         )ATTP ON ATTP.ID=TDS.ID
         WHERE
         ATTP.Account_Name IS NOT NULL
+    </select>
+
+    <!--审核-->
+    <select
+            id="verifyOfEmpList"
+            parameterType="com.jiubo.erp.wzbg.vo.PLOParam"
+            resultType="com.jiubo.erp.wzbg.bean.EmployeeOfCheck">
+        SELECT
+        ATTP.Account_Name AS accountName,
+        ATTP.Account_ID AS accountId
+        FROM
+        (<choose>
+        <when test="clickTimes == 0">
+            SELECT
+            TD.ID
+            FROM
+            T_Department TD
+            WHERE
+            TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID !=0)
+            OR TD.ID=#{departId}
+            OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=#{departId} AND TD.ID !=0)
+            OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 39 END)
+            OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 50 END)
+        </when>
+        <when test="clickTimes == 1">
+            SELECT
+            TD.ID
+            FROM
+            T_Department TD
+            WHERE
+            TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID !=0)
+            OR TD.ID=#{departId}
+            OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=#{departId})
+            OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId}))
+            OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=
+                        (SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId}) AND 54=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId})))
+            OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 39 END)
+            OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 50 END)
+        </when>
+        <when test="clickTimes == 3">
+            SELECT
+            TD.ID
+            FROM
+            T_Department TD
+            WHERE
+            TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID !=0)
+            OR TD.ID=#{departId}
+            OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=#{departId})
+            OR TD.ID =(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId}))
+            OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 39 END)
+            OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})>=5 THEN 50 END)
+        </when>
+        <when test="clickTimes == 4">
+            SELECT
+            TD.ID
+            FROM
+            T_Department TD
+            WHERE
+            TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID !=0)
+            OR TD.ID=#{departId}
+            OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=#{departId})
+            OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId}))
+            OR TD.ID =(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId}))
+            OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=
+            (SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId}) AND 54=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId})))
+            OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 39 END)
+            OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})>=5 THEN 50 END)
+        </when>
+        <when test="clickTimes == 2 or clickTimes == 5 or clickTimes == 9">
+            SELECT
+            TD.ID
+            FROM
+            T_Department TD
+        </when>
+        <when test="clickTimes == 6">
+            SELECT
+            TD.ID
+            FROM
+            T_Department TD
+            WHERE
+            TD.ID=#{departId} AND TD.ID !=0
+        </when>
+        <when test="clickTimes == 7">
+            SELECT TDA.ID FROM
+            (SELECT TD.ID,TD.ParentID FROM T_Department TD  )TDA
+            WHERE EXISTS (SELECT TD.ID FROM T_Department TD WHERE
+            TD.ParentID=( SELECT ParentID FROM T_Department WHERE ID=#{departId}  ) AND TDA.ParentID= TD.ID
+            )
+            OR
+            TDA.ParentID=( SELECT ParentID FROM T_Department WHERE ID=#{departId}  )
+            OR
+            TDA.ID=( SELECT ParentID FROM T_Department WHERE ID=#{departId} )
+        </when>
+        <when test="clickTimes == 8">
+            SELECT  TDA.ID FROM
+            (SELECT TD.ID,TD.ParentID  FROM T_Department TD )TDA
+            WHERE EXISTS
+            (SELECT TD.ID FROM T_Department TD
+            WHERE
+            TD.ParentID=(
+            SELECT ParentID FROM T_Department WHERE ID=(SELECT ParentID FROM T_Department WHERE ID=#{departId}) ) AND TDA.ParentID= TD.ID)
+            OR
+            TDA.ParentID=( SELECT ParentID FROM T_Department WHERE ID=(SELECT ParentID FROM T_Department WHERE ID=#{departId})  )
+            OR
+            TDA.ID=( SELECT ParentID FROM T_Department WHERE ID=(SELECT ParentID FROM T_Department WHERE ID=#{departId}) )
+        </when>
+        <when test="clickTimes == 15">
+            SELECT  TDA.ID FROM
+            (SELECT TD.ID,TD.ParentID  FROM T_Department TD )TDA
+            WHERE EXISTS
+            (SELECT TD.ID FROM T_Department TD
+            WHERE
+            TD.ParentID=(
+            SELECT ParentID FROM T_Department WHERE ID=(SELECT ParentID FROM T_Department WHERE ID=#{departId}) ) AND TDA.ParentID= TD.ID)
+            OR
+            TDA.ParentID=( SELECT ParentID FROM T_Department WHERE ID=(SELECT ParentID FROM T_Department WHERE ID=#{departId})  )
+            OR
+            TDA.ID=( SELECT ParentID FROM T_Department WHERE ID=(SELECT ParentID FROM T_Department WHERE ID=#{departId}) )
+        </when>
+    </choose>)
+        TDS
+
+        LEFT JOIN
+        (SELECT AD.Account_Name, TD.ID, AD.Account_ID
+        FROM Account_Data AD
+        LEFT JOIN
+        T_Employee_Basic TEB ON TEB.Account=AD.Account_ID
+        LEFT JOIN
+        T_Department TD ON TD.ID = TEB.Department_ID
+        LEFT JOIN Position_Data PD
+        ON PD.Position_ID=AD.Position_ID
+        WHERE
+        AD.Account_State='在用' AND TEB.State=1 AND TEB.isDelete=0 AND AD.Account_ID != #{accountId}
+        <choose>
+            <when test="clickTimes == 0">
+                AND (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})&lt;=4 THEN 5
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT ID FROM T_Department WHERE ID=#{departId})=39 THEN 74 END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 33 END)
+                )
+            </when>
+            <when test="clickTimes == 1">
+                AND (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})&lt;=4 THEN 5
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 33 END)
+                )
+            </when>
+            <when test="clickTimes == 2">
+                AND (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt;=4 THEN 5
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 33 END)
+                )
+            </when>
+            <when test="clickTimes == 3">
+                AND ((PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt;=4 THEN 5
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 33 END)
+                )
+                OR
+                (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt;=4 THEN 6
+                END)
+                ))
+                AND PD.Position_ID !=93
+            </when>
+            <when test="clickTimes == 4">
+                AND ((PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})&lt;=4 THEN 5
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 33 END)
+                )
+                OR
+                (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})&lt;=4 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 33 END)
+                ))
+                AND PD.Position_ID !=93
+            </when>
+            <when test="clickTimes == 5">
+                AND ((PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt;=4 THEN 5
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 33 END)
+                )
+                OR
+                (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt;=4 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 33 END)
+                ))
+            </when>
+        </choose>
+
+        )ATTP ON ATTP.ID=TDS.ID
+        WHERE
+        ATTP.Account_Name IS NOT NULL
+    </select>
+
+
+    <!--审批-->
+    <select
+            id="approveOfEmpList"
+            parameterType="com.jiubo.erp.wzbg.vo.PLOParam"
+            resultType="com.jiubo.erp.wzbg.bean.EmployeeOfCheck">
+        SELECT
+        ATTP.Account_Name AS accountName,
+        ATTP.Account_ID AS accountId
+        FROM
+        (<choose>
+        <when test="clickTimes == 0">
+            SELECT
+            TD.ID
+            FROM
+            T_Department TD
+            WHERE
+            TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID !=0)
+            OR TD.ID=#{departId}
+            OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=#{departId} AND TD.ID !=0)
+            OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 39 END)
+            OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})>=5 THEN 50 END)
+        </when>
+        <when test="clickTimes == 1">
+            SELECT
+            TD.ID
+            FROM
+            T_Department TD
+            WHERE
+            TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID !=0)
+            OR TD.ID=#{departId}
+            OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=#{departId})
+            OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId}))
+            OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=
+            (SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId}) AND 54=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId})))
+            OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 39 END)
+            OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})>=5 THEN 50 END)
+        </when>
+        <when test="clickTimes == 3">
+            SELECT
+            TD.ID
+            FROM
+            T_Department TD
+            WHERE
+            TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID !=0)
+            OR TD.ID=#{departId}
+            OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=#{departId})
+            OR TD.ID =(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId}))
+            OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 39 END)
+            OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})>=5 THEN 50 END)
+        </when>
+        <when test="clickTimes == 4">
+            SELECT
+            TD.ID
+            FROM
+            T_Department TD
+            WHERE
+            TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID !=0)
+            OR TD.ID=#{departId}
+            OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=#{departId})
+            OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId}))
+            OR TD.ID =(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId}))
+            OR TD.ID IN (SELECT TD.ID FROM T_Department TD WHERE TD.ParentID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=
+            (SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId}) AND 54=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId})))
+            OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 39 END)
+            OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})>=5 THEN 50 END)
+        </when>
+        <when test="clickTimes == 2 or clickTimes == 9 ">
+            SELECT
+            TD.ID
+            FROM
+            T_Department TD
+        </when>
+        <when test="clickTimes == 5 and dayNum == 0">
+            SELECT
+            TD.ID
+            FROM
+            T_Department TD
+        </when>
+        <when test="clickTimes == 5 and dayNum == 1">
+            SELECT
+            TD.ID
+            FROM
+            T_Department TD
+            WHERE
+            TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID !=0)
+            OR TD.ID=#{departId}
+            OR TD.ID =(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId}))
+        </when>
+        <when test="clickTimes == 6">
+            SELECT
+            TD.ID
+            FROM
+            T_Department TD
+            WHERE
+            TD.ID=#{departId} AND TD.ID !=0
+        </when>
+        <when test="clickTimes == 7">
+            SELECT TDA.ID FROM
+            (SELECT TD.ID,TD.ParentID FROM T_Department TD  )TDA
+            WHERE EXISTS (SELECT TD.ID FROM T_Department TD WHERE
+            TD.ParentID=( SELECT ParentID FROM T_Department WHERE ID=#{departId}  ) AND TDA.ParentID= TD.ID
+            )
+            OR
+            TDA.ParentID=( SELECT ParentID FROM T_Department WHERE ID=#{departId}  )
+            OR
+            TDA.ID=( SELECT ParentID FROM T_Department WHERE ID=#{departId} )
+        </when>
+        <when test="clickTimes == 8">
+            SELECT  TDA.ID FROM
+            (SELECT TD.ID,TD.ParentID  FROM T_Department TD )TDA
+            WHERE EXISTS
+            (SELECT TD.ID FROM T_Department TD
+            WHERE
+            TD.ParentID=(
+            SELECT ParentID FROM T_Department WHERE ID=(SELECT ParentID FROM T_Department WHERE ID=#{departId}) ) AND TDA.ParentID= TD.ID)
+            OR
+            TDA.ParentID=( SELECT ParentID FROM T_Department WHERE ID=(SELECT ParentID FROM T_Department WHERE ID=#{departId})  )
+            OR
+            TDA.ID=( SELECT ParentID FROM T_Department WHERE ID=(SELECT ParentID FROM T_Department WHERE ID=#{departId}) )
+        </when>
+        <when test="clickTimes == 15">
+            SELECT  TDA.ID FROM
+            (SELECT TD.ID,TD.ParentID  FROM T_Department TD )TDA
+            WHERE EXISTS
+            (SELECT TD.ID FROM T_Department TD
+            WHERE
+            TD.ParentID=(
+            SELECT ParentID FROM T_Department WHERE ID=(SELECT ParentID FROM T_Department WHERE ID=#{departId}) ) AND TDA.ParentID= TD.ID)
+            OR
+            TDA.ParentID=( SELECT ParentID FROM T_Department WHERE ID=(SELECT ParentID FROM T_Department WHERE ID=#{departId})  )
+            OR
+            TDA.ID=( SELECT ParentID FROM T_Department WHERE ID=(SELECT ParentID FROM T_Department WHERE ID=#{departId}) )
+        </when>
+    </choose>)
+        TDS
+
+        LEFT JOIN
+        (SELECT AD.Account_Name, TD.ID, AD.Account_ID
+        FROM Account_Data AD
+        LEFT JOIN
+        T_Employee_Basic TEB ON TEB.Account=AD.Account_ID
+        LEFT JOIN
+        T_Department TD ON TD.ID = TEB.Department_ID
+        LEFT JOIN Position_Data PD
+        ON PD.Position_ID=AD.Position_ID
+        WHERE
+        AD.Account_State='在用' AND TEB.State=1 AND TEB.isDelete=0 AND AD.Account_ID != #{accountId}
+        <choose>
+            <when test="clickTimes == 0">
+                AND (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})&lt;=4 THEN 5
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT ID FROM T_Department WHERE ID=#{departId})=39 THEN 74 END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})>=5 THEN 33 END)
+                )
+            </when>
+            <when test="clickTimes == 1">
+                AND (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})&lt;=4 THEN 5
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})>=5 THEN 33 END)
+                )
+            </when>
+            <when test="clickTimes == 2">
+                AND (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt;=4 THEN 5
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 33 END)
+                )
+            </when>
+            <when test="clickTimes == 3">
+                AND ((PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt;=4 THEN 5
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 33 END)
+                )
+                OR
+                (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt;=4 THEN 6
+                END)
+                ))
+                AND PD.Position_ID !=93
+            </when>
+            <when test="clickTimes == 4">
+                AND ((PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})&lt;=4 THEN 5
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 33 END)
+                )
+                OR
+                (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})&lt;=4 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 33 END)
+                ))
+                AND PD.Position_ID !=93
+            </when>
+            <when test="clickTimes == 5">
+                AND ((PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt;=4 AND 0 = #{dayNum} THEN 5
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt;=4 AND 1 = #{dayNum} THEN 6
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 33 END)
+                )
+                OR
+                (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt;=4 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=5 THEN 33 END)
+                ))
+            </when>
+        </choose>
+
+        )ATTP ON ATTP.ID=TDS.ID
+        WHERE
+        ATTP.Account_Name IS NOT NULL
+    </select>
+
+
+
+    <!--获取部门级别-->
+    <select id="levelOfDepartment">
+        SELECT
+            (CASE WHEN TD.ID=0 THEN 0
+            WHEN (SELECT TD.ParentID FROM  T_Department TD WHERE TD.ID=23)=0 THEN 1
+            WHEN (SELECT TD.ParentID FROM  T_Department TD WHERE TD.ID=(SELECT TD.ParentID FROM  T_Department TD WHERE TD.ID=23))=0 THEN 2
+            WHEN (SELECT TD.ParentID FROM  T_Department TD WHERE TD.ID=(SELECT TD.ParentID FROM  T_Department TD WHERE TD.ID=(SELECT TD.ParentID FROM  T_Department TD WHERE TD.ID=23)))=0 THEN 3
+            END)
+            AS level
+        FROM T_Department TD WHERE TD.ID=#{departId}
     </select>
 
 
@@ -496,7 +1089,7 @@
             <if test=" restReason !=null and restReason !=''">
                 AND TEB.Reason =#{restReason}
             </if>
-            <if test=" departId !=null and departId !=''">
+            <if test=" departId !=null and departId !=''and departId != 0">
                 AND TEB.Department_ID =#{departId}
             </if>
             <if test=" name !=null and name !=''">
@@ -557,6 +1150,7 @@
         UPDATE
         Leave_Daoxiu
         SET
+        <trim suffixOverrides=",">
         <if test="reason !=null and reason !=''">Reason=#{reason} ,</if>
         <if test="startTime !=null and startTime !=''">StartTime=#{startTime},</if>
         <if test="endTime !=null and endTime !=''">EndTime=#{endTime} ,</if>
@@ -605,6 +1199,7 @@
         </if>
         <if test="remark4 !=null and remark4 !=''">Remark4=#{remark4},</if>
         <if test="account4 !=null and account4 !=''">Account4=#{account4}</if>
+        </trim>
         <trim
                 prefix="WHERE"
                 prefixOverrides="AND | OR">

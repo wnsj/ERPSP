@@ -2,9 +2,12 @@ package com.jiubo.erp.wzbg.service;
 
 
 import com.alibaba.fastjson.JSONObject;
+import com.jiubo.erp.wzbg.bean.EmployeeOfCheck;
+import com.jiubo.erp.wzbg.vo.PLOParam;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 public interface PLOService {
 	
@@ -18,10 +21,16 @@ public interface PLOService {
 	
 	//请假修改
 	public JSONObject updateLeaveApplication(HttpServletResponse response, HttpServletRequest request);
-	
+
+	//审核列表
 	public JSONObject checkOfEmpList(HttpServletResponse response, HttpServletRequest request);
-	
-	
+
+	//审查列表
+	public List<EmployeeOfCheck> verifyOfEmpList(PLOParam ploParam);
+
+	//审批列表
+	public List<EmployeeOfCheck>approveOfEmpList(PLOParam ploParam);
+
 	//倒休
 	public JSONObject restDownList(HttpServletResponse response, HttpServletRequest request);
 	

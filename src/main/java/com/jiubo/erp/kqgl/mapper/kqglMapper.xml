@@ -505,7 +505,7 @@
         , COUNT(CASE WHEN YTTD.firstTimeState = '迟到' THEN 3 END) AS ryLaterTimes
         , COUNT(CASE WHEN YTTD.lastTimeState = '早退' THEN 4 END) AS ryLeaveEarlyTimes
         , COUNT(CASE WHEN YTTD.firstTimeState = '旷工' OR YTTD.lastTimeState = '旷工' THEN 5 END) AS ryMinersTimes
-        , COUNT(CASE WHEN YTTD.firstTimeState = '打卡异常' THEN 6 END) AS ryOnPA
+        , COUNT(CASE WHEN YTTD.firstTimeState = '打卡异常' OR YTTD.lastTimeState = '打卡异常' THEN 6 END) AS ryOnPA
         , COUNT(CASE WHEN YTTD.lastTimeState = '打卡异常' THEN 7 END) AS ryDownPA
         , COUNT(CASE WHEN YTTD.firstTimeState = '未打卡' THEN 8 END) AS ryNotPA
         , COUNT(CASE WHEN YTTD.classTimeType = 2 THEN 9 END) AS ryRestDays
@@ -606,7 +606,7 @@
                 AND f.ShiftDate&gt;=#{beginDate}
             </if>
             <if test="endDate!=null and endDate!=''">
-                AND f.ShiftDate &lt;=#{endDate}
+                AND f.ShiftDate &lt;= #{endDate}
             </if>
         </trim>
         ) TAPC

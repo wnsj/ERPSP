@@ -8,6 +8,7 @@ import com.jiubo.erp.common.MessageException;
 import com.jiubo.erp.rygl.controller.EmpController;
 import com.jiubo.erp.wzbg.bean.AskForLeaveBean;
 import com.jiubo.erp.wzbg.bean.EmpRequireBean;
+import com.jiubo.erp.wzbg.bean.EmployeeOfCheck;
 import com.jiubo.erp.wzbg.bean.RestDownBean;
 import com.jiubo.erp.wzbg.dao.PLODao;
 import com.jiubo.erp.wzbg.service.PLOService;
@@ -20,11 +21,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StreamUtils;
 
-import javax.print.DocFlavor;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.nio.charset.Charset;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -120,13 +122,17 @@ public class PLOServiceImply implements PLOService {
 	 */
 	@SuppressWarnings("finally")
 	public JSONObject checkOfEmpList(HttpServletResponse response, HttpServletRequest request) {
-		Map<String, String> levelMap = new HashMap<>();
+        PLOParam plop = new PLOParam();
         JSONObject result = new JSONObject();
         String retCode = Constant.Result.SUCCESS;
         String retMsg = Constant.Result.SUCCESS_MSG;
         try {
-            levelMap = ToolClass.mapShiftStr(request);
-            result.put("resData", this.dao.checkOfEmpList(levelMap.get("level"),levelMap.get("positionId"),levelMap.get("departId"),levelMap.get("clickTimes")));
+            String str = ToolClass.getStrFromInputStream(request);
+            if (StringUtils.isBlank(str))
+                throw new MessageException("参数接收失败！");
+            plop = MapUtil.transJsonStrToObjectIgnoreCase(str, PLOParam.class);
+            System.out.println("plop:"+plop.toString());
+            result.put("resData", this.dao.checkOfEmpList(plop));
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
@@ -137,7 +143,33 @@ public class PLOServiceImply implements PLOService {
             return result;
         }
 	}
-	
+
+
+    /**
+     * 请假审查 -- 审查人列表 根据请假人的级别查看审查列表
+     * @return
+     * JSONObject
+     * @author 作者 : mwl
+     * @version 创建时间：2019年7月8日 上午10:20:08
+     */
+    @SuppressWarnings("finally")
+    public List<EmployeeOfCheck> verifyOfEmpList(PLOParam ploParam){
+	    return this.dao.verifyOfEmpList(ploParam);
+	}
+
+    /**
+     * 请假审查 -- 审查人列表 根据请假人的级别查看审查列表
+     * @return
+     * JSONObject
+     * @author 作者 : mwl
+     * @version 创建时间：2019年7月8日 上午10:20:08
+     */
+    @SuppressWarnings("finally")
+    public List<EmployeeOfCheck>approveOfEmpList(PLOParam ploParam){
+
+        return this.dao.approveOfEmpList(ploParam);
+    }
+
 	/**
 	 * 请假申请
 	 * @param response
