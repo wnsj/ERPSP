@@ -377,10 +377,16 @@
 
     <!-- 入职员工关联面试信息 -->
     <update id="relateRecruitData" parameterType="RecruitDataBean">
-            UPDATE T_Employee_Basic
-            SET
-                RecruitDataID = #{id}
-            WHERE
-                Account = #{account}
+        UPDATE T_Employee_Basic
+        SET
+            RecruitDataID = #{id}
+        WHERE
+            Account = #{account}
+    </update>
+
+    <update id="syncEntry">
+        UPDATE ZP_RECRUITDATA
+        SET isEntry = 1
+        WHERE ID = #{id}
     </update>
 </mapper>

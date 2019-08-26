@@ -180,5 +180,15 @@ public interface ZpglService {
      */
     void relateRecruitData(RecruitDataBean recruitDataBean) throws MessageException;
 
+    /**
+     * @param
+     * @return
+     * @Description: //同步面试信息表入职状态
+     * @author: DingDong
+     * @date: 2019年8月26日
+     * @version: V1.0
+     */
+    void syncEntry(String id) throws MessageException;
+
     void test() throws MessageException;
 }
