@@ -170,5 +170,15 @@ public interface ZpglService {
      */
     void deleteZpPublish(String id) throws MessageException;
 
+    /**
+     * @param recruitDataBean
+     * @return
+     * @Description: 入职员工关联面试信息
+     * @author: DingDong
+     * @date: 2019年8月26日
+     * @version: V1.0
+     */
+    void relateRecruitData(RecruitDataBean recruitDataBean) throws MessageException;
+
     void test() throws MessageException;
 }

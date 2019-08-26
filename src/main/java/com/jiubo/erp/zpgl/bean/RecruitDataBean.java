@@ -59,4 +59,5 @@ public class RecruitDataBean implements Serializable {
     private String channelName;
     private String departmentName;
     private String positionName;
+    private String account;// 关联面试信息的account
 }

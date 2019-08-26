@@ -15,11 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,7 +23,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-@Controller
+@RestController
 @Scope("prototype")
 @RequestMapping("/zpglController")
 public class ZpglController {
@@ -46,7 +42,6 @@ public class ZpglController {
      * @version: 1.0
      */
     //http://127.0.0.1:8080/Erp/zpglController/queryRecruitChannel
-    @ResponseBody
     @RequestMapping(value = "/queryRecruitChannel", method = {RequestMethod.POST})
     public JSONObject queryRecruitChannel() {
         JSONObject result = new JSONObject();
@@ -86,7 +81,6 @@ public class ZpglController {
      * @version: 1.0
      */
     //http://127.0.0.1:8080/Erp/zpglController/addRecruitChannel?recruitChannelName=Boss
-    @ResponseBody
     @RequestMapping(value = "/addRecruitChannel", method = {RequestMethod.POST})
     public JSONObject addRecruitChannel(HttpServletRequest request) {
         JSONObject result = new JSONObject();
@@ -133,7 +127,7 @@ public class ZpglController {
      * @author: dx
      * @version: 1.0
      */
-    @ResponseBody
+
     @RequestMapping(value = "/updateRecruitChannel", method = {RequestMethod.POST})
     public JSONObject updateRecruitChannel(HttpServletRequest request) {
         JSONObject result = new JSONObject();
@@ -180,7 +174,6 @@ public class ZpglController {
      * @version: 1.0
      */
     //http://127.0.0.1:8080/Erp/zpglController/deleteRecruitChannel?id=2
-    @ResponseBody
     @RequestMapping(value = "/deleteRecruitChannel", method = {RequestMethod.POST})
     public JSONObject deleteRecruitChannel(@RequestBody Map<String, Object> requestMap, HttpServletRequest request, HttpServletResponse response) {
         JSONObject result = new JSONObject();
@@ -223,7 +216,7 @@ public class ZpglController {
      * @author: dx / DingDong
      * @version: 1.0
      */
-    @ResponseBody
+
     @RequestMapping(value = "/queryRecruitData", method = {RequestMethod.POST})
     public JSONObject queryRecruitData(HttpServletRequest request) {
         JSONObject result = new JSONObject();
@@ -274,7 +267,6 @@ public class ZpglController {
      * @version: 1.0
      */
     //http://127.0.0.1:8080/Erp/zpglController/addRecruitData
-    @ResponseBody
     @RequestMapping(value = "/addRecruitData", method = {RequestMethod.POST})
     public JSONObject addRecruitData(HttpServletRequest request) {
         JSONObject result = new JSONObject();
@@ -322,7 +314,6 @@ public class ZpglController {
      * @version: 1.0
      */
     //http://127.0.0.1:8080/Erp/zpglController/updateRecruitData
-    @ResponseBody
     @RequestMapping(value = "/updateRecruitData", method = {RequestMethod.POST})
     public JSONObject updateRecruitData(HttpServletRequest request) {
         JSONObject result = new JSONObject();
@@ -369,7 +360,7 @@ public class ZpglController {
      * @author: dx
      * @version: 1.0
      */
-    @ResponseBody
+
     @RequestMapping(value = "/updateRecruitDataById", method = {RequestMethod.POST})
     public JSONObject updateRecruitDataById(@RequestBody Map<String, Object> requestMap) {
         JSONObject result = new JSONObject();
@@ -413,7 +404,6 @@ public class ZpglController {
      * @version: 1.0
      */
     //http://127.0.0.1:8080/Erp/zpglController/queryZpPlan?begDate=2017-05&endDate=2017-06&department=1&position=24
-    @ResponseBody
     @RequestMapping(value = "/queryZpPlan", method = {RequestMethod.GET, RequestMethod.POST})
     public JSONObject queryZpPlan(HttpServletRequest request) {
         JSONObject result = new JSONObject();
@@ -464,7 +454,6 @@ public class ZpglController {
      * @version: 1.0
      */
     //http://127.0.0.1:8080/Erp/zpglController/addZpPlan?department=&position=66&lackNum=1&planNum=2&phoneNum=3&planDate=2019-06-01
-    @ResponseBody
     @RequestMapping(value = "/addZpPlan", method = {RequestMethod.GET, RequestMethod.POST})
     public JSONObject addZpPlan(HttpServletRequest request) {
         JSONObject result = new JSONObject();
@@ -512,7 +501,6 @@ public class ZpglController {
      * @version: 1.0
      */
     //http://127.0.0.1:8080/Erp/zpglController/updateZpPlan?department=9&position=9&lackNum=9&planNum=9&phoneNum=9&planDate=2019-06-09&planId=7
-    @ResponseBody
     @RequestMapping(value = "/updateZpPlan", method = {RequestMethod.GET, RequestMethod.POST})
     public JSONObject updateZpPlan(HttpServletRequest request) {
         JSONObject result = new JSONObject();
@@ -560,7 +548,6 @@ public class ZpglController {
      * @version: 1.0
      */
     //http://127.0.0.1:8080/Erp/zpglController/deleteZpPlan?id=7
-    @ResponseBody
     @RequestMapping(value = "/deleteZpPlan", method = {RequestMethod.POST})
     public JSONObject deleteZpPlan(@RequestBody Map<String, Object> requestMap) {
         JSONObject result = new JSONObject();
@@ -604,7 +591,6 @@ public class ZpglController {
      * @version: 1.0
      */
     //http://127.0.0.1:8080/Erp/zpglController/queryZpPublish?begDate=2019-05-01&endDate=2019-05-11&channel=3&position=23
-    @ResponseBody
     @RequestMapping(value = "/queryZpPublish", method = {RequestMethod.GET, RequestMethod.POST})
     public JSONObject queryZpPublish(HttpServletRequest request, HttpServletResponse response) {
         JSONObject result = new JSONObject();
@@ -648,7 +634,6 @@ public class ZpglController {
      * @version: 1.0
      */
     //http://127.0.0.1:8080/Erp/zpglController/addZpPublish?publishDate=2019-05-12&channel=3&position=23&publishNum=2&phoneNum=0
-    @ResponseBody
     @RequestMapping(value = "/addZpPublish", method = {RequestMethod.GET, RequestMethod.POST})
     public JSONObject addZpPublish(HttpServletRequest request) {
         JSONObject result = new JSONObject();
@@ -696,7 +681,6 @@ public class ZpglController {
      * @version: 1.0
      */
     //http://127.0.0.1:8080/Erp/zpglController/updateZpPublish?publishDate=2019-05-12&channel=3&position=23&publishNum=2&phoneNum=0&publishId=3
-    @ResponseBody
     @RequestMapping(value = "/updateZpPublish", method = {RequestMethod.GET, RequestMethod.POST})
     public JSONObject updateZpPublish(HttpServletRequest request, HttpServletResponse response) {
         JSONObject result = new JSONObject();
@@ -744,7 +728,6 @@ public class ZpglController {
      * @version: 1.0
      */
     //http://127.0.0.1:8080/Erp/zpglController/deleteZpPublish?id=3
-    @ResponseBody
     @RequestMapping(value = "/deleteZpPublish", method = {RequestMethod.POST})
     public JSONObject deleteZpPublish(@RequestBody Map<String, Object> requestMap, HttpServletRequest request, HttpServletResponse response) {
         JSONObject result = new JSONObject();
@@ -757,6 +740,51 @@ public class ZpglController {
             retCode = Constant.Result.SUCCESS;
             retMsg = Constant.Result.SUCCESS_MSG;
             logger.info("----------删除招聘发布信息接口请求成功----------");
+            return result;
+        } catch (IOException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(e.getMessage(), e);
+            return result;
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+        }
+    }
+
+    /**
+     * @Description: 入职员工关联面试信息
+     * @author: DingDong
+     * @date: 2019年08月26日
+     * @version: V1.0
+     */
+    //http://127.0.0.1:8080/Erp/zpglController/relateRecruitData
+    @RequestMapping(value = "/relateRecruitData", method = RequestMethod.POST)
+    public JSONObject relateRecruitData(HttpServletRequest request) {
+        JSONObject result = new JSONObject();
+        String retCode = null;
+        String retMsg = null;
+        logger.info("----------请求接口:zpglController/relateRecruitData----------");
+        try {
+            String str = ToolClass.getStrFromInputStream(request);
+            if (StringUtils.isBlank(str)) {
+                throw new MessageException("参数接收失败！");
+            }
+            RecruitDataBean recruitDataBean = MapUtil.transJsonStrToObjectIgnoreCase(str, RecruitDataBean.class);
+            zpglService.relateRecruitData(recruitDataBean);
+            retCode = Constant.Result.SUCCESS;
+            retMsg = Constant.Result.SUCCESS_MSG;
+            logger.info("----------入职员工关联面试信息接口请求成功----------");
             return result;
         } catch (IOException e) {
             retCode = Constant.Result.ERROR;
