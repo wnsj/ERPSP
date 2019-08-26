@@ -1,14 +1,12 @@
 package com.jiubo.erp.zpgl.service.impl;
 
 import com.jiubo.erp.common.MessageException;
-import com.jiubo.erp.common.TimeUtil;
 import com.jiubo.erp.zpgl.bean.RecruitChannelBean;
 import com.jiubo.erp.zpgl.bean.RecruitDataBean;
 import com.jiubo.erp.zpgl.bean.ZpPlanBean;
 import com.jiubo.erp.zpgl.bean.ZpPublishBean;
 import com.jiubo.erp.zpgl.dao.ZpglDao;
 import com.jiubo.erp.zpgl.service.ZpglService;
-import com.quicksand.push.ToolClass;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +14,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.ParseException;
 import java.util.List;
 
 @Service
@@ -30,12 +27,45 @@ public class ZpglServiceImpl implements ZpglService {
 
     @Override
     public List<RecruitChannelBean> queryRecruitChannel() throws MessageException {
-        return zpglDao.queryRecruitChannel();
+        List<RecruitChannelBean> list;
+        logger.info("----------开始查询招聘渠道信息,方法:queryRecruitChannel----------");
+        try {
+            list = zpglDao.queryRecruitChannel();
+
+        } catch (Exception e) {
+            throw new MessageException(e.getMessage());
+        }
+        return list;
+    }
+
+    @Override
+    public void addRecruitChannel(RecruitChannelBean recruitChannelBean) throws MessageException {
+        logger.info("----------开始添加招聘渠道信息,方法:addRecruitChannel----------");
+        try {
+            zpglDao.addRecruitChannel(recruitChannelBean);
+        } catch (Exception e) {
+            throw new MessageException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void updateRecruitChannel(RecruitChannelBean recruitChannelBean) throws MessageException {
+        logger.info("----------开始修改招聘渠道信息,方法:updateRecruitChannel----------");
+        try {
+            zpglDao.updateRecruitChannel(recruitChannelBean);
+        } catch (Exception e) {
+            throw new MessageException(e.getMessage());
+        }
     }
 
     @Override
     public void deleteRecruitChannel(String id) throws MessageException {
-        zpglDao.deleteRecruitChannel(id);
+        logger.info("----------开始删除招聘渠道信息,方法:deleteRecruitChannel----------");
+        try {
+            zpglDao.deleteRecruitChannel(id);
+        } catch (Exception e) {
+            throw new MessageException(e.getMessage());
+        }
     }
 
     @Override
@@ -52,30 +82,19 @@ public class ZpglServiceImpl implements ZpglService {
     }
 
     @Override
-    public void updateRecruitData(RecruitDataBean recruitDataBean) throws MessageException {
-        logger.info("----------开始修改面试信息,方法:updateRecruitData----------");
-        try {
-            zpglDao.updateRecruitData(recruitDataBean);
-        } catch (Exception e) {
-            throw new MessageException(e.getMessage());
-        }
-    }
-
-    @Override
-    public void updateRecruitData(String id) throws MessageException {
-        zpglDao.updateRecruitDataById(id);
-    }
-
-    @Override
-    public void test() throws MessageException {
-        //测试bind待解决
-        //System.out.println(zpglDao.queryRecruitDataTest("亮"));
-    }
-
-    @Override
     public void addRecruitData(RecruitDataBean recruitDataBean) throws MessageException {
         logger.info("----------开始添加面试信息,方法:addRecruitData----------");
         try {
+            if (StringUtils.isNotEmpty(recruitDataBean.getHeight())) {
+                float f = Float.parseFloat(recruitDataBean.getHeight());
+                String s = String.valueOf(Math.round(f));
+                recruitDataBean.setHeight(s);
+            }
+            if (StringUtils.isNotEmpty(recruitDataBean.getWeight())) {
+                float f = Float.parseFloat(recruitDataBean.getWeight());
+                String s = String.valueOf(Math.round(f));
+                recruitDataBean.setWeight(s);
+            }
             // 户口性质
             if ("0".equals(recruitDataBean.getAccountProp())) {
                 recruitDataBean.setAccountProp("农业");
@@ -123,9 +142,6 @@ public class ZpglServiceImpl implements ZpglService {
             if ("1".equals(recruitDataBean.getSex())) {
                 recruitDataBean.setSex("男");
             }
-
-            // 学历经验
-
             // 学历
             if ("0".equals(recruitDataBean.getEducation())) {
                 recruitDataBean.setEducation("未知");
@@ -148,7 +164,6 @@ public class ZpglServiceImpl implements ZpglService {
             if ("6".equals(recruitDataBean.getEducation())) {
                 recruitDataBean.setEducation("初中及以下");
             }
-
             // 是否合格
             if ("0".equals(recruitDataBean.getIsQualified())) {
                 recruitDataBean.setIsQualified("否");
@@ -159,13 +174,10 @@ public class ZpglServiceImpl implements ZpglService {
             if ("2".equals(recruitDataBean.getIsQualified())) {
                 recruitDataBean.setIsQualified("待定");
             }
-
-            recruitDataBean.setUpdateAccount("2143");
             //是否有效（ 0：有效，1：失效）
             recruitDataBean.setIsDelete("0");
             //是否入职（0：未入职 1：在职 2：离职）
             recruitDataBean.setIsEntry("0");
-            recruitDataBean.setUpdateDate(ToolClass.inquirNowDateTime());
             zpglDao.addRecruitData(recruitDataBean);
         } catch (Exception e) {
             throw new MessageException(e.getMessage());
@@ -173,89 +185,112 @@ public class ZpglServiceImpl implements ZpglService {
     }
 
     @Override
-    public List<ZpPlanBean> queryZpPlan(ZpPlanBean zpPlanBean) throws MessageException {
-        if (StringUtils.isBlank(zpPlanBean.getBegDate()) || StringUtils.isBlank(zpPlanBean.getEndDate()))
-            throw new MessageException("查询时间（begDate或endDate）为空！");
+    public void updateRecruitData(RecruitDataBean recruitDataBean) throws MessageException {
+        logger.info("----------开始修改面试信息,方法:updateRecruitData----------");
         try {
-            zpPlanBean.setEndDate(TimeUtil.getDateYYYY_MM_DD_HH_MM_SS(TimeUtil.dateAdd(TimeUtil.parseAnyDate(zpPlanBean.getEndDate()), TimeUtil.UNIT_DAY, 1)));
-        } catch (ParseException e) {
-            e.printStackTrace();
+            zpglDao.updateRecruitData(recruitDataBean);
+        } catch (Exception e) {
+            throw new MessageException(e.getMessage());
         }
-        return zpglDao.queryZpPlan(zpPlanBean);
+    }
+
+    @Override
+    public void updateRecruitData(String id) throws MessageException {
+        logger.info("----------开始删除面试信息,方法:updateRecruitData----------");
+        try {
+            zpglDao.updateRecruitDataById(id);
+        } catch (Exception e) {
+            throw new MessageException(e.getMessage());
+        }
+    }
+
+    @Override
+    public List<ZpPlanBean> queryZpPlan(ZpPlanBean zpPlanBean) throws MessageException {
+        logger.info("----------开始查询招聘计划信息,方法:queryZpPlan----------");
+        List<ZpPlanBean> list;
+        try {
+            list = zpglDao.queryZpPlan(zpPlanBean);
+        } catch (Exception e) {
+            throw new MessageException(e.getMessage());
+        }
+        return list;
     }
 
     @Override
     public void addZpPlan(ZpPlanBean zpPlanBean) throws MessageException {
-        if (StringUtils.isBlank(zpPlanBean.getPosition())) throw new MessageException("职位不能为空！");
-        if (StringUtils.isBlank(zpPlanBean.getPlanDate())) throw new MessageException("计划月份不能为空！");
-        zpglDao.addZpPlan(zpPlanBean);
-    }
-
-    @Override
-    public void deleteZpPlan(String id) throws MessageException {
-        zpglDao.deleteZpPlan(id);
+        logger.info("----------开始添加招聘计划信息,方法:addZpPlan----------");
+        try {
+            zpglDao.addZpPlan(zpPlanBean);
+        } catch (Exception e) {
+            throw new MessageException(e.getMessage());
+        }
     }
 
     @Override
     public void updateZpPlan(ZpPlanBean zpPlanBean) throws MessageException {
+        logger.info("----------开始修改招聘计划信息,方法:updateZpPlan----------");
         try {
-            if (StringUtils.isBlank(zpPlanBean.getPlanId())) throw new MessageException("招聘信息id为空！");
             zpglDao.updateZpPlan(zpPlanBean);
-            logger.debug("----------------招聘计划更新成功--------------------");
         } catch (Exception e) {
-            logger.debug("----------------招聘计划更新出错--------------------");
+            throw new MessageException(e.getMessage());
+        }
+    }
+
+    @Override
+    public void deleteZpPlan(String id) throws MessageException {
+        logger.info("----------开始删除招聘计划信息,方法:deleteZpPlan----------");
+        try {
+            zpglDao.deleteZpPlan(id);
+        } catch (Exception e) {
+            throw new MessageException(e.getMessage());
         }
     }
 
     @Override
     public List<ZpPublishBean> queryZpPublish(ZpPublishBean zpPublishBean) throws MessageException {
-        if (StringUtils.isBlank(zpPublishBean.getBegDate()) || StringUtils.isBlank(zpPublishBean.getEndDate()))
-            throw new MessageException("查询时间（begDate，endDate）为空！");
+        logger.info("----------开始查询招聘发布信息,方法:queryZpPublish----------");
+        List<ZpPublishBean> list;
         try {
-            zpPublishBean.setEndDate(TimeUtil.getDateYYYY_MM_DD_HH_MM_SS(TimeUtil.dateAdd(TimeUtil.parseAnyDate(zpPublishBean.getEndDate()), TimeUtil.UNIT_DAY, 1)));
-        } catch (ParseException e) {
-            e.printStackTrace();
+            list = zpglDao.queryZpPublish(zpPublishBean);
+        } catch (Exception e) {
+            throw new MessageException(e.getMessage());
         }
-
-        return zpglDao.queryZpPublish(zpPublishBean);
+        return list;
     }
 
     @Override
     public void addZpPublish(ZpPublishBean zpPublishBean) throws MessageException {
-        if (StringUtils.isBlank(zpPublishBean.getChannel())) throw new MessageException("招聘渠道不能为空！");
-        if (StringUtils.isBlank(zpPublishBean.getPosition())) throw new MessageException("招聘职位不能为空！");
-        if (StringUtils.isBlank(zpPublishBean.getPublishDate())) throw new MessageException("发布日期不能为空！");
-        if (StringUtils.isBlank(zpPublishBean.getPublishNum()) || Integer.parseInt(zpPublishBean.getPublishNum()) <= 0)
-            throw new MessageException("发布人数为空或小于等于0！");
-        zpglDao.addZpPublish(zpPublishBean);
-    }
-
-    @Override
-    public void deleteZpPublish(String id) throws MessageException {
-        zpglDao.deleteZpPublish(id);
+        logger.info("----------开始添加招聘发布信息,方法:addZpPublish----------");
+        try {
+            zpglDao.addZpPublish(zpPublishBean);
+        } catch (Exception e) {
+            throw new MessageException(e.getMessage());
+        }
     }
 
     @Override
     public void updateZpPublish(ZpPublishBean zpPublishBean) throws MessageException {
-        if (StringUtils.isBlank(zpPublishBean.getPublishId())) throw new MessageException("招聘信息id不能为空！");
-        if (StringUtils.isBlank(zpPublishBean.getChannel())) throw new MessageException("招聘渠道不能为空！");
-        if (StringUtils.isBlank(zpPublishBean.getPosition())) throw new MessageException("招聘职位不能为空！");
-        if (StringUtils.isBlank(zpPublishBean.getPublishDate())) throw new MessageException("发布日期不能为空！");
-        if (StringUtils.isBlank(zpPublishBean.getPublishNum()) || Integer.parseInt(zpPublishBean.getPublishNum()) <= 0)
-            throw new MessageException("发布人数为空或小于等于0！");
-        zpglDao.updateZpPublish(zpPublishBean);
+        logger.info("----------开始修改招聘发布信息,方法:updateZpPublish----------");
+        try {
+            zpglDao.updateZpPublish(zpPublishBean);
+        } catch (Exception e) {
+            throw new MessageException(e.getMessage());
+        }
     }
 
     @Override
-    public void addRecruitChannel(RecruitChannelBean recruitChannelBean) throws MessageException {
-        if (StringUtils.isBlank(recruitChannelBean.getRecruitChannelName())) throw new MessageException("招聘渠道名不能为空！");
-        zpglDao.addRecruitChannel(recruitChannelBean);
+    public void deleteZpPublish(String id) throws MessageException {
+        logger.info("----------开始删除招聘发布信息,方法:deleteZpPublish----------");
+        try {
+            zpglDao.deleteZpPublish(id);
+        } catch (Exception e) {
+            throw new MessageException(e.getMessage());
+        }
     }
 
     @Override
-    public void updateRecruitChannel(RecruitChannelBean recruitChannelBean) throws MessageException {
-        if (StringUtils.isBlank(recruitChannelBean.getRecruitChannelId()) || StringUtils.isBlank(recruitChannelBean.getRecruitChannelName()))
-            throw new MessageException("招聘渠道id或 招聘渠道名不能为空！");
-        zpglDao.updateRecruitChannel(recruitChannelBean);
+    public void test() throws MessageException {
+        //测试bind待解决
+        //System.out.println(zpglDao.queryRecruitDataTest("亮"));
     }
 }

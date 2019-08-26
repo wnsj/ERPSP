@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper
-		PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.jiubo.erp.wzbg.dao.ComputerDao">
-	<sql id="computerSql" >
+    <sql id="computerSql">
 		C.ID id,
 		C.DepartmentID deptId,
 		DEPT.Name deptName,
@@ -23,9 +23,11 @@
 		C.Zhu_see leaderIsSee,
 		C.Pei_Jiedan_ID handId,
 		C.Prepare_name handName,
+		A3.Account_Name peiJieName,
 		C.Dui_see handIsSee,
 		C.Fu_ID principalId,
 		A2.Account_Name principalName,
+		C.Pei_Jiedan_ID_see peiJieIsSee,
 		C.Fu_Advice principalAudit,
 		C.Fu_see principalIsSee,
 		C.Is_Reserve isReserve,
@@ -35,74 +37,76 @@
 		C.Shuoming remark
 	</sql>
 
-	<!-- 查询电脑预申请 -->
-	<select id="queryPreApplication" resultType="ComputerBean">
-		SELECT
-		<include refid="computerSql"></include>
-		FROM
-		Computer C
-		LEFT JOIN T_Department DEPT
-		ON DEPT.ID = C.DepartmentID
-		LEFT JOIN Position_Data PD
-		ON PD.Position_ID = C.Job_ID
-		LEFT JOIN Account_Data A1
-		ON A1.Account_ID = C.Zhu_ID
-		LEFT JOIN Account_Data A2
-		ON A2.Account_ID = C.Fu_ID
-		WHERE
-		C.Is_Reserve != 0
-		<if test="accountId != null and accountId != '' ">
-			AND (C.Apply_ID = #{accountId}
-			OR C.User_ID = #{accountId}
-			OR C.Zhu_ID = #{accountId}
-			OR C.Fu_ID = #{accountId}
-			<if test="accountName != null and accountName != '' ">
-				OR C.User_name = #{accountName}
-			</if>
-			)
-		</if>
-		<if test="timeType != null and timeType != '' ">
-			<choose>
-				<when test="timeType == 0">
-					<if test="beginTime != null and beginTime != '' ">
-						AND C.Start_time <![CDATA[ >= ]]> #{beginTime}
-					</if>
-					<if test="endTime != null and endTime != '' ">
-						AND C.Start_time <![CDATA[ <= ]]> #{endTime}
-					</if>
-				</when>
-				<when test="timeType == 1">
-					<if test="beginTime != null and beginTime != '' ">
-						AND C.renshi_time <![CDATA[ >= ]]> #{beginTime}
-					</if>
-					<if test="endTime != null and endTime != '' ">
-						AND C.renshi_time <![CDATA[ <= ]]> #{endTime}
-					</if>
-				</when>
-				<when test="timeType == 2">
-					<if test="beginTime != null and beginTime != '' ">
-						AND C.End_time <![CDATA[ >= ]]> #{beginTime}
-					</if>
-					<if test="endTime != null and endTime != '' ">
-						AND C.End_time <![CDATA[ <= ]]> #{endTime}
-					</if>
-				</when>
-			</choose>
-		</if>
-		<if test="deptId != null and deptId != 0 and deptId != '' ">
-			AND C.DepartmentID = #{deptId}
-		</if>
-		<if test="userName != null and userName != '' ">
-			AND C.User_name LIKE '%' + #{userName} + '%'
-		</if>
-		<if test="handName != null and handName != '' ">
-			AND C.Prepare_name LIKE '%' + #{handName} + '%'
-		</if>
-		ORDER BY C.ID
-	</select>
+    <!-- 查询电脑预申请 -->
+    <select id="queryPreApplication" resultType="ComputerBean">
+        SELECT
+        <include refid="computerSql"></include>
+        FROM
+        Computer C
+        LEFT JOIN T_Department DEPT
+        ON DEPT.ID = C.DepartmentID
+        LEFT JOIN Position_Data PD
+        ON PD.Position_ID = C.Job_ID
+        LEFT JOIN Account_Data A1
+        ON A1.Account_ID = C.Zhu_ID
+        LEFT JOIN Account_Data A2
+        ON A2.Account_ID = C.Fu_ID
+        LEFT JOIN Account_Data A3
+        ON A3.Account_ID = C.Pei_Jiedan_ID
+        WHERE
+        C.Is_Reserve != 0
+        <if test="accountId != null and accountId != '' ">
+            AND (C.Apply_ID = #{accountId}
+            OR C.User_ID = #{accountId}
+            OR C.Zhu_ID = #{accountId}
+            OR C.Fu_ID = #{accountId}
+            <if test="accountName != null and accountName != '' ">
+                OR C.User_name = #{accountName}
+            </if>
+            )
+        </if>
+        <if test="timeType != null and timeType != '' ">
+            <choose>
+                <when test="timeType == 0">
+                    <if test="beginTime != null and beginTime != '' ">
+                        AND C.Start_time <![CDATA[ >= ]]> #{beginTime}
+                    </if>
+                    <if test="endTime != null and endTime != '' ">
+                        AND C.Start_time <![CDATA[ <= ]]> #{endTime}
+                    </if>
+                </when>
+                <when test="timeType == 1">
+                    <if test="beginTime != null and beginTime != '' ">
+                        AND C.renshi_time <![CDATA[ >= ]]> #{beginTime}
+                    </if>
+                    <if test="endTime != null and endTime != '' ">
+                        AND C.renshi_time <![CDATA[ <= ]]> #{endTime}
+                    </if>
+                </when>
+                <when test="timeType == 2">
+                    <if test="beginTime != null and beginTime != '' ">
+                        AND C.End_time <![CDATA[ >= ]]> #{beginTime}
+                    </if>
+                    <if test="endTime != null and endTime != '' ">
+                        AND C.End_time <![CDATA[ <= ]]> #{endTime}
+                    </if>
+                </when>
+            </choose>
+        </if>
+        <if test="deptId != null and deptId != 0 and deptId != '' ">
+            AND C.DepartmentID = #{deptId}
+        </if>
+        <if test="userName != null and userName != '' ">
+            AND C.User_name LIKE '%' + #{userName} + '%'
+        </if>
+        <if test="handName != null and handName != '' ">
+            AND C.Prepare_name LIKE '%' + #{handName} + '%'
+        </if>
+        ORDER BY C.ID
+    </select>
 
-	<!-- 添加电脑预申请 -->
-	<insert id="addPreApplication" parameterType="ComputerBean">
+    <!-- 添加电脑预申请 -->
+    <insert id="addPreApplication" parameterType="ComputerBean">
 		INSERT INTO Computer
 			(DepartmentID, Start_time, Apply_name, User_ID,
 			User_name, Articles_name, Zhu_ID, Job_ID,
@@ -118,25 +122,25 @@
 			#{principalId},#{isReserve}, #{useTime}
 			)
 	</insert>
-	<!-- 更新电脑预申请 -->
-	<update id="updatePreApplication" parameterType="ComputerBean">
-		UPDATE Computer
-		<trim prefix="set" suffixOverrides=",">
-			<if test="deptId != null and deptId != '' ">
-				DepartmentID = #{deptId},
-			</if>
-			<if test="positionId != null and positionId != '' ">
-				Job_ID = #{positionId},
-			</if>
-			<if test="submitTime != null and submitTime != '' ">
-				Start_time = #{submitTime},
-			</if>
-			<if test="useTime != null and useTime != '' ">
-				renshi_time = #{useTime},
-			</if>
-			<if test="userName != null and userName != '' ">
-				User_name = #{userName},
-			</if>
+    <!-- 更新电脑预申请 -->
+    <update id="updatePreApplication" parameterType="ComputerBean">
+        UPDATE Computer
+        <trim prefix="set" suffixOverrides=",">
+            <if test="deptId != null and deptId != '' ">
+                DepartmentID = #{deptId},
+            </if>
+            <if test="positionId != null and positionId != '' ">
+                Job_ID = #{positionId},
+            </if>
+            <if test="submitTime != null and submitTime != '' ">
+                Start_time = #{submitTime},
+            </if>
+            <if test="useTime != null and useTime != '' ">
+                renshi_time = #{useTime},
+            </if>
+            <if test="userName != null and userName != '' ">
+                User_name = #{userName},
+            </if>
             <if test="leaderAudit != null and leaderAudit != '' ">
                 Zhu_Advice = #{leaderAudit},
             </if>
@@ -146,25 +150,25 @@
             <if test="principalAudit != null and principalAudit != '' ">
                 Fu_Advice = #{principalAudit},
             </if>
-			<if test="principalIsSee != null and principalIsSee != '' ">
-				Fu_see = #{principalIsSee},
-			</if>
+            <if test="principalIsSee != null and principalIsSee != '' ">
+                Fu_see = #{principalIsSee},
+            </if>
             <if test="handIsSee != null and handIsSee != '' ">
                 Dui_see = #{handIsSee},
             </if>
-			Is_Ing = NULL,
-			Shuoming = NULL,
+            Is_Ing = NULL,
+            Shuoming = NULL,
             Pei_Jiedan_ID = NULL,
             Prepare_name = NULL,
             prepare_time = NULL,
             Is_Pei = NULL,
-		</trim>
-		WHERE
-		    ID = #{id}
-	</update>
+        </trim>
+        WHERE
+        ID = #{id}
+    </update>
 
-	<!-- 查询岗位信息 -->
-	<select id="queryPositionInfo" resultType="PositionInfo">
+    <!-- 查询岗位信息 -->
+    <select id="queryPositionInfo" resultType="PositionInfo">
 		SELECT
 			P.Position_ID positionId,
 			P.Position_Name positionName
@@ -172,46 +176,56 @@
 		Position_Data P
 	</select>
 
-	<!-- 查询所在部门主管信息  -->
-	<select id="queryLeaderInfo" resultType="LeaderInfo">
-		SELECT
-		Account_ID leaderId,
-		Account_Name leaderName
-		FROM
-		Account_Data A
-		LEFT JOIN T_Employee_Basic EMP ON A.Account_ID = EMP.Account
-		LEFT JOIN T_Department DEPT ON EMP.Department_ID = DEPT.ID
-		LEFT JOIN Position_Data PD ON A.Position_ID = PD.Position_ID
-		LEFT JOIN Position_Type PT ON PD.PositionType_ID = PT.PositionType_ID
-		WHERE
-		EMP.IsDelete = '0' AND EMP.State = '1'
-		<if test="deptId != null and deptId != '' ">
-			<choose>
-				<when test="deptId == 0">
-					AND DEPT.ID = 0
-				</when>
-				<when test="deptId == 50">
-					AND DEPT.ID  = 50
-					AND (PD.Position_Name = '副总经理' OR PD.Position_Name = '集团总经理助理')
-				</when>
-				<when test="deptId == 60">
-					AND DEPT.ID  = 39
-					AND PD.Position_Name = '办公室主任'
-				</when>
-				<otherwise>
-					AND (PT.PositionType_ID = 5 OR Position_Name = '项目经理' OR PT.PositionType_ID = 6)
-					AND DEPT.ID IN (
-					SELECT ID FROM [dbo].[f_GetChild] (#{deptId})
-					UNION
-					SELECT ID FROM [dbo].[fnGetFather] (#{deptId})
-					)
-				</otherwise>
-			</choose>
-		</if>
-	</select>
+    <!-- 查询所在部门主管信息  -->
+    <select id="queryLeaderInfo" parameterType="LeaderInfo" resultType="LeaderInfo">
+        SELECT
+        A.Account_ID leaderId,
+        A.Account_Name leaderName
+        FROM
+        Account_Data A
+        LEFT JOIN T_Employee_Basic EMP ON A.Account_ID = EMP.Account
+        LEFT JOIN T_Department DEPT ON EMP.Department_ID = DEPT.ID
+        LEFT JOIN Position_Data PD ON A.Position_ID = PD.Position_ID
+        LEFT JOIN Position_Type PT ON PD.PositionType_ID = PT.PositionType_ID
+        WHERE
+        EMP.IsDelete = '0' AND EMP.State = '1'
+        <if test="deptId != 60 and deptId != 50">
+            AND (PT.PositionType_ID = 5 OR PD.Position_Name = '项目经理' or PT.PositionType_ID = 6)
+            AND (DEPT.ID
+            <choose>
+                <when test="deptLeave == 0">
+                    IN (#{deptId}))
+                </when>
+                <when test="deptLeave == 1">
+                    IN (SELECT ID FROM [dbo].[f_GetChild] (#{deptId})))
+                </when>
+                <when test="deptLeave == 2">
+                    IN(SELECT ID FROM T_Department WHERE ParentID = #{deptId})
+                    OR DEPT.ID IN(SELECT ID FROM T_Department WHERE ParentID
+                    IN (SELECT ParentID FROM T_Department WHERE ID = #{deptId})))
+                </when>
+                <when test="deptLeave == 3">
+                    = #{deptId}
+                    OR DEPT.ID = (SELECT ParentID FROM T_Department WHERE ID = #{deptId})
+                    OR DEPT.ID IN (SELECT ID FROM T_Department WHERE ParentID IN (SELECT ParentID FROM T_Department WHERE ID = #{deptId}))
+                    OR DEPT.ID IN (SELECT ID FROM T_Department WHERE ParentID IN (SELECT ParentID FROM T_Department WHERE ID IN
+                    (SELECT ParentID FROM T_Department WHERE ID = #{deptId}))))
+                </when>
+            </choose>
+        </if>
+        <if test="deptId == 60">
+            AND DEPT.ID = 39
+            AND PD.Position_Name = '办公室主任'
+        </if>
+        <if test="deptId == 50">
+            AND DEPT.ID = 50
+            AND (PD.Position_Name = '副总经理' OR PD.Position_Name = '集团总经理助理')
+        </if>
+        ORDER BY A.Account_ID, A.Account_Name
+    </select>
 
-	<!-- 查询对接人信息  -->
-	<select id="queryHandInfo" resultType="HandInfo">
+    <!-- 查询对接人信息  -->
+    <select id="queryHandInfo" resultType="HandInfo">
 		SELECT
 			Account_ID handId,
 			Account_Name handName
@@ -224,6 +238,7 @@
 			AND EMP.Department_ID = 23
 	</select>
 
+    <!-- 审批对接操作   -->
     <update id="checkPreApp" parameterType="ComputerBean">
         UPDATE Computer
         <trim prefix="set" suffixOverrides=",">
@@ -245,17 +260,40 @@
             <if test=" finishTime!= null and finishTime != '' ">
                 prepare_time = #{finishTime},
             </if>
-            <if test="handName != null and handName != '' ">
-                Prepare_name = #{handName},
-            </if>
             <if test="remark != null and remark != '' ">
                 Shuoming = #{remark},
             </if>
             <if test="status != null and status != '' ">
                 Is_Ing = #{status},
             </if>
+            <if test="handName != null and handName != '' ">
+                Prepare_name = #{handName},
+            </if>
+            <if test="peiJieIsSee != null and peiJieIsSee != '' ">
+                Pei_Jiedan_ID_see = #{peiJieIsSee},
+            </if>
         </trim>
         WHERE
-            ID = #{id}
+        ID = #{id}
     </update>
+
+    <!--  是否是一级部门   -->
+    <select id="isZeroForDept" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM T_Department WHERE ParentID = 0 AND  ID = #{deptId}
+    </select>
+
+    <!--  是否是二级部门   -->
+    <select id="isOneForDept" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM T_Department WHERE ID
+        IN (SELECT ID FROM T_Department WHERE ParentID
+        IN (SELECT ID FROM T_Department WHERE ParentID = 0)) AND ID = #{deptId}
+    </select>
+
+    <!--  是否是三级部门   -->
+    <select id="isTwoForDept" parameterType="java.lang.String" resultType="java.lang.Integer">
+        SELECT COUNT(*) FROM T_Department WHERE ID
+        IN (SELECT ID FROM T_Department WHERE ParentID
+        IN (SELECT ID FROM T_Department WHERE ParentID
+        IN (SELECT ID FROM T_Department WHERE ParentID = 0))) AND ID = #{deptId}
+    </select>
 </mapper>

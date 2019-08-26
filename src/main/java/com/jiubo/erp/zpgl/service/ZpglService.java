@@ -31,16 +31,6 @@ public interface ZpglService {
     void addRecruitChannel(RecruitChannelBean recruitChannelBean) throws MessageException;
 
     /**
-     * @desc:删除招聘渠道
-     * @param:
-     * @return: void
-     * @Create at: 2019-05-09
-     * @author: dx
-     * @version: 1.0
-     */
-    void deleteRecruitChannel(String id) throws MessageException;
-
-    /**
      * @desc:修改招聘渠道
      * @param:
      * @return: void
@@ -49,6 +39,16 @@ public interface ZpglService {
      * @version: 1.0
      */
     void updateRecruitChannel(RecruitChannelBean recruitChannelBean) throws MessageException;
+
+    /**
+     * @desc:删除招聘渠道
+     * @param:
+     * @return: void
+     * @Create at: 2019-05-09
+     * @author: dx
+     * @version: 1.0
+     */
+    void deleteRecruitChannel(String id) throws MessageException;
 
     /**
      * @desc:查询面试信息
@@ -111,16 +111,6 @@ public interface ZpglService {
     void addZpPlan(ZpPlanBean zpPlanBean) throws MessageException;
 
     /**
-     * @desc:删除招聘计划
-     * @param:
-     * @return: void
-     * @Create at: 2019-05-10
-     * @author: dx
-     * @version: 1.0
-     */
-    void deleteZpPlan(String id) throws MessageException;
-
-    /**
      * @desc:修改招聘计划
      * @param:
      * @return: void
@@ -129,6 +119,16 @@ public interface ZpglService {
      * @version: 1.0
      */
     void updateZpPlan(ZpPlanBean zpPlanBean) throws MessageException;
+
+    /**
+     * @desc:删除招聘计划
+     * @param:
+     * @return: void
+     * @Create at: 2019-05-10
+     * @author: dx
+     * @version: 1.0
+     */
+    void deleteZpPlan(String id) throws MessageException;
 
     /**
      * @desc:查询招聘发布信息
@@ -150,6 +150,15 @@ public interface ZpglService {
      */
     void addZpPublish(ZpPublishBean zpPublishBean) throws MessageException;
 
+    /**
+     * @desc:修改招聘发布信息
+     * @param:
+     * @return: void
+     * @Create at: 2019-05-11
+     * @author: dx
+     * @version: 1.0
+     */
+    void updateZpPublish(ZpPublishBean zpPublishBean) throws MessageException;
 
     /**
      * @desc:删除招聘发布信息
@@ -160,16 +169,6 @@ public interface ZpglService {
      * @version: 1.0
      */
     void deleteZpPublish(String id) throws MessageException;
-
-    /**
-     * @desc:修改招聘发布信息
-     * @param:
-     * @return: void
-     * @Create at: 2019-05-11
-     * @author: dx
-     * @version: 1.0
-     */
-    void updateZpPublish(ZpPublishBean zpPublishBean) throws MessageException;
 
     void test() throws MessageException;
 }
