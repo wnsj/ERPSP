@@ -288,6 +288,24 @@ public class ZpglServiceImpl implements ZpglService {
         }
     }
 
+    /**
+     * @param recruitDataBean
+     * @return
+     * @Description: 入职员工关联面试信息
+     * @author: DingDong
+     * @date: 2019年8月26日
+     * @version: V1.0
+     */
+    @Override
+    public void relateRecruitData(RecruitDataBean recruitDataBean) throws MessageException {
+        logger.info("----------开始关联面试信息,方法:relateRecruitData----------");
+        try {
+            zpglDao.relateRecruitData(recruitDataBean);
+        } catch (Exception e) {
+            throw new MessageException(e.getMessage());
+        }
+    }
+
     @Override
     public void test() throws MessageException {
         //测试bind待解决

@@ -273,7 +273,7 @@
                 </choose>
             </if>
         </where>
-        ORDER BY  B.ParentID, B.OrderNum
+        ORDER BY B.ParentID, B.OrderNum
     </select>
 
     <!-- 添加招聘计划 -->
@@ -322,16 +322,16 @@
     <!-- 查询招聘发布信息 -->
     <select id="queryZpPublish" parameterType="ZpPublishBean" resultType="ZpPublishBean">
         SELECT
-            P.Publish_ID publishId,
-            P.Channel,
-            P.Position,
-            C.RecruitChannel_Name channelName,
-            PD.Position_Name positionName,
-            P.PublishDate,
-            P.PublishNum,
-            P.PhoneNum
+        P.Publish_ID publishId,
+        P.Channel,
+        P.Position,
+        C.RecruitChannel_Name channelName,
+        PD.Position_Name positionName,
+        P.PublishDate,
+        P.PublishNum,
+        P.PhoneNum
         FROM
-            ZP_Publish P
+        ZP_Publish P
         LEFT JOIN ZP_RecruitChannel C ON P.Channel = C.RecruitChannel_ID
         LEFT JOIN Position_Data PD ON PD.Position_ID = P.Position
         <where>
@@ -373,5 +373,14 @@
         , PHONENUM = #{phoneNum}
         , PUBLISHDATE = #{publishDate}
         WHERE PUBLISH_ID = #{publishId}
+    </update>
+
+    <!-- 入职员工关联面试信息 -->
+    <update id="relateRecruitData" parameterType="RecruitDataBean">
+            UPDATE T_Employee_Basic
+            SET
+                RecruitDataID = #{id}
+            WHERE
+                Account = #{account}
     </update>
 </mapper>
