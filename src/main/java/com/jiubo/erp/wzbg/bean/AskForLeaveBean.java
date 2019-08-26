@@ -47,6 +47,7 @@ public class AskForLeaveBean {
 	private String isSee;
 	private String step;
 	private String baobeiId;
+	private String handleState;//处理状态
 	
 	public AskForLeaveBean() {
 		// TODO Auto-generated constructor stub
@@ -71,6 +72,17 @@ public class AskForLeaveBean {
 	}
 
 
+	public static long getSerialVersionUID() {
+		return serialVersionUID;
+	}
+
+	public String getHandleState() {
+		return handleState;
+	}
+
+	public void setHandleState(String handleState) {
+		this.handleState = handleState;
+	}
 
 	public int getId() {
 		return id;

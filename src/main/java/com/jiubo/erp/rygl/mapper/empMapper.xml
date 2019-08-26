@@ -139,6 +139,7 @@
 		a.Birth AS birth,
 		a.EntryDate AS entryDate,
 		a.PositiveDate AS PositiveDate,
+		a.RecruitDataID AS recruitDataID,
 		CASE WHEN a.ResignDate&lt;a.EntryDate OR a.State=1 THEN NULL
 		ELSE a.ResignDate 
 		END AS ResignDate,

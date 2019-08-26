@@ -22,6 +22,7 @@ public class QueryResult {
     private String resignType;//离职类型
     private String resignReasonId;//离职原因id
     private String resignName;//离职原因
+    private String recruitDataID;//关联面试Id
 
     public QueryResult() {
         super();
@@ -63,6 +64,14 @@ public class QueryResult {
         this.resignName = resignName;
     }
 
+
+    public String getRecruitDataID() {
+        return recruitDataID;
+    }
+
+    public void setRecruitDataID(String recruitDataID) {
+        this.recruitDataID = recruitDataID;
+    }
 
     public String getResignReasonId() {
         return resignReasonId;

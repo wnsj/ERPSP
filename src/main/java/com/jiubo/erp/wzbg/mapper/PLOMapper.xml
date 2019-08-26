@@ -44,37 +44,26 @@
         time2
         ,CASE
         WHEN LQ.Result2 = 1 THEN '同意'
-        WHEN LQ.Result2 =
-        0 THEN '不同意'
-        ELSE NULL END
-        AS result2
+        WHEN LQ.Result2 = 0 THEN '不同意' ELSE NULL END AS result2
         ,LQ.Remark2 AS remark2
         ,LQ.Account3 AS account3
         ,AD3.Account_Name AS accountName3
         ,LQ.Time3 AS time3
         ,CASE WHEN
         LQ.Result3 = 1 THEN '同意'
-        WHEN LQ.Result3 =
-        0 THEN '不同意'
-        ELSE NULL END AS
-        result3
+        WHEN LQ.Result3 = 0 THEN '不同意' ELSE NULL END AS result3
         ,LQ.Remark3 AS remark3
         ,LQ.Account4 AS account4
         ,AD4.Account_Name AS accountName4
         ,LQ.Time4 AS time4
-        ,CASE WHEN
-        LQ.Result4 = 1 THEN '同意'
-        WHEN LQ.Result4 =
-        0 THEN '不同意'
-        ELSE NULL END AS
-        result4
+        ,CASE WHEN LQ.Result4 = 1 THEN '同意' WHEN LQ.Result4 = 0 THEN '不同意'
+        ELSE NULL END AS result4
         ,LQ.Remark4 AS remark4
         ,LQ.update_Time AS updateTime
-        ,LQ.isSee AS
-        isSee
-        ,LQ.step AS
-        step
+        ,LQ.isSee AS isSee
+        ,LQ.step AS step
         ,LQ.BaobeiID AS baobeiID
+
         FROM
         Leave_Qingjia LQ
         LEFT
@@ -126,14 +115,10 @@
                 AND LQ.Result4 IS NULL
             </if>
             <if test=" handleState == '处理中'">
-                AND LQ.Result4 IS NULL AND LQ.Result1 IS NOT NULL AND
-                LQ.Result1 != 0
-                AND (LQ.Result2 IS NULL OR LQ.Result2 != 0) AND
-                (LQ.Result3 IS NULL
-                OR LQ.Result3 != 0)
+                AND LQ.Result1 = 1 AND LQ.Result2 != 0 AND LQ.Result3 != 0 AND LQ.Result4 IS NULL
             </if>
             <if test=" handleState == '已通过'">
-                AND LQ.Time4 IS NOT NULL AND LQ.Result4 = 1
+                AND LQ.Result4 = 1
             </if>
             <if test=" handleState == '未通过'">
                 AND (LQ.Result1 = 0 OR LQ.Result2 = 0 OR LQ.Result3 = 0
@@ -1097,23 +1082,17 @@
             </if>
             <if test=" handleState == '待处理'">
                 AND LD.Result1 IS NULL AND LD.Result2 IS NULL AND
-                LQ.Result3 IS NULL
+                LD.Result3 IS NULL
                 AND LD.Result4 IS NULL
             </if>
             <if test=" handleState == '处理中'">
-                AND LD.Result4 IS NULL AND LD.Result1 IS NOT NULL AND
-                LQ.Result1 != 0
-                AND (LD.Result2 IS NULL OR LD.Result2 != 0) AND
-                (LD.Result3 IS NULL
-                OR LD.Result3 != 0)
+                 AND LD.Result1 = 1 AND LD.Result2 != 0 AND  LD.Result3 != 0 AND LD.Result4 IS NULL
             </if>
             <if test=" handleState == '已通过'">
                 AND LD.Time4 IS NOT NULL AND LD.Result4 = 1
             </if>
             <if test=" handleState == '未通过'">
-                AND (LD.Result1 = 0 OR LD.Result2 = 0 OR LD.Result3 = 0
-                OR
-                LD.Result4 = 0)
+                AND (LD.Result1 = 0 OR LD.Result2 = 0 OR LD.Result3 = 0 OR LD.Result4 = 0)
             </if>
 
         </trim>
