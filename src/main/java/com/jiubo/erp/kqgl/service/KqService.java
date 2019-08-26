@@ -12,9 +12,6 @@ import com.jiubo.erp.kqgl.vo.KqInfoResult;
 import com.jiubo.erp.kqgl.vo.PunchRecord;
 
 public interface KqService {
-    //查询考勤人员基础信息列表
-    List<KqInfoResult> selectKqInfoList(AttParam ap);
-
     //公司考勤
     public List<KqInfoResult> allEMPOfFirmKQList(AttParam ap);
 
@@ -26,6 +23,13 @@ public interface KqService {
 
     //人员考勤
     public List<PersonalKQBean> empkqList(AttParam ap);
+
+    //考勤统计报表
+    public List<PersonalKQBean> kqCountTable(AttParam ap);
+
+
+    //查询考勤人员基础信息列表
+    List<KqInfoResult> selectKqInfoList(AttParam ap);
 
     //查询考勤人员班次信息列表
     List<KqInfoResult> searchKqInfoList(AttParam ap);
