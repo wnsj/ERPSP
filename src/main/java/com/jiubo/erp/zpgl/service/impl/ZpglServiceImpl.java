@@ -307,24 +307,6 @@ public class ZpglServiceImpl implements ZpglService {
         }
     }
 
-    /**
-     * @param
-     * @return
-     * @Description: //同步面试信息表入职状态
-     * @author: DingDong
-     * @date: 2019年8月26日
-     * @version: V1.0
-     */
-    @Override
-    public void syncEntry(String id) throws MessageException {
-        logger.info("----------开始同步入职,方法:syncEntry----------");
-        try {
-            zpglDao.syncEntry(id);
-        } catch (Exception e) {
-            throw new MessageException(e.getMessage());
-        }
-    }
-
     @Override
     public void test() throws MessageException {
         //测试bind待解决
