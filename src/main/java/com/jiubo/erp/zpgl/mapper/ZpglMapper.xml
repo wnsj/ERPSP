@@ -150,6 +150,11 @@
             <if test="atSchool != null and atSchool !=''">
                 AND A.ATSCHOOL = #{atSchool}
             </if>
+            <if test="account != null and account !=''">
+                AND A.ID = ( SELECT EMP.RecruitDataID
+                FROM T_Employee_Basic EMP
+                WHERE EMP.Account = #{account} )
+            </if>
         </where>
     </select>
 
@@ -384,6 +389,7 @@
             Account = #{account}
     </update>
 
+    <!-- 同步面试信息表入职状态 -->
     <update id="syncEntry">
         UPDATE ZP_RECRUITDATA
         SET isEntry = 1

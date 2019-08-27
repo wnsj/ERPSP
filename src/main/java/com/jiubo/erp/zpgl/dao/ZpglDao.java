@@ -62,4 +62,5 @@ public interface ZpglDao {
 
     //同步面试信息表入职状态
     void syncEntry(String id);
+
 }
