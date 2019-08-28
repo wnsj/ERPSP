@@ -101,10 +101,10 @@
                         AND E.State IS NULL
                     </when>
                     <when test="isEntry == 1">
-                        AND E.State == 1
+                        AND E.State = 1
                     </when>
                     <when test="isEntry == 2">
-                        AND E.State == 2
+                        AND E.State = 2
                     </when>
                 </choose>
             </if>
