@@ -60,7 +60,4 @@ public interface ZpglDao {
     //入职员工关联面试信息
     void relateRecruitData(RecruitDataBean recruitDataBean);
 
-    //同步面试信息表入职状态
-    void syncEntry(String id);
-
 }
