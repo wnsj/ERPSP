@@ -301,7 +301,6 @@ public class ZpglServiceImpl implements ZpglService {
         logger.info("----------开始关联面试信息,方法:relateRecruitData----------");
         try {
             zpglDao.relateRecruitData(recruitDataBean);
-            zpglDao.syncEntry(recruitDataBean.getId());
         } catch (Exception e) {
             throw new MessageException(e.getMessage());
         }
