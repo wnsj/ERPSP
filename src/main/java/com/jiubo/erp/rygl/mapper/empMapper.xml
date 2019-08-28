@@ -315,11 +315,11 @@
 		insert into
 		dbo.T_Employee_Basic
 		(Name,Sex,JobNum,Department_id,Birth,EntryDate,Photo,CreateDate,
-		UpdateDate,IsDelete,State,CreateUser,Account,Remark,Parent_ID,ResignType,ResignReason)
+		UpdateDate,IsDelete,State,CreateUser,Account,Remark,Parent_ID,ResignType,ResignReason,RecruitDataID)
 		values
 		(#{name},#{sex},#{jobNum},#{departId},#{birth},#{entryDate},
 		#{photo},#{createDate},#{updateDate},#{isDelete},#{state},
-		#{createUser},#{accountId},#{remark},#{parentId},#{resignType},#{resignReason})
+		#{createUser},#{accountId},#{remark},#{parentId},#{resignType},#{resignReason},#{recruitDataID})
 	</insert>
 
 	<!-- 插入入职人员 账户信息 -->
