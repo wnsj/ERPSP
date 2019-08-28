@@ -486,7 +486,40 @@ public class EmpController {
 
 		return uList;
 	}
-	
+    /**
+     * emp  详细信息
+     *
+     * @param response
+     * @param request
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/detailInfo")
+    public JSONObject detailInfo(HttpServletResponse response, HttpServletRequest request) {
+        UserInfo uf = new UserInfo();
+        JSONObject result = new JSONObject();
+        String retCode = Constant.Result.SUCCESS;
+        String retMsg = Constant.Result.SUCCESS_MSG;
+        try {
+            String str = ToolClass.getStrFromInputStream(request);
+            if (StringUtils.isBlank(str))
+                throw new MessageException("参数接收失败！");
+            uf = MapUtil.transJsonStrToObjectIgnoreCase(str, UserInfo.class);
+
+            result.put("resData", this.service.searchUDInfo(uf)) ;
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = e.getMessage();
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            log.error(Constant.Result.RETMSG, e);
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+            return result;
+        }
+    }
 	
 	/**
 	 * 初始化当前账号密码

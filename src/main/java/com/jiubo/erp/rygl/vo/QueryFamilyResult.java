@@ -18,20 +18,30 @@ public class QueryFamilyResult {
     private String uAccountName;//ERP账号id
     private String type;//add，modify 添加或者修改
 
+    private String recruitDataID;//面试入职人员家庭信息
+
     public QueryFamilyResult() {
 		// TODO Auto-generated constructor stub
 	}
     
     @Override
-	public String toString() {
-		return "QueryFamilyResult [ID=" + ID + ", jobnum=" + jobnum + ", name=" + name + ", appellation=" + appellation
-				+ ", chname=" + chname + ", birth=" + birth + ", workAddress=" + workAddress + ", position=" + position
-				+ ", phone=" + phone + ", wechat=" + wechat + ", famAddress=" + famAddress + ", resignType="
-				+ resignType + ", resignReason=" + resignReason + ", uAccountId=" + uAccountId + ", uAccountName="
-				+ uAccountName + ", type=" + type + "]";
-	}
+    public String toString() {
+        return "QueryFamilyResult [ID=" + ID + ", jobnum=" + jobnum + ", name=" + name + ", appellation=" + appellation
+                + ", chname=" + chname + ", birth=" + birth + ", workAddress=" + workAddress + ", position=" + position
+                + ", phone=" + phone + ", wechat=" + wechat + ", famAddress=" + famAddress + ", resignType="
+                + resignType + ", resignReason=" + resignReason + ", uAccountId=" + uAccountId + ", uAccountName="
+                + uAccountName + ", type=" + type + "]";
+    }
 
-	public String getuAccountName() {
+    public String getRecruitDataID() {
+        return recruitDataID;
+    }
+
+    public void setRecruitDataID(String recruitDataID) {
+        this.recruitDataID = recruitDataID;
+    }
+
+    public String getuAccountName() {
         return uAccountName;
     }
 
