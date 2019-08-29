@@ -614,6 +614,11 @@ public class OfficeServiceImpl implements OfficeService {
         }
         return dataList;
     }
+
+    @Override
+    public void updateOfficeSuppliesSee(OfficeSuppliesDataBean officeSuppliesDataBean) throws MessageException {
+        wzbgDao.updateOfficeSuppliesSee(officeSuppliesDataBean);
+    }
 }
   /*if ("1".equals(officeUserDataBean.getOfficeId()) && "3".equals(dataBean.getOfficeId())||
                 "2".equals(officeUserDataBean.getOfficeId()) && "3".equals(dataBean.getOfficeId())||

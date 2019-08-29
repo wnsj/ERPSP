@@ -1035,4 +1035,50 @@
             </choose>
         </if>
     </select>
+
+    <!--    修改各领导办公用品申请信息查看情况-->
+    <update id="updateOfficeSuppliesSee">
+        UPDATE OFFICESUPPLIESDATA
+        SET
+        <trim prefixOverrides=",">
+            <if test="zhuSee != null and zhuSee != ''">
+                ,ZHU_SEE = #{zhuSee}
+            </if>
+            <if test="renSee != null and renSee != ''">
+                ,REN_SEE = #{renSee}
+            </if>
+            <if test="shenSee != null and shenSee != ''">
+                ,SHEN_SEE = #{shenSee}
+            </if>
+            <if test="renShiSee != null and renShiSee != ''">
+                ,RENSHI_SEE = #{renShiSee}
+            </if>
+            <if test="fuZongSee != null and fuZongSee != ''">
+                ,FUZONG_SEE = #{fuZongSee}
+            </if>
+            <if test="caiWuSee != null and caiWuSee != ''">
+                ,CAIWU_SEE = #{caiWuSee}
+            </if>
+            <if test="renOtherSee != null and renOtherSee != ''">
+                ,REN_OTHERSEE = #{renOtherSee}
+            </if>
+        </trim>
+        <where>
+            <if test="accountId1 != null and accountId1 != ''">
+                AND ACCOUNTID_1 = #{accountId1}
+            </if>
+            <if test="accountId2 != null and accountId2 != ''">
+                AND ACCOUNTID_2 = #{accountId2}
+            </if>
+            <if test="renShiId != null and renShiId != ''">
+                AND RENSHI_ID = #{renShiId}
+            </if>
+            <if test="fuZongId != null and fuZongId != ''">
+                AND FUZONG_ID = #{fuZongId}
+            </if>
+            <if test="caiWuId != null and caiWuId != ''">
+                AND CAIWU_ID = #{caiWuId}
+            </if>
+        </where>
+    </update>
 </mapper>

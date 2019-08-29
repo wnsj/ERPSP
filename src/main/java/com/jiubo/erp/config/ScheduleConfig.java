@@ -1,16 +1,13 @@
 package com.jiubo.erp.config;
 
-import com.baomidou.mybatisplus.core.incrementer.IKeyGenerator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.interceptor.AsyncUncaughtExceptionHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.TaskScheduler;
 import org.springframework.scheduling.annotation.*;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
-import org.springframework.scheduling.config.CronTask;
 import org.springframework.scheduling.config.ScheduledTaskRegistrar;
 import org.springframework.scheduling.support.CronTrigger;
 
@@ -23,7 +20,7 @@ import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
 /**
- * @desc:
+ * @desc:任务调度配置
  * @date: 2019-08-14 17:21
  * @author: dx
  * @version: 1.0
@@ -39,7 +36,10 @@ public class ScheduleConfig implements SchedulingConfigurer, AsyncConfigurer {
 
     private ThreadPoolTaskScheduler tpts = null;
 
+    //存储所有动态任务
     private static Map<String, ScheduledFuture<?>> scheduledFutureMap = new ConcurrentHashMap<String, ScheduledFuture<?>>();
+
+    private ThreadPoolTaskExecutor executor = null;
 
     //配置任务调度线程池
     @Override
@@ -55,7 +55,7 @@ public class ScheduleConfig implements SchedulingConfigurer, AsyncConfigurer {
         String method = "checkState";
         String taskExpr = "0/15 * * * * ?";
         Map<String, Object> params = new HashMap<String, Object>();
-        //addCornTaskInstance(cls,method,taskExpr, params);
+        addCornTaskInstance(cls,method,taskExpr, params);
     }
 
     @Bean
@@ -78,7 +78,7 @@ public class ScheduleConfig implements SchedulingConfigurer, AsyncConfigurer {
     @Bean
     public Executor taskExecutor() {
         //线程池配置
-        ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
+        executor = new ThreadPoolTaskExecutor();
         executor.setCorePoolSize(20);// 配置核心线程数
         executor.setMaxPoolSize(50);// 配置最大线程数
         executor.setQueueCapacity(100);// 配置缓存队列大小
@@ -102,7 +102,7 @@ public class ScheduleConfig implements SchedulingConfigurer, AsyncConfigurer {
     class SpringAsyncExceptionHandler implements AsyncUncaughtExceptionHandler {
         @Override
         public void handleUncaughtException(Throwable arg0, Method arg1, Object... arg2) {
-            System.out.println("Exception occurs in async method" + arg0);
+            log.error("Exception occurs in async method(异步线程发生异常)",arg0);
         }
     }
 
@@ -122,6 +122,11 @@ public class ScheduleConfig implements SchedulingConfigurer, AsyncConfigurer {
             }
         }, new CronTrigger(taskExpr));
         scheduledFutureMap.put("1", scheduledFuture);
+    }
+
+    //由线程池执行任务
+    public void excuete(Runnable task){
+        executor.execute(task);
     }
 }
 

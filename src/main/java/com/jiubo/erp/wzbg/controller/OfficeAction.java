@@ -816,4 +816,40 @@ public class OfficeAction {
             return result;
         }
     }
+
+    /* *
+     * @desc:修改各领导办公用品申请信息查看情况
+     * @author: dx
+     * @date: 2019-08-28 10:24:54
+     * @param request :
+     * @param response :
+     * @param params :
+     * @return: com.alibaba.fastjson.JSONObject
+     * @throws:
+     * @version: 1.0
+     **/
+    //http://127.0.0.1:8080/Erp/officeAction/updateOfficeSuppliesSee
+    @ResponseBody
+    @RequestMapping(value = "/updateOfficeSuppliesSee", method = RequestMethod.POST)
+    public JSONObject updateOfficeSuppliesSee(HttpServletRequest request, HttpServletResponse response, @RequestBody String params) {
+        JSONObject result = new JSONObject();
+        String retCode = Constant.Result.SUCCESS;
+        String retMsg = Constant.Result.SUCCESS_MSG;
+        try {
+            if (StringUtils.isBlank(params)) throw new MessageException("参数接收失败!");
+            OfficeSuppliesDataBean officeSuppliesDataBean = JSONObject.parseObject(params, OfficeSuppliesDataBean.class);
+            wzbgService.updateOfficeSuppliesSee(officeSuppliesDataBean);
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = e.getMessage();
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(Constant.Result.RETMSG, e);
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+            return result;
+        }
+    }
 }

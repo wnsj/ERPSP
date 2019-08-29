@@ -1,24 +1,26 @@
 package com.jiubo.erp;
 
-import com.alibaba.fastjson.JSON;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.jiubo.erp.wzbg.bean.DimissionApplyBean;
 import com.jiubo.erp.wzbg.dao.DimissionApplyDao;
 import com.jiubo.erp.wzbg.service.DimissionApplyService;
-import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
-import java.util.List;
+import javax.servlet.http.HttpServletRequest;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.IdentityHashMap;
+import java.util.Map;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public class ErpApplicationTests {
 
     @Autowired
@@ -47,7 +49,7 @@ public class ErpApplicationTests {
         Page<DimissionApplyBean> page = new Page<DimissionApplyBean>();
         page.setCurrent(0);
         page.setSize(2);
-        //IPage<DimissionApplyBean> dimissionApplyBeanIPage = dimissionApplyDao.selectPage(page, null);
+//        IPage<DimissionApplyBean> dimissionApplyBeanIPage = dimissionApplyDao.selectPage(page, null);
         //IPage<DimissionApplyBean> dimissionApplyBeanIPage =dimissionApplyDao.queryDimissionApplyByPage(page);
         //System.out.println(JSON.toJSONString(dimissionApplyDao.queryDimissionApplyByPage(page)));
 //		DimissionApplyBean bean = new DimissionApplyBean();
@@ -194,15 +196,95 @@ public class ErpApplicationTests {
 //        sql.append("    WHERE Account_State = '在用' AND Position_Type.PositionType_ID = 6  ");
 //        sql.append("   AND Department_ID = 39 ");
 
-        sql.append("    SELECT Emp_name,V.Account_ID,Position_Name,Name ");
-        sql.append("    FROM V_AccountData V ");
-        sql.append("    LEFT JOIN Position_Data PD ");
-        sql.append("    ON PD.Position_ID = V.Position_ID ");
-        sql.append("    LEFT JOIN T_Department TD ");
-        sql.append("    ON TD.ID = V.Department_ID ");
-        sql.append("    LEFT JOIN Account_Rule_Data ARD ");
-        sql.append("    ON V.Account_ID  = ARD.Account_ID ");
-        sql.append("    WHERE Account_State = '在用' AND ARD.Rule_ID = 76 ");
+//        sql.append("    SELECT Emp_name,V.Account_ID,Position_Name,Name ");
+//        sql.append("    FROM V_AccountData V ");
+//        sql.append("    LEFT JOIN Position_Data PD ");
+//        sql.append("    ON PD.Position_ID = V.Position_ID ");
+//        sql.append("    LEFT JOIN T_Department TD ");
+//        sql.append("    ON TD.ID = V.Department_ID ");
+//        sql.append("    LEFT JOIN Account_Rule_Data ARD ");
+//        sql.append("    ON V.Account_ID  = ARD.Account_ID ");
+//        sql.append("    WHERE Account_State = '在用' AND ARD.Rule_ID = 76 ");
+
+
+//        sql.append("    SELECT Emp_name, Account_ID, Position_Name, Name, PositionType_Name ");
+//        sql.append("    FROM V_AccountData ");
+//        sql.append("    LEFT JOIN Position_Data ");
+//        sql.append("    ON Position_Data.Position_ID = V_AccountData.Position_ID ");
+//        sql.append("    LEFT ");
+//        sql.append("    JOIN T_Department ");
+//        sql.append("    ON T_Department.ID = V_AccountData.Department_ID ");
+//        sql.append("    LEFT ");
+//        sql.append("    JOIN Position_Type ");
+//        sql.append("    ON Position_Data.PositionType_ID = Position_Type.PositionType_ID ");
+//        sql.append("    WHERE Account_State = '在用' AND Position_Type.PositionType_ID = 6  ");
+//        sql.append("   AND Department_ID = 39 ");
+
+//        sql.append("    SELECT Emp_name,Account_ID,Position_Name,Name,PositionType_Name ");
+//        sql.append("    FROM V_AccountData ");
+//        sql.append("    LEFT JOIN Position_Data ");
+//        sql.append("    ON Position_Data.Position_ID = V_AccountData.Position_ID ");
+//        sql.append("    LEFT ");
+//        sql.append("    JOIN T_Department ");
+//        sql.append("    ON T_Department.ID = V_AccountData.Department_ID ");
+//        sql.append("    LEFT ");
+//        sql.append("    JOIN Position_Type ");
+//        sql.append("    ON Position_Data.PositionType_ID = Position_Type.PositionType_ID ");
+//        sql.append("    WHERE Account_State = '在用' AND Department_ID = 50 ");
+
+//        sql.append("    SELECT G.ID AS id ");
+//        sql.append("    ,G.Go_Out_Apply_Time AS apply_time ");
+//        sql.append("    ,T.Name AS name ");
+//        sql.append("    ,Go_Out_Name ");
+//        sql.append("    ,A2.Account_Name AS a2name ");
+//        sql.append("    ,G.Go_Out_Address AS address ");
+//        sql.append("    ,G.Go_Out_Region AS region ");
+//        sql.append("    ,G.Go_Out_Go_Time AS gotime ");
+//        sql.append("    ,A3.Account_Name AS a3name ");
+//        sql.append("    ,Go_Out_Come_Time ");
+//        sql.append("    ,CASE WHEN Go_Out_OtherType = 1 THEN '班中外出' ");
+//        sql.append("    WHEN Go_Out_OtherType = 2 THEN '班前外出' ");
+//        sql.append("    END AS Go_Out_OtherType ");
+//
+//        sql.append("    ,CASE WHEN Go_Out_Type = 1 THEN '是' ");
+//        sql.append("    WHEN Go_Out_Type = 2 THEN '否' ");
+//        sql.append("    END AS Go_Out_Type ");
+//
+//        sql.append("    ,CASE WHEN Go_Out_Delete IS NULL THEN '点击取消' ");
+//        sql.append("    WHEN Go_Out_Delete = 1 THEN '已取消' ");
+//        sql.append("    END AS Go_Out_Delete ");
+//
+//        sql.append("    FROM Go_Out_Register G ");
+//        sql.append("    LEFT JOIN Account_Data A2 ON A2.Account_ID = G.Go_Out_Apply_ID  ");
+//        sql.append("    LEFT JOIN T_Department T ON T.ID = G.Go_Out_Department_ID  ");
+//        sql.append("    LEFT JOIN Account_Data A3 ON A3.Account_ID = G.Go_Out_Tongzhi_ID ");
+
+        sql.append("    SELECT Account_Name, Account_ID ");
+        sql.append("    FROM V_AccountData ");
+        sql.append("    LEFT JOIN Position_Data");
+        sql.append("    ON V_AccountData .Position_ID = Position_Data .Position_ID ");
+        sql.append("    WHERE Position_Data.Position_Name = '副总经理' ");
+        sql.append("    AND state = 1 ");
         System.out.println(sql.toString());
+    }
+
+    @Test
+    public void test4() throws UnknownHostException {
+        //publishEvent.send();
+        ArrayList<Integer> objects = new ArrayList<Integer>();
+        objects.add(70);
+        int i = objects.indexOf(700);
+        System.out.println("i:" + i);
+
+        IdentityHashMap<String, Object> identityMap = new IdentityHashMap<>();
+        identityMap.put("1044", new String("1111"));
+        identityMap.put("1044", "2222");
+        System.out.println(identityMap.get("1044"));
+
+
+        String ip = InetAddress.getLocalHost().getHostAddress();//获得本机IP
+        String relativelyPath = System.getProperty("user.dir");
+        System.out.println("ip:" + ip);
+        System.out.println("relativelyPath:" + relativelyPath);
     }
 }

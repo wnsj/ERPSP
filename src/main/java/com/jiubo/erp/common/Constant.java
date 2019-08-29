@@ -24,4 +24,17 @@ public class Constant {
         final public static String UTF8 = "UTF-8";
         final public static String GBK = "GBK";
     }
+
+    public static interface TASK_PARAM{
+        final public String ID_1001 = "1001";
+        final public String ID_1002 = "1002";
+        final public String ID_1003 = "1003";
+        final public String ID_1004 = "1004";
+        final public String ID_1005 = "1005";
+        final public String ID_1006 = "1006";
+        final public String DEL_DAYS = "delDays";
+        final public String STARTDATE = "startDate";
+        final public String ENDDATE = "endDate";
+
+    }
 }
