@@ -66,7 +66,7 @@ public class NoticeService {
             Map<String, Object> requestParam = new HashMap<String, Object>();
             context.put("icon", "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1565946516414&di=2f925456dfc0bbfc8ba457c6e38fb0ce&imgtype=0&src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201607%2F13%2F20160713110827_vyiPR.thumb.700_0.png");
             String url = "#/paperlessOffice/officeSuppliesManage";
-            String requestUrl = "http://".concat(getLocalIp()).concat(":").concat(getLoaclPort()).concat("/ERP/officeAction/updateOfficeSuppliesSee");
+            String requestUrl = "http://".concat(getLocalIp()).concat("/ERP/officeAction/updateOfficeSuppliesSee");
             //log.error("requestUrl:{}", requestUrl);
             context.put(requestUrlKey, requestUrl);
             if (i == 1) {
