@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE
+        mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiubo.erp.task.dao.NoticeDao">
+    <!--
+        办公用品申请通知
+        1.通知主管或组长
+        2.通知前台
+        3.通知申请人（主管或组长审核未通过）
+        4.提醒人事
+        5.提醒副总
+        6.提醒财务
+        7.通知申请人（人事、副总、财务审核未通过）
+    -->
+    <select id="getOffice" resultType="java.lang.String">
+        <if test="flag == 1">
+            SELECT ACCOUNTID_2
+            FROM OFFICESUPPLIESDATA
+            WHERE ADVICE_2 = 3 AND ZHU_SEE = 0
+            GROUP BY ACCOUNTID_2
+        </if>
+        <if test="flag == 2">
+            IF EXISTS (SELECT * FROM OFFICESUPPLIESDATA A WHERE A.STATE = 1 AND A.REN_SEE = 0)
+            SELECT ACCOUNT_ID FROM ACCOUNT_RULE_DATA WHERE RULE_ID = 70
+        </if>
+        <if test="flag == 3">
+            SELECT ACCOUNTID_1
+            FROM OFFICESUPPLIESDATA
+            WHERE STATE = 2 AND SHEN_SEE = 0
+            GROUP BY ACCOUNTID_1
+        </if>
+        <if test="flag == 4">
+            SELECT RENSHI_ID
+            FROM OFFICESUPPLIESDATA
+            WHERE (IS_TIJIAO = 1 OR FUZONG_ADVICE = 2)
+            AND RENSHI_ADVICE IS NULL AND RENSHI_SEE IS NULL
+        </if>
+        <if test="flag == 5">
+            SELECT FUZONG_ID
+            FROM OFFICESUPPLIESDATA
+            WHERE (RENSHI_ADVICE = 1 OR CAIWU_ADVICE = 2) AND FUZONG_ADVICE IS NULL AND FUZONG_SEE IS NULL
+            GROUP BY FUZONG_ID
+        </if>
+        <if test="flag == 6">
+            SELECT CAIWU_ID
+            FROM OFFICESUPPLIESDATA
+            WHERE FUZONG_ADVICE = 1 AND CAIWU_ADVICE IS NULL AND CAIWU_SEE IS NULL
+            GROUP BY CAIWU_ID
+        </if>
+        <if test="flag == 7">
+            IF EXISTS (SELECT * FROM OFFICESUPPLIESDATA A WHERE (A.RENSHI_ADVICE = 2 OR A.FUZONG_ADVICE = 2 OR A.CAIWU_ADVICE = 2 OR A.CAIWU_ADVICE = 1 )
+            AND A.REN_OTHERSEE IS NULL AND A.IS_TIJIAO = 1)
+            SELECT ACCOUNT_ID FROM ACCOUNT_RULE_DATA WHERE RULE_ID = 70
+        </if>
+    </select>
+</mapper>
