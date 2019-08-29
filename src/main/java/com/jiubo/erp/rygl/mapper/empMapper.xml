@@ -139,6 +139,7 @@
 		a.Birth AS birth,
 		a.EntryDate AS entryDate,
 		a.PositiveDate AS PositiveDate,
+		a.RecruitDataID AS recruitDataID,
 		CASE WHEN a.ResignDate&lt;a.EntryDate OR a.State=1 THEN NULL
 		ELSE a.ResignDate 
 		END AS ResignDate,
@@ -197,6 +198,9 @@
 			<if test="birth!=null and birth!='' and birth!=0">
 				AND Month(a.Birth)=#{birth}
 			</if>
+            <if test="recruitDataID!=null and recruitDataID!=''">
+                AND a.RecruitDataID=#{recruitDataID}
+            </if>
 			AND a.isDelete='0'
 		</trim>
 		ORDER by b.Account_ID
@@ -247,7 +251,7 @@
 		a.ID AS positionId,
 		a.EntryDate AS entryDate,
 		a.PositiveDate AS positiveDate,
-		CASE WHEN a.State==1 THEN '' ELSE a.ResignDate AS resignDate,
+		CASE WHEN a.State=1 THEN '' ELSE a.ResignDate END AS resignDate ,
 		a.ResignType AS resignType,
 		a.ResignReason AS
 		resignReason,
@@ -295,9 +299,17 @@
 		a.LicenseType AS uLicenseType,
 		a.DrivingExpe AS uDrivingExpe
 		FROM
-		dbo.T_Employee_Detial a
-		where
-		a.Employee_basic_ID=#{uEmployeeBasicID}
+		T_Employee_Detial a
+		LEFT JOIN T_Employee_Basic TEB ON TEB.ID=a.Employee_basic_ID
+        <trim prefix="WHERE" prefixOverrides="AND | OR">
+            <if test="uEmployeeBasicID !=null and uEmployeeBasicID !=''">
+                AND a.Employee_basic_ID=#{uEmployeeBasicID}
+            </if>
+            <if test="recruitDataID !=null and recruitDataID !=''">
+                AND TEB.RecruitDataID=#{recruitDataID}
+            </if>
+        </trim>
+
 	</select>
 	<!-- 通过账号表获取部门id -->
 	<select id="selectUserDepartID" resultType="com.jiubo.erp.rygl.vo.UserInfo">
@@ -314,11 +326,11 @@
 		insert into
 		dbo.T_Employee_Basic
 		(Name,Sex,JobNum,Department_id,Birth,EntryDate,Photo,CreateDate,
-		UpdateDate,IsDelete,State,CreateUser,Account,Remark,Parent_ID,ResignType,ResignReason)
+		UpdateDate,IsDelete,State,CreateUser,Account,Remark,Parent_ID,ResignType,ResignReason,RecruitDataID)
 		values
 		(#{name},#{sex},#{jobNum},#{departId},#{birth},#{entryDate},
 		#{photo},#{createDate},#{updateDate},#{isDelete},#{state},
-		#{createUser},#{accountId},#{remark},#{parentId},#{resignType},#{resignReason})
+		#{createUser},#{accountId},#{remark},#{parentId},#{resignType},#{resignReason},#{recruitDataID})
 	</insert>
 
 	<!-- 插入入职人员 账户信息 -->
@@ -354,21 +366,28 @@
 	<select id="singleFamilyList" parameterType="com.jiubo.erp.rygl.vo.QueryFamilyResult"
 			resultType="com.jiubo.erp.rygl.vo.QueryFamilyResult">
 		SELECT
-		ID AS ID,
-		appellation AS appellation,
-		name AS chname,
-		workaddress AS workAddress,
-		position AS position,
-		phone AS phone,
-		wechat AS wechat,
-		address AS famAddress,
-		Birthday AS birth
+		AF.ID AS ID,
+		AF.appellation AS appellation,
+		AF.name AS chname,
+		AF.workaddress AS workAddress,
+		AF.position AS position,
+		AF.phone AS phone,
+		AF.wechat AS wechat,
+		AF.address AS famAddress,
+		AF.Birthday AS birth
 
 		FROM
-		dbo.Account_Family
+		Account_Family AF
+		LEFT JOIN T_Employee_Basic TEB ON TEB.Account=AF.Account_ID
+		<trim prefix="WHERE" prefixOverrides="AND | OR">
+			<if test="uAccountId !=null and uAccountId !=''">
+				AND AF.Account_ID=#{uAccountId}
+			</if>
+			<if test="recruitDataID !=null and recruitDataID !=''">
+				AND TEB.RecruitDataID=#{recruitDataID}
+			</if>
+		</trim>
 
-		where
-		Account_ID=#{uAccountId}
 	</select>
 
 	<!-- 插入 员工入职 家庭信息 -->
@@ -519,9 +538,16 @@
 		LEFT JOIN T_Department NTD ON NTD.ID=AT.New_DepartmentID
 		LEFT JOIN Position_Data OPD ON AT.Old_PositionID=OPD.Position_ID
 		LEFT JOIN Position_Data NPD ON AT.New_PositionID=NPD.Position_ID
+		LEFT JOIN T_Employee_Basic TEB ON TEB.Account=AT.Account_ID
+		<trim prefix="WHERE" prefixOverrides="AND | OR">
+			<if test="accountId !=null and accountId !=''">
+				AND AT.Account_ID=#{accountId}
+			</if>
+			<if test="recruitDataID !=null and recruitDataID !=''">
+				AND TEB.RecruitDataID=#{recruitDataID}
+			</if>
+		</trim>
 
-		where
-		Account_ID=#{accountId}
 	</select>
 
 	<!-- 员工异动   添加  -->

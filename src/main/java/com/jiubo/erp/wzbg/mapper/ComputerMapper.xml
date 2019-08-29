@@ -23,9 +23,11 @@
 		C.Zhu_see leaderIsSee,
 		C.Pei_Jiedan_ID handId,
 		C.Prepare_name handName,
+		A3.Account_Name peiJieName,
 		C.Dui_see handIsSee,
 		C.Fu_ID principalId,
 		A2.Account_Name principalName,
+		C.Pei_Jiedan_ID_see peiJieIsSee,
 		C.Fu_Advice principalAudit,
 		C.Fu_see principalIsSee,
 		C.Is_Reserve isReserve,
@@ -49,6 +51,8 @@
         ON A1.Account_ID = C.Zhu_ID
         LEFT JOIN Account_Data A2
         ON A2.Account_ID = C.Fu_ID
+        LEFT JOIN Account_Data A3
+        ON A3.Account_ID = C.Pei_Jiedan_ID
         WHERE
         C.Is_Reserve != 0
         <if test="accountId != null and accountId != '' ">
@@ -256,14 +260,17 @@
             <if test=" finishTime!= null and finishTime != '' ">
                 prepare_time = #{finishTime},
             </if>
-            <if test="handName != null and handName != '' ">
-                Prepare_name = #{handName},
-            </if>
             <if test="remark != null and remark != '' ">
                 Shuoming = #{remark},
             </if>
             <if test="status != null and status != '' ">
                 Is_Ing = #{status},
+            </if>
+            <if test="handName != null and handName != '' ">
+                Prepare_name = #{handName},
+            </if>
+            <if test="peiJieIsSee != null and peiJieIsSee != '' ">
+                Pei_Jiedan_ID_see = #{peiJieIsSee},
             </if>
         </trim>
         WHERE

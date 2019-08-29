@@ -25,6 +25,7 @@ public class QueryParam {
     //搜索内容  工号、姓名、职位、项目组
     private String searchContent;
 
+    private String recruitDataID;
 
     // DB:家庭成员检索
     private String chName;
@@ -56,6 +57,14 @@ public class QueryParam {
                 + ", shBirth=" + shBirth + ", currentPage=" + currentPage + ", records=" + records + "]";
     }
 
+
+    public String getRecruitDataID() {
+        return recruitDataID;
+    }
+
+    public void setRecruitDataID(String recruitDataID) {
+        this.recruitDataID = recruitDataID;
+    }
 
     public String getEnterStartDate() {
         return enterStartDate;

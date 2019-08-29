@@ -23,6 +23,10 @@ public interface kqglDao {
     //人员考勤empkqList
     List<PersonalKQBean> empkqList(AttParam ap);
 
+    //考勤统计报表
+    List<PersonalKQBean> kqCountTable(AttParam ap);
+
+
 
     //加载考勤基础信息列表
     List<KqInfoResult> selectKqInfoList(AttParam ap);

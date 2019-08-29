@@ -13,6 +13,8 @@ public class PositionShift {
     private String upDateTime;
     private String Flag;
 
+    private String recruitDataID;//面试入职人员家庭信息
+
     public String getAccountId() {
         return accountId;
     }
@@ -32,6 +34,14 @@ public class PositionShift {
                 ", upDateTime='" + upDateTime + '\'' +
                 ", Flag='" + Flag + '\'' +
                 '}';
+    }
+
+    public String getRecruitDataID() {
+        return recruitDataID;
+    }
+
+    public void setRecruitDataID(String recruitDataID) {
+        this.recruitDataID = recruitDataID;
     }
 
     public void setAccountId(String accountId) {

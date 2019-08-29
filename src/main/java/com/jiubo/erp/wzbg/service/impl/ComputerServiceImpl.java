@@ -185,7 +185,7 @@ public class ComputerServiceImpl implements ComputerService {
     public void checkPreApp(ComputerBean computerBean) throws MessageException {
         logger.info("----------开始审批,方法:check----------");
         try {
-            if (StringUtils.isNotEmpty(computerBean.getHandId())) {
+            if (StringUtils.isNotEmpty(computerBean.getHandId()) && !"0".equals(computerBean.getHandId())) {
                 computerBean.setIsConfig("1");
             }
             computerDao.checkPreApp(computerBean);

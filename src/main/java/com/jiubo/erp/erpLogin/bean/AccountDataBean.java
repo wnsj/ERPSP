@@ -13,9 +13,19 @@ public class AccountDataBean {
     //添加部门和岗位
     private String departId;
     private String departName;
+    private String departLevel;
     private String positionName;
     private String positionTypeId;
 
+
+
+    public String getDepartLevel() {
+        return departLevel;
+    }
+
+    public void setDepartLevel(String departLevel) {
+        this.departLevel = departLevel;
+    }
 
     public String getDepartId() {
 		return departId;

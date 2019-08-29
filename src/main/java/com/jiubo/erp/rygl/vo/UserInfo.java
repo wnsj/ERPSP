@@ -55,11 +55,19 @@ public class UserInfo {
     private String createUser;
     private String remark;
 
+    private String recruitDataID;
 
 
     public UserInfo() {
     }
 
+    public String getRecruitDataID() {
+        return recruitDataID;
+    }
+
+    public void setRecruitDataID(String recruitDataID) {
+        this.recruitDataID = recruitDataID;
+    }
 
     public Integer getId() {
         return id;

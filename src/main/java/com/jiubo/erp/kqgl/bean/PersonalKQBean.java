@@ -23,11 +23,14 @@ public class PersonalKQBean {
     private String ryDownPA;//下班打卡异常
     private String ryOnNomalPA;//上班打卡正常
     private String ryDownNomalPA;//下班打卡正常
+    private String ryNotPA;//未打卡
     private String ryRestDays;//休息天数
     private String ryOverTimesDays;//加班天数
-    private String ryNoScheduleTimes;//未排班次数天数
+    private String ryNoScheduleTimes;//未排班次数
     private String ryEnteryTime;//入职时间
     private String ryLeaveTime;//离职时间
+    private String notEntry;//入职
+    private String leavedPosition;//离职
     private List<Map<String, String>> punchTime;//个人的班次和打卡时间的
     private String kqTableCount;//考勤情况综合统计
 
@@ -45,7 +48,27 @@ public class PersonalKQBean {
         this.accountId = accountId;
     }
 
+    public String getNotEntry() {
+        return notEntry;
+    }
+    public String getRyNotPA() {
+        return ryNotPA;
+    }
 
+    public void setRyNotPA(String ryNotPA) {
+        this.ryNotPA = ryNotPA;
+    }
+    public void setNotEntry(String notEntry) {
+        this.notEntry = notEntry;
+    }
+
+    public String getLeavedPosition() {
+        return leavedPosition;
+    }
+
+    public void setLeavedPosition(String leavedPosition) {
+        this.leavedPosition = leavedPosition;
+    }
     public String getBeginDate() {
         return beginDate;
     }

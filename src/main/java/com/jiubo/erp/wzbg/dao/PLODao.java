@@ -23,9 +23,14 @@ public interface PLODao {
 	//请假修改
 	public int updateLeaveApplication(AskForLeaveBean afl);
 	
-	//请假 --- 人员级别查看审查列表
-	public List<EmployeeOfCheck>checkOfEmpList(@Param(value = "level") String level, @Param(value = "positionId") String positionId
-			, @Param(value = "departId") String departId, @Param(value = "clickTimes") String clickTimes);
+	//请假 --- 审查列表
+	public List<EmployeeOfCheck>checkOfEmpList(PLOParam ploParam);
+
+	//审核列表
+	public List<EmployeeOfCheck>verifyOfEmpList(PLOParam ploParam);
+
+	//审批列表
+	public List<EmployeeOfCheck>approveOfEmpList(PLOParam ploParam);
 	
 	//倒休列表
 	public List<RestDownBean> selectRestDownList(PLOParam ploParam);

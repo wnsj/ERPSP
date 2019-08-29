@@ -15,21 +15,28 @@
         <result property="positionName" column="POSITION_NAME"/>
         <result property="departId" column="ID"/>
         <result property="departName" column="NAME"/>
+        <result property="departLevel" column="level"/>
         <result property="positionTypeId" column="POSITIONTYPE_ID"/>
     </resultMap>
 
     <!--根据用户名查询账号信息-->
     <select id="userLogin" parameterType="com.jiubo.erp.erpLogin.bean.AccountDataBean" resultMap="resultAccountDataMap">
         SELECT
-          AD.ACCOUNT_ID,
-          AD.ACCOUNT_NAME,
-          AD.ACCOUNT_PWD,
-          AD.ACCOUNT_STATE,
-          AD.POSITION_ID,
-          PD.POSITION_NAME,
-          PD.POSITIONTYPE_ID,
-          TD.ID,
-          TD.NAME
+            AD.ACCOUNT_ID,
+            AD.ACCOUNT_NAME,
+            AD.ACCOUNT_PWD,
+            AD.ACCOUNT_STATE,
+            AD.POSITION_ID,
+            PD.POSITION_NAME,
+            PD.POSITIONTYPE_ID,
+            TD.ID,
+            (CASE WHEN TD.ID=0 THEN 0
+            WHEN (SELECT ParentID FROM  T_Department WHERE ID=TD.ID)=0 THEN 1
+            WHEN (SELECT ParentID FROM  T_Department WHERE ID=(SELECT ParentID FROM  T_Department WHERE ID=TD.ID))=0 THEN 2
+            WHEN (SELECT ParentID FROM  T_Department WHERE ID=(SELECT ParentID FROM  T_Department WHERE ID=(SELECT ParentID FROM  T_Department WHERE ID=TD.ID)))=0 THEN 3
+            END)
+            AS level,
+            TD.NAME
         FROM
             ACCOUNT_DATA AD
             LEFT JOIN POSITION_DATA PD ON AD.POSITION_ID=PD.POSITION_ID

@@ -65,6 +65,12 @@ public class KqServiceImpl implements KqService {
     }
 
     @Override
+    public List<PersonalKQBean> kqCountTable(AttParam ap){
+
+        return this.dao.kqCountTable(ap);
+    }
+
+    @Override
     public List<KqInfoResult> searchKqInfoList(AttParam ap) {
         List<KqInfoResult> kqInfoList = this.dao.searchKqInfoList(ap);
         return kqInfoList;

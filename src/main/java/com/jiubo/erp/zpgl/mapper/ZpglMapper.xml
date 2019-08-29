@@ -32,78 +32,88 @@
 
     <!-- 查询面试信息 -->
     <select id="queryRecruitData" parameterType="RecruitDataBean" resultType="RecruitDataBean">
-        SELECT
-        A.ID, A.NAME, A.SEX, A.BIRTH, A.IDNUM, A.PHONE, A.MAIL, A.QQ, A.ADDRESS, A.HOMEADDRESS, A.HOMETOWN,
-        A.ACCOUNTPROP, A.PLOITICAL,
-        A.MARITAL, A.NATIONALITY, A.HEIGHT, A.WEIGHT, A.BLOODTYPE, A.EDUCATION, A.SCHOOL, A.GRADUATION, A.PROFESSION,
-        A.ATSCHOOL,
-        A.WORKCOMPANY, A.WORKEXP, A.CERTIFICATE, A.CHANNEL, A.POSITION, A.DEPARTMENT, A.WAGES, A.INTERVIEWER,
-        A.INVITATIONDATE,
-        A.RECRUITDATE, A.SCORE, A.ISQUALIFIED, A.ISPAY, A.REMARK, A.ISDELETE, A.UPDATEDATE, A.UPDATEACCOUNT,
-        B.NAME AS DEPARTMENTNAME,
-        C.POSITION_NAME AS POSITIONNAME,
-        D.RECRUITCHANNEL_NAME AS CHANNELNAME,
-        ( CASE A.ISENTRY WHEN 0 THEN '未入职' WHEN 1 THEN '在职' WHEN 2 THEN '离职' END ) ISENTRY
-        FROM
-        ZP_RECRUITDATA AS A
-        LEFT JOIN T_DEPARTMENT AS B ON A.DEPARTMENT = B.ID
-        LEFT JOIN POSITION_DATA AS C ON A.POSITION = C.POSITION_ID
-        LEFT JOIN ZP_RECRUITCHANNEL AS D ON A.CHANNEL = D.RECRUITCHANNEL_ID
+        SELECT A.ID, A.Name, A.Sex, A.Birth, A.IDNum AS idNum,
+        A.Phone, A.Mail, A.QQ, A.Address, A.HomeAddress,
+        A.HomeTown, A.AccountProp, A.Ploitical, A.Marital, A.Nationality,
+        A.Height, A.Weight, A.BloodType, A.Education, A.Channel,
+        A.School, A.Graduation, A.Profession, A.AtSchool, A.workCompany,
+        A.Workexp, A.Certificate, C.RecruitChannel_Name AS channelName, A.Position, P.Position_Name AS positionName,
+        A.Department, D.Name AS departmentName, A.wages, A.Interviewer, A.RecruitDate,
+        A.InvitationDate, A.score, A.IsQualified, A.IsPay, A.Remark,
+        CASE
+        WHEN E.State IS NULL THEN '未入职'
+        WHEN E.State = 1 THEN '在职'
+        WHEN E.State = 2 THEN '离职'
+        END AS isEntry,
+        A.IsDelete, A.UpdateDate, A.UpdateAccount, E.Account
+        FROM ZP_RecruitData A
+        LEFT JOIN T_Employee_Basic E ON A.ID = E.RecruitDataID
+        LEFT JOIN ZP_RecruitChannel C ON A.Channel = C.RecruitChannel_ID
+        LEFT JOIN T_Department D ON A.Department = D.ID
+        LEFT JOIN Position_Data P ON A.Position = P.Position_ID
         <where>
-            AND A.ISDELETE = 0
+            A.IsDelete = 0
             <if test="department !=null and department != ''">
-                AND A.DEPARTMENT = #{department}
+                AND A.Department = #{department}
             </if>
             <if test="position != null and position !=''">
-                AND A.POSITION = #{position}
+                AND A.Position = #{position}
             </if>
             <if test="channel != null and channel !=''">
-                AND A.CHANNEL = #{channel}
+                AND A.Channel = #{channel}
             </if>
             <if test="isQualified != null and isQualified != ''">
                 <choose>
                     <when test="isQualified == 0">
-                        AND A.ISQUALIFIED = '否'
+                        AND A.IsQualified = '否'
                     </when>
                     <when test="isQualified == 1">
-                        AND A.ISQUALIFIED = '是'
+                        AND A.IsQualified = '是'
                     </when>
                     <when test="isQualified == 2">
-                        AND A.ISQUALIFIED = '待定'
+                        AND A.IsQualified = '待定'
                     </when>
                 </choose>
             </if>
             <if test="dateFlag != null and dateFlag != ''">
                 <choose>
                     <when test="dateFlag == 0">
-                        AND A.INVITATIONDATE >= #{begDate}
-                        <![CDATA[ AND A.INVITATIONDATE < #{endDate}]]>
+                        <if test="begDate != null and begDate != ''">
+                            AND A.InvitationDate <![CDATA[ >= ]]> #{begDate}
+                        </if>
+                        <if test="endDate != null and endDate != ''">
+                            AND A.InvitationDate <![CDATA[ <= ]]> #{endDate}
+                        </if>
                     </when>
                     <when test="dateFlag == 1">
-                        AND A.RECRUITDATE >= #{begDate}
-                        <![CDATA[ AND A.RECRUITDATE < #{endDate}]]>
+                        <if test="begDate != null and begDate != ''">
+                            AND A.RecruitDate <![CDATA[ >= ]]> #{begDate}
+                        </if>
+                        <if test="endDate != null and endDate != ''">
+                            AND A.RecruitDate <![CDATA[ <= ]]> #{endDate}
+                        </if>
                     </when>
                 </choose>
             </if>
             <if test="isEntry != null and isEntry != ''">
                 <choose>
                     <when test="isEntry == 0">
-                        AND A.ISENTRY = 0
+                        AND E.State IS NULL
                     </when>
                     <when test="isEntry == 1">
-                        AND A.ISENTRY = 1
+                        AND E.State = 1
                     </when>
                     <when test="isEntry == 2">
-                        AND A.ISENTRY = 2
+                        AND E.State = 2
                     </when>
                 </choose>
             </if>
             <if test="name != null and name != ''">
-                AND A.NAME LIKE '%' + #{name} + '%'
+                AND A.Name LIKE '%' + #{name} + '%'
             </if>
             <if test="phone != null and phone != ''">
-                AND (A.PHONE LIKE '%' + #{phone} + '%'
-                OR A.MAIL LIKE '%' + #{phone} + '%'
+                AND (A.Phone LIKE '%' + #{phone} + '%'
+                OR A.Mail LIKE '%' + #{phone} + '%'
                 OR A.QQ LIKE '%' + #{phone} + '%')
             </if>
             <if test="sex != null and sex !=''">
@@ -117,40 +127,44 @@
                 </choose>
             </if>
             <if test="isPay != null and isPay !=''">
-                AND A.ISPAY = #{isPay}
+                AND A.IsPay = #{isPay}
             </if>
             <if test="education != null and education !=''">
                 <choose>
                     <when test="education ==0">
-                        AND A.EDUCATION = '未知'
+                        AND A.Education = '未知'
                     </when>
                     <when test="education ==1">
-                        AND A.EDUCATION = '博士'
+                        AND A.Education = '博士'
                     </when>
                     <when test="education ==2">
-                        AND A.EDUCATION = '硕士研究生'
+                        AND A.Education = '硕士研究生'
                     </when>
                     <when test="education ==3">
-                        AND A.EDUCATION = '本科'
+                        AND A.Education = '本科'
                     </when>
                     <when test="education ==4">
-                        AND A.EDUCATION = '专科'
+                        AND A.Education = '专科'
                     </when>
                     <when test="education ==5">
-                        AND A.EDUCATION = '高中/中专'
+                        AND A.Education = '高中/中专'
                     </when>
                     <when test="education ==6">
-                        AND A.EDUCATION = '初中及以下'
+                        AND A.Education = '初中及以下'
                     </when>
                 </choose>
             </if>
             <if test="profession != null and profession !=''">
-                AND A.PROFESSION LIKE '%' + #{profession} + '%'
+                AND A.Profession LIKE '%' + #{profession} + '%'
             </if>
             <if test="atSchool != null and atSchool !=''">
-                AND A.ATSCHOOL = #{atSchool}
+                AND A.AtSchool = #{atSchool}
+            </if>
+            <if test="account != null and account !=''">
+                AND E.Account = #{account}
             </if>
         </where>
+        ORDER BY A.ID
     </select>
 
     <!-- 添加面试信息 -->
@@ -241,11 +255,12 @@
         LEFT JOIN T_DEPARTMENT AS B ON A.DEPARTMENT = B.ID
         LEFT JOIN POSITION_DATA AS C ON A.POSITION = C.POSITION_ID
         <where>
-            <if test="begDate != null and begDate != '' and endDate != null and endDate != ''">
-                AND A.PLANDATE >= #{begDate}
-                <![CDATA[ AND A.PLANDATE < #{endDate} ]]>
+            <if test="begDate != null and begDate != ''">
+                AND A.PLANDATE <![CDATA[ >= ]]> #{begDate}
             </if>
-            <![CDATA[ AND A.PLANDATE < #{endDate} ]]>
+            <if test="endDate != null and endDate != ''">
+                AND A.PLANDATE <![CDATA[ <= ]]> #{endDate}
+            </if>
             <if test=" department != null and department != ''">
                 AND A.DEPARTMENT = #{department}
             </if>
@@ -273,7 +288,7 @@
                 </choose>
             </if>
         </where>
-        ORDER BY  B.ParentID, B.OrderNum
+        ORDER BY B.ParentID, B.OrderNum
     </select>
 
     <!-- 添加招聘计划 -->
@@ -322,16 +337,16 @@
     <!-- 查询招聘发布信息 -->
     <select id="queryZpPublish" parameterType="ZpPublishBean" resultType="ZpPublishBean">
         SELECT
-            P.Publish_ID publishId,
-            P.Channel,
-            P.Position,
-            C.RecruitChannel_Name channelName,
-            PD.Position_Name positionName,
-            P.PublishDate,
-            P.PublishNum,
-            P.PhoneNum
+        P.Publish_ID publishId,
+        P.Channel,
+        P.Position,
+        C.RecruitChannel_Name channelName,
+        PD.Position_Name positionName,
+        P.PublishDate,
+        P.PublishNum,
+        P.PhoneNum
         FROM
-            ZP_Publish P
+        ZP_Publish P
         LEFT JOIN ZP_RecruitChannel C ON P.Channel = C.RecruitChannel_ID
         LEFT JOIN Position_Data PD ON PD.Position_ID = P.Position
         <where>
@@ -373,5 +388,14 @@
         , PHONENUM = #{phoneNum}
         , PUBLISHDATE = #{publishDate}
         WHERE PUBLISH_ID = #{publishId}
+    </update>
+
+    <!-- 入职员工关联面试信息 -->
+    <update id="relateRecruitData" parameterType="RecruitDataBean">
+        UPDATE T_Employee_Basic
+        SET
+            RecruitDataID = #{id}
+        WHERE
+            Account = #{account}
     </update>
 </mapper>

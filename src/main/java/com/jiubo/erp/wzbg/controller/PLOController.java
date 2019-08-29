@@ -1,7 +1,16 @@
 package com.jiubo.erp.wzbg.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.jiubo.erp.common.Constant;
+import com.jiubo.erp.common.MapUtil;
+import com.jiubo.erp.common.MessageException;
+import com.jiubo.erp.rygl.controller.EmpController;
 import com.jiubo.erp.wzbg.service.PLOService;
+import com.jiubo.erp.wzbg.vo.PLOParam;
+import com.quicksand.push.ToolClass;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +32,8 @@ import java.util.Iterator;
 @Controller
 @RequestMapping("/wzbg")
 public class PLOController {
+
+	public static Logger log = LoggerFactory.getLogger(EmpController.class);
 	@Autowired
 	private PLOService service;
 
@@ -104,6 +115,83 @@ public class PLOController {
 	public JSONObject checkOfEmpList(HttpServletResponse response, HttpServletRequest request) {
 
 		return this.service.checkOfEmpList(response, request);
+	}
+
+
+	/**
+	 * 请假审核 -- 审查人列表 根据请假人的级别查看审查列表
+	 *
+	 * @param response
+	 * @param request
+	 * @return JSONObject
+	 * @author 作者 : mwl
+	 * @version 创建时间：2019年7月8日 上午10:20:08
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/verifyOfEmpList")
+	public JSONObject verifyOfEmpList(HttpServletResponse response, HttpServletRequest request) {
+
+		PLOParam plop = new PLOParam();
+		JSONObject result = new JSONObject();
+		String retCode = Constant.Result.SUCCESS;
+		String retMsg = Constant.Result.SUCCESS_MSG;
+		try {
+			String str = ToolClass.getStrFromInputStream(request);
+			if (StringUtils.isBlank(str))
+				throw new MessageException("参数接收失败！");
+			plop = MapUtil.transJsonStrToObjectIgnoreCase(str, PLOParam.class);
+			result.put("resData", this.service.verifyOfEmpList(plop));
+		} catch (MessageException e) {
+			retCode = Constant.Result.ERROR;
+			retMsg = e.getMessage();
+		} catch (Exception e) {
+			retCode = Constant.Result.ERROR;
+			retMsg = Constant.Result.ERROR_MSG;
+			log.error(Constant.Result.RETMSG, e);
+		} finally {
+			result.put(Constant.Result.RETCODE, retCode);
+			result.put(Constant.Result.RETMSG, retMsg);
+			return result;
+		}
+	}
+
+
+	/**
+	 * 请假审批 -- 审查人列表 根据请假人的级别查看审查列表
+	 *
+	 * @param response
+	 * @param request
+	 * @return JSONObject
+	 * @author 作者 : mwl
+	 * @version 创建时间：2019年7月8日 上午10:20:08
+	 */
+	@ResponseBody
+	@RequestMapping(value = "/approveOfEmpList")
+	public JSONObject approveOfEmpList(HttpServletResponse response, HttpServletRequest request) {
+
+		PLOParam plop = new PLOParam();
+		JSONObject result = new JSONObject();
+		String retCode = Constant.Result.SUCCESS;
+		String retMsg = Constant.Result.SUCCESS_MSG;
+		try {
+			String str = ToolClass.getStrFromInputStream(request);
+			if (StringUtils.isBlank(str))
+				throw new MessageException("参数接收失败！");
+			plop = MapUtil.transJsonStrToObjectIgnoreCase(str, PLOParam.class);
+			System.out.println("plop:"+plop.toString());
+			result.put("resData", this.service.approveOfEmpList(plop));
+		} catch (MessageException e) {
+			retCode = Constant.Result.ERROR;
+			retMsg = e.getMessage();
+		} catch (Exception e) {
+			retCode = Constant.Result.ERROR;
+			retMsg = Constant.Result.ERROR_MSG;
+			log.error(Constant.Result.RETMSG, e);
+		} finally {
+			result.put(Constant.Result.RETCODE, retCode);
+			result.put(Constant.Result.RETMSG, retMsg);
+			return result;
+		}
 	}
 
 	/**
