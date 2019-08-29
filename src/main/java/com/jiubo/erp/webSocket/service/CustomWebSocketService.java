@@ -2,19 +2,17 @@ package com.jiubo.erp.webSocket.service;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jiubo.erp.common.Constant;
-import com.jiubo.erp.common.MessageException;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -25,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @version: 1.0
  */
 @Component
+@Scope("prototype")
 @ServerEndpoint("/websocket/{accountId}")
 public class CustomWebSocketService {
 
@@ -43,8 +42,14 @@ public class CustomWebSocketService {
     //concurrent包的线程安全Map，用来存放每个客户端对应的CustomWebSocketService对象。
     private static Map<String, CustomWebSocketService> webSocketMap = new ConcurrentHashMap<String, CustomWebSocketService>();
 
+    private static Map<String, List<Session>> accountIdSessionIdMap = new ConcurrentHashMap<String, List<Session>>();
+
     public static Map<String, CustomWebSocketService> getWebSocketMap() {
         return webSocketMap;
+    }
+
+    public static Map<String, List<Session>> getAccountIdSessionIdMap() {
+        return accountIdSessionIdMap;
     }
 
     public Session getSession() {
@@ -59,7 +64,15 @@ public class CustomWebSocketService {
         this.session = session;
         this.accountId = accountId;
         firstDate = new Date();
-        webSocketMap.put("sessionId_" + session.getId(), this);
+        String sessionId = "sessionId_".concat(session.getId());
+        //log.info("客户端【{}】用户【{}】连接成功!",sessionId,accountId);
+        webSocketMap.put(sessionId, this);
+        List<Session> sessions = accountIdSessionIdMap.get(accountId);
+        if (sessions == null) {
+            sessions = new ArrayList<Session>();
+        }
+        sessions.add(session);
+        accountIdSessionIdMap.put(accountId, sessions);
         try {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put(Constant.Result.RETCODE, retCode);
@@ -81,9 +94,14 @@ public class CustomWebSocketService {
      */
     @OnClose
     public void onClose(Session session) {
-        log.info("客户端【{}】连接关闭！", "sessionId_" + session.getId());
-        CustomWebSocketService socketService = webSocketMap.get("sessionId_" + session.getId());
-        if (socketService != null) webSocketMap.remove("sessionId_" + session.getId());
+        String sessionId = "sessionId_".concat(session.getId());
+        //log.info("客户端【{}】连接关闭！", sessionId);
+        CustomWebSocketService socketService = webSocketMap.get(sessionId);
+        if (socketService != null) {
+            webSocketMap.remove(sessionId);
+            List<Session> sessions = accountIdSessionIdMap.get(socketService.accountId);
+            if (sessions != null) sessions.remove(session);
+        }
     }
 
     /**
@@ -93,9 +111,10 @@ public class CustomWebSocketService {
      */
     @OnMessage
     public void onMessage(String message, Session session, @PathParam("accountId") String accountId) throws Exception {
-        log.info("收到客户端【sessionId_" + session.getId() + "】的信息:" + message);
+        String sessionId = "sessionId_".concat(session.getId());
+        //log.info("收到客户端【" + sessionId + "】的信息:" + message);
         //心跳更新时间
-        CustomWebSocketService socketService = webSocketMap.get("sessionId_" + session.getId());
+        CustomWebSocketService socketService = webSocketMap.get(sessionId);
         if (socketService != null) socketService.firstDate = new Date();
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(Constant.Result.RETCODE, retCode);
@@ -115,8 +134,14 @@ public class CustomWebSocketService {
      */
     @OnError
     public void onError(Session session, Throwable error) {
-        webSocketMap.remove("sessionId_" + session.getId());
-        log.error("客户端【{}】发生错误!错误信息【{}】", "sessionId_" + session.getId(), error.getMessage());
+        String sessionId = "sessionId_".concat(session.getId());
+        CustomWebSocketService socketService = webSocketMap.get(sessionId);
+        if (socketService != null) {
+            webSocketMap.remove(sessionId);
+            List<Session> sessions = accountIdSessionIdMap.get(socketService.accountId);
+            if (sessions != null) sessions.remove(session);
+        }
+        //log.error("客户端【{}】发生错误!错误信息【{}】",sessionId, error.getMessage());
         //error.printStackTrace();
     }
 
@@ -132,11 +157,14 @@ public class CustomWebSocketService {
      * 推送消息
      */
     public void sendInfo(String message, String accountId) throws Exception {
-        log.info("推送消息到窗口【" + accountId + "】，推送内容:【" + message + "】");
+        //log.info("推送消息到窗口【" + accountId + "】，推送内容:【" + message + "】");
         if (StringUtils.isNotBlank(accountId)) {
             //给某个人推送消息
-            for (Map.Entry<String, CustomWebSocketService> entry : webSocketMap.entrySet()) {
-                if (entry.getValue().accountId.equals(accountId)) entry.getValue().sendMessage(message);
+            List<Session> sessions = accountIdSessionIdMap.get(accountId);
+            if (sessions != null){
+                for(Session session : sessions){
+                    session.getBasicRemote().sendText(message);
+                }
             }
         } else {
             //给所有在线的人推送消息
@@ -149,18 +177,23 @@ public class CustomWebSocketService {
     //心跳检测
     public void checkState(Map<String, Object> map) {
         webSocketMap.forEach((key, value) -> {
-            log.info("开始检查客户端:【" + key + "】");
+            //log.info("开始检查客户端:【" + key + "】");
             if (!value.getSession().isOpen()) {
                 webSocketMap.remove(key);
-                log.info("客户端【" + key + "】关闭了。。。");
+                List<Session> sessions = accountIdSessionIdMap.get(value.accountId);
+                if(sessions != null)sessions.remove(value.getSession());
+                //log.info("客户端【" + key + "】关闭了。。。");
             } else if (new Date().getTime() - value.firstDate.getTime() > 30 * 1000) {
                 webSocketMap.remove(key);
+                List<Session> sessions = accountIdSessionIdMap.get(value.accountId);
+                if(sessions != null)sessions.remove(value.getSession());
                 try {
                     value.getSession().close();
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    //e.printStackTrace();
+                    log.error("webSocket 关闭异常",e);
                 }
-                log.info("客户端【" + key + "】超过30s未与服务器联系！");
+                //log.info("客户端【" + key + "】超过30s未与服务器联系！");
             }
         });
     }

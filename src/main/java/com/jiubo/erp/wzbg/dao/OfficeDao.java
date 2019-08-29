@@ -112,4 +112,7 @@ public interface OfficeDao {
 
     //查询普通通知人（即通知主管）
     public List<Map<String,Object>> queryPuGangNotice(@Param("postTypeId") String postTypeId,@Param("deptId") String deptId,@Param("step") int step,@Param("deptLevel")int deptLevel);
+
+    //修改各领导办公用品申请信息查看情况
+    public void updateOfficeSuppliesSee(OfficeSuppliesDataBean officeSuppliesDataBean);
 }

@@ -262,5 +262,25 @@ public interface OfficeService {
      **/
     public void updateOfficeUserDataState(OfficeUserDataBean officeUserDataBean) throws MessageException;
 
+    /* *
+     * @desc:查询通知人
+     * @author: dx
+     * @date: 2019-08-28 09:21:18
+     * @param jsonObject :
+     * @return: java.util.List<java.util.Map<java.lang.String,java.lang.Object>>
+     * @throws:
+     * @version: 1.0
+     **/
     public List<Map<String,Object>> queryNotice(JSONObject jsonObject)throws MessageException;
+
+    /* *
+     * @desc:修改各领导办公用品申请信息查看情况
+     * @author: dx
+     * @date: 2019-08-28 09:22:27
+     * @param officeUserDataBean :
+     * @return: void
+     * @throws:
+     * @version: 1.0
+     **/
+    public void updateOfficeSuppliesSee(OfficeSuppliesDataBean officeSuppliesDataBean) throws MessageException;
 }

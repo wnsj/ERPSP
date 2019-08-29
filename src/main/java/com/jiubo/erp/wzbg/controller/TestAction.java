@@ -47,15 +47,5 @@ public class TestAction {
         return result;
     }
 
-    @Scheduled(cron = "0/2 * * * * ?")
-    public void task02() {
-        System.out.println(Thread.currentThread().getName() + " | task02 " + new Date().toLocaleString());
-    }
 
-    //异步task
-    @Async
-    @Scheduled(cron = "0/3 * * * * ?")
-    public void task03(Map<String, Object> map) throws InterruptedException {
-        System.out.println(Thread.currentThread().getName() + " | task03 " + new Date().toLocaleString());
-    }
 }
