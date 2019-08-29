@@ -39,7 +39,7 @@ public class UserInfo {
     private String uProfession;
     private String uGraduation;
     private String uEmergencyContact;
-    private String uEmergencyphone;
+    private String uEmergencyPhone;
     private String uHeight;
     private String uWeight;
     private String uBloodType;
@@ -389,13 +389,13 @@ public class UserInfo {
     }
 
 
-    public String getuEmergencyphone() {
-        return uEmergencyphone;
+    public String getuEmergencyPhone() {
+        return uEmergencyPhone;
     }
 
 
-    public void setuEmergencyphone(String uEmergencyphone) {
-        this.uEmergencyphone = uEmergencyphone;
+    public void setuEmergencyPhone(String uEmergencyPhone) {
+        this.uEmergencyPhone = uEmergencyPhone;
     }
 
 

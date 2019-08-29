@@ -798,7 +798,10 @@ public class EmpController {
 
 					Integer detailInfoInt = this.service.updataDetialInfo(ui);
 					if (detailInfoInt==1) {
-						resultMap.put("userDetail", "1");
+                        resultMap.put("userDetail", "1");
+                    }else if (detailInfoInt==0) {
+                        this.service.insertUserDetailInfo(ui);
+					    resultMap.put("userDetail", "1");
 					}else {
 						resultMap.put("message", "详细信息更新失败");
 					}

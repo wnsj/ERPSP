@@ -356,7 +356,7 @@
 		CreateDate,updateDate,CreateUser,Remark)
 		values
 		(#{uEmployeeBasicID},#{uIdNum},#{uPloitical},#{uContact},#{uHomeTown},#{uNationality},#{uMarital},#{uHomeAddress},
-		#{uCurrentAddress},#{uSchools},#{uEducation},#{uProfession},#{uGraduation},#{uEmergencyContact},#{uEmergencyphone},
+		#{uCurrentAddress},#{uSchools},#{uEducation},#{uProfession},#{uGraduation},#{uEmergencyContact},#{uEmergencyPhone},
 		#{uHeight},#{uWeight},#{uBloodType},#{uLicenseType},#{uDrivingExpe},#{uDomicile},#{uAccountProp},#{uAtSchool},
 		#{createDate},#{updateDate},#{createUser},#{remark})
 
@@ -490,13 +490,14 @@
 
 	<!-- 更新员工的详细信息 -->
 	<update id="updataDetialInfo" parameterType="com.jiubo.erp.rygl.vo.UserInfo">
+
 		update
 		dbo.T_Employee_Detial
 		set
 		Political=#{uPloitical},Contact=#{uContact},HomeTown=#{uHomeTown}
 		,Nationality=#{uNationality},Marital=#{uMarital},HomeAddress=#{uHomeAddress},CurrentAddress=#{uCurrentAddress},
 		Schools=#{uSchools},Education=#{uEducation},Profession=#{uProfession},Graduation=#{uGraduation},
-		EmergencyContact=#{uEmergencyContact},EmergencyPhone=#{uEmergencyphone},Height=#{uHeight},Weight=#{uWeight},
+		EmergencyContact=#{uEmergencyContact},EmergencyPhone=#{uEmergencyPhone},Height=#{uHeight},Weight=#{uWeight},
 		BloodType=#{uBloodType},LicenseType=#{uLicenseType},DrivingExpe=#{uDrivingExpe},Domicile=#{uDomicile},
 		AccountProp=#{uAccountProp},AtSchool=#{uAtSchool},CreateDate=#{createDate},updateDate=#{updateDate},
 		CreateUser=#{createUser},Remark=#{remark}
