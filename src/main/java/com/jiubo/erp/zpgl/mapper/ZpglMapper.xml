@@ -255,11 +255,12 @@
         LEFT JOIN T_DEPARTMENT AS B ON A.DEPARTMENT = B.ID
         LEFT JOIN POSITION_DATA AS C ON A.POSITION = C.POSITION_ID
         <where>
-            <if test="begDate != null and begDate != '' and endDate != null and endDate != ''">
-                AND A.PLANDATE >= #{begDate}
-                <![CDATA[ AND A.PLANDATE < #{endDate} ]]>
+            <if test="begDate != null and begDate != ''">
+                AND A.PLANDATE <![CDATA[ >= ]]> #{begDate}
             </if>
-            <![CDATA[ AND A.PLANDATE < #{endDate} ]]>
+            <if test="endDate != null and endDate != ''">
+                AND A.PLANDATE <![CDATA[ <= ]]> #{endDate}
+            </if>
             <if test=" department != null and department != ''">
                 AND A.DEPARTMENT = #{department}
             </if>
