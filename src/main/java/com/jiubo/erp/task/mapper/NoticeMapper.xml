@@ -54,4 +54,9 @@
             SELECT ACCOUNT_ID FROM ACCOUNT_RULE_DATA WHERE RULE_ID = 70
         </if>
     </select>
+
+    <!--    根据权限id查询用户-->
+    <select id="queryAccountIdByRule" resultType="java.lang.String">
+        SELECT ACCOUNT_ID FROM ACCOUNT_RULE_DATA WHERE RULE_ID = #{ruleId}
+    </select>
 </mapper>
