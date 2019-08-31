@@ -14,10 +14,10 @@ import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 public class WebSocketConfig{
 
     //WebSocket配置（springboot使用内置Tomcat需要此配置，打成war包时请将此注释）
-//    @Bean
-//    public ServerEndpointExporter serverEndpointExporter() {
-//        return new ServerEndpointExporter();
-//    }
+    @Bean
+    public ServerEndpointExporter serverEndpointExporter() {
+        return new ServerEndpointExporter();
+    }
 
 //    @EventListener
 //    public void onDisconnectEvent(SessionDisconnectEvent event) {

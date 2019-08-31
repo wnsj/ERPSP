@@ -136,7 +136,7 @@
         ,COUNT(CASE WHEN YTTD.firstTimeState='旷工' OR YTTD.lastTimeState='旷工' THEN 3 END) AS 'minersTimes'
         ,COUNT(CASE WHEN YTTD.firstTimeState='打卡异常' THEN 4 END) AS 'onPA'
         ,COUNT(CASE WHEN YTTD.lastTimeState='打卡异常' THEN 5 END) AS 'downPA'
-        ,COUNT(CASE WHEN YTTD.firstTimeState='休息天数' THEN 6 END) AS 'restDays'
+        ,COUNT(CASE WHEN YTTD.firstTimeState='休息' THEN 6 END) AS 'restDays'
         ,COUNT(CASE WHEN YTTD.firstTimeState='加班' THEN 7 END) AS 'overTimesDays'
         FROM
         (SELECT
@@ -147,9 +147,8 @@
         WHEN YTT.classTimeType=1 AND DATEDIFF(minute, YTT.startTime, YTT.foreAttTime) BETWEEN 30 AND 120 THEN '旷工'
         WHEN YTT.classTimeType=1 AND DATEDIFF(minute, YTT.startTime, YTT.foreAttTime) > 120 THEN '打卡异常'
         WHEN YTT.classTimeType=1 AND YTT.foreAttTime IS NULL THEN '未打卡'
-        WHEN YTT.classTimeType=2 AND DATEDIFF(HOUR, YTT.afterAttTime, YTT.foreAttTime)&lt;= 8 THEN YTT.classTimeName
+        WHEN YTT.classTimeType=2 AND DATEDIFF(HOUR, YTT.afterAttTime, YTT.foreAttTime)&lt;= 8 THEN '休息'
         WHEN YTT.classTimeType=2 AND DATEDIFF(HOUR, YTT.afterAttTime, YTT.foreAttTime)> 8 THEN '加班'
-        WHEN YTT.classTimeType=2 THEN YTT.classTimeName
         END)AS firstTimeState
         ,(CASE WHEN YTT.classTimeType=1 AND YTT.afterAttTime>YTT.endTime THEN '正常'
         WHEN YTT.classTimeType=1 AND DATEDIFF(minute, YTT.afterAttTime, YTT.endTime)&lt;=30 THEN '早退'
