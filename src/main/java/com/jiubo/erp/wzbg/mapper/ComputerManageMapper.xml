@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiubo.erp.wzbg.dao.ComputerManageDao">
+
+    <!--    查询电脑用品-->
+    <select id="queryComputer" resultType="com.jiubo.erp.wzbg.bean.ComputerManageBean">
+        SELECT COMPUTER.ID, T1.NAME AS DEPARTMENTNAME, COMPUTER.ID AS CID, TYPE_ID, DEPARTMENTID
+        , START_TIME,JOB_ID, POSITION_NAME, ARTICLES_NAME, A5.ACCOUNT_NAME AS USERNAME, A1.ACCOUNT_NAME AS APPLYNAME
+        , A2.ACCOUNT_NAME AS ZHUNAME, A3.ACCOUNT_NAME AS FUNAME, END_TIME
+        , CASE
+        WHEN PREPARE_NAME IS NULL THEN '未交接'
+        WHEN PREPARE_NAME IS NOT NULL THEN PREPARE_NAME
+        END AS PREPARE_NAME
+        , CASE
+        WHEN IS_RESERVE = 2 THEN '预申请'
+        WHEN IS_RESERVE = 0 THEN '普通'
+        END AS IS_RESERVE
+        , CASE
+        WHEN ZHU_ADVICE = 0 THEN '未审核'
+        WHEN ZHU_ADVICE = 1 THEN '同意'
+        WHEN ZHU_ADVICE = 2 THEN '不同意'
+        END AS ZHU_ADVICE
+        , CASE
+        WHEN IS_ING IS NULL THEN '点击进行'
+        WHEN IS_ING = 1 THEN '进行中'
+        WHEN IS_ING = 2 THEN '已完成'
+        END AS IS_ING
+        , CASE
+        WHEN FU_ADVICE = 0 THEN '未审核'
+        WHEN FU_ADVICE = 1 THEN '同意'
+        WHEN FU_ADVICE = 2 THEN '不同意'
+        END AS FU_ADVICE
+        FROM COMPUTER
+        LEFT JOIN ACCOUNT_DATA A1 ON A1.ACCOUNT_ID = COMPUTER.APPLY_ID
+        LEFT JOIN ACCOUNT_DATA A2 ON A2.ACCOUNT_ID = COMPUTER.ZHU_ID
+        LEFT JOIN ACCOUNT_DATA A3 ON A3.ACCOUNT_ID = COMPUTER.FU_ID
+        LEFT JOIN ACCOUNT_DATA A4 ON A4.ACCOUNT_ID = COMPUTER.PREPARE_ID
+        LEFT JOIN ACCOUNT_DATA A5 ON A5.ACCOUNT_ID = COMPUTER.USER_ID
+        LEFT JOIN T_DEPARTMENT T1 ON DEPARTMENTID = T1.ID
+        LEFT JOIN POSITION_DATA ON POSITION_DATA.POSITION_ID = JOB_ID
+        WHERE COMPUTER.ID >= 0
+        AND (IS_RESERVE = 0 OR IS_RESERVE = 2)
+        <if test="dateType != null and dateType != ''
+         and begDate != null and begDate != '' and endDate != null and endDate != ''">
+            <if test="dateType == 0">
+                AND START_TIME >= #{begDate}
+                AND START_TIME &lt; #{endDate}
+            </if>
+            <if test="dateType == 1">
+                AND END_TIME >= #{begDate}
+                AND END_TIME &lt; #{endDate}
+            </if>
+        </if>
+        <if test="applyName != null and applyName != ''">
+            AND A1.ACCOUNT_NAME LIKE '%' + #{applyName} + '%'
+        </if>
+        <if test="accountId != null and accountId != '' and accountName != null and accountName != ''">
+            AND (USER_ID = #{accountId} OR FU_ID = #{accountId} OR USER_NAME = #{accountName}
+            OR APPLY_ID = #{accountId} OR ZHU_ID = #{accountId} OR PEI_JIEDAN_ID = #{accountId}
+            OR PREPARE_NAME = #{accountName})
+        </if>
+        <if test="DepartmentID != null and DepartmentID != ''">
+            AND DEPARTMENTID = #{DepartmentID}
+        </if>
+        <if test="adviceType != null and adviceType != ''">
+            <choose>
+                <when test="adviceType == 0"></when>
+                <when test="adviceType == 1">AND FU_ADVICE = 1</when>
+                <when test="adviceType == 2">AND (ZHU_ADVICE = 0 OR FU_ADVICE = 0)</when>
+                <when test="adviceType == 3">AND (ZHU_ADVICE = 2 OR FU_ADVICE = 2)</when>
+            </choose>
+        </if>
+        <if test="typeId != null and typeId != ''">
+            AND TYPE_ID = #{typeId}
+        </if>
+        <if test="prepareName != null and prepareName != ''">
+            AND PREPARE_NAME = #{prepareName}
+        </if>
+        <if test="userName != null and userName != ''">
+            AND A5.ACCOUNT_NAME LIKE '%' + #{userName} + '%'
+        </if>
+        <choose>
+            <when test="isIng == null or isIng == '' or isIng == 0"></when>
+            <when test="isIng == 1"> AND IS_ING IS NULL</when>
+            <otherwise>AND IS_ING = #{isIng}</otherwise>
+        </choose>
+        <if test="isReserve != null and isReserve != ''">
+            AND IS_RESERVE = #{isReserve}
+        </if>
+    </select>
+
+    <!--    新增电脑用品申请
+    <insert id="addComputer">
+        INSERT INTO COMPUTER (DEPARTMENTID, START_TIME, END_TIME, APPLY_NAME, USER_ID,
+         USER_NAME, ARTICLES_NAME, ZHU_ID, PREPARE_ID, JOB_ID,
+         ZHU_ADVICE, FU_ADVICE, TYPE_ID, APPLY_SEE, ZHU_SEE,
+         FU_SEE, DUI_SEE, USER_SEE, APPLY_ID, FU_ID,
+         IS_RESERVE, RENSHI_TIME, PREPARE_TIME, PREPARE_NAME, SHUOMING,
+         PEI_JIEDAN_ID, PEI_JIEDAN_ID_SEE, IS_PEI, IS_ING)
+        VALUES (#{DepartmentID}, #{}, NULL, NULL, 2119,
+        NULL, ' 领用电脑 电脑', 254, NULL, 36,
+        1, 0, -1, NULL, 1, 0, 0, 0, 254, 666, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)
+    </insert>-->
+</mapper>
