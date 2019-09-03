@@ -347,14 +347,14 @@ public class KqParamSetServiceImpl implements KqParamSetService {
                 startDate = TimeUtil.getFirstDayOfMonth(startDate);
                 day = Integer.parseInt(TimeUtil.getDayStr(TimeUtil.getLastDayOfMonth(startDate)));
                 List<AttShiftBean> attShiftList = kqParamSetDao.queryAttShift(userId, userName, TimeUtil.getDateYYYY_MM_DD_HH_MM_SS(startDate), TimeUtil.getDateYYYY_MM_DD_HH_MM_SS(endDate));
-                if(day == attShiftList.size())
+                if (day == attShiftList.size())
                     for (AttShiftBean attShiftBean : attShiftList)
                         dataList.add(attShiftBean.getName());
                 else
-                    for (int i = 0;i < day; i++){
-                        if(i > attShiftList.size() - 1) {
+                    for (int i = 0; i < day; i++) {
+                        if (i > attShiftList.size() - 1) {
                             dataList.add("");
-                        }else {
+                        } else {
                             AttShiftBean attShiftBean = attShiftList.get(i);
                             dataList.add(attShiftBean.getName());
                         }
@@ -411,10 +411,10 @@ public class KqParamSetServiceImpl implements KqParamSetService {
     }
 
     @Override
-    public Page queryAllEmpAttShift(Page page,String begDate, String endDate) throws MessageException {
+    public Page queryAllEmpAttShift(Page page, String begDate, String endDate) throws MessageException {
         Page ret = new Page();
         try {
-            ret = kqParamSetDao.queryAllEmpAttShift(page,TimeUtil.getDateYYYY_MM_DD_HH_MM_SS(TimeUtil.parseAnyDate(begDate)), TimeUtil.getDateYYYY_MM_DD_HH_MM_SS(TimeUtil.dateAdd(TimeUtil.parseAnyDate(endDate), TimeUtil.UNIT_DAY, 1)));
+            ret = kqParamSetDao.queryAllEmpAttShift(page, TimeUtil.getDateYYYY_MM_DD_HH_MM_SS(TimeUtil.parseAnyDate(begDate)), TimeUtil.getDateYYYY_MM_DD_HH_MM_SS(TimeUtil.dateAdd(TimeUtil.parseAnyDate(endDate), TimeUtil.UNIT_DAY, 1)));
 //            for (Map<String, Object> map : list) {
 //                if (map.get("SHIFTDATE") != null)
 //                    map.put("SHIFTDATE", TimeUtil.getDateYYYY_MM_DD_HH_MM(TimeUtil.parseAnyDate(String.valueOf(map.get("SHIFTDATE")))));
@@ -444,6 +444,27 @@ public class KqParamSetServiceImpl implements KqParamSetService {
             throw new MessageException(e.getMessage());
         }
         kqParamSetDao.updateAttShift(begDate, endDate);
+    }
+
+    @Override
+    public List<EmployeeBasicBean> queryEmpByPostId(String postId) throws MessageException {
+        return kqParamSetDao.queryEmpByPostId(postId);
+    }
+
+    @Override
+    public List<DepartmentBean> queryDeptPostEmp() throws MessageException {
+        List<DepartmentBean> departmentBeans = queryDeptTree(null);
+        if (departmentBeans == null || departmentBeans.size() == 0) return null;
+        for (DepartmentBean dept : departmentBeans) {
+            //查询部门下的职位
+            List<PositionDataBean> positionDataBeans = queryPositionDataByDeptId(dept.getID(), true);
+            for (PositionDataBean positionDataBean : positionDataBeans) {
+                //查询职位下的员工
+                positionDataBean.setEmployeeList(queryEmpByPostId(positionDataBean.getPosition_ID()));
+            }
+            dept.setPositionDataList(positionDataBeans);
+        }
+        return departmentBeans;
     }
 }
 /*
