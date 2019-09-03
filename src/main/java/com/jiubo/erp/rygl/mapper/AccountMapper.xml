@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.jiubo.erp.rygl.dao.AccountMapper">
+    <resultMap id="BaseResultMap" type="com.jiubo.erp.rygl.vo.Account">
+        <constructor>
+            <arg column="accountId" javaType="java.lang.String" jdbcType="INTEGER" />
+            <arg column="accountName" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="accountPwd" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="accountState" javaType="java.lang.String" jdbcType="VARCHAR" />
+            <arg column="positionId" javaType="java.lang.String" jdbcType="TIMESTAMP" />
+            <arg column="accountMac" javaType="java.lang.String" jdbcType="VARCHAR" />
+        </constructor>
+    </resultMap>
+
+    <insert id="addUser" parameterType="com.jiubo.erp.rygl.vo.Account">
+    insert into Account_Data
+    (Account_Name,Account_Pwd,Account_State,Position_ID,Account_Mac)
+    values
+    (
+    #{accountName},
+    #{accountPwd},
+    #{accountState},
+    #{positionId},
+    #{accountMac}
+    )
+  </insert>
+
+</mapper>
+

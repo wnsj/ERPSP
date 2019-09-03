@@ -2,12 +2,9 @@ package com.jiubo.erp.wzbg.dao;
 
 import com.jiubo.erp.wzbg.bean.*;
 import com.jiubo.erp.wzbg.vo.PLOParam;
-import com.sun.javafx.collections.MappingChange;
 import org.apache.ibatis.annotations.Param;
-import org.apache.poi.hssf.record.formula.MemAreaPtg;
 
 import java.util.List;
-import java.util.Map;
 
 public interface PLODao {
 

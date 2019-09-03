@@ -37,4 +37,45 @@ public class Constant {
         final public String ENDDATE = "endDate";
 
     }
+    /**
+     * 文件参数
+     */
+    public static interface FILE_PARAM{
+        //文件后缀
+        final public String FILE_SUFFIX_DAT = ".dat";
+        //压缩文件后缀
+        final public String FILE_SUFFIX_GZ = ".gz";
+        //点号
+        final public String SPOT = ".";
+        //空格
+        final public String SPACE = " ";
+        //空格
+        final public String NULLSTR = "";
+        //下划线
+        final public String LINES = "_";
+        //竖线
+        final public String VLINES = "|";
+
+        //逗号
+        final public String TRANSLATE = ",";
+        //星号
+        final public String ASTERISK = "*";
+        //文件解压目录
+        final public String DIR_BAK = "bak";
+        //斜线
+        final public String VIRGULE = "/";
+        //商品缓存(proId)key:PID
+        final public String PID = "PID";
+        //商品缓存(barcode)key:BAR
+        final public String BAR = "BAR";
+        //生成表格文件路径
+        final public String EXCEL_FILE_PATH = "C:"+java.io.File.separatorChar+"cloudExcel"+java.io.File.separatorChar;
+        final public String VENDOR_CAR_PATH = "C:"+java.io.File.separatorChar+"cloudPic"+java.io.File.separatorChar;
+        final public String FILE_SUFFIX_PNG = "png";
+    }
+
+
+
+
+
 }
