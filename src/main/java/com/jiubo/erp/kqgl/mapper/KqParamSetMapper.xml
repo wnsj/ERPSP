@@ -286,12 +286,13 @@
     <resultMap type="com.jiubo.erp.kqgl.bean.PositionDataBean" id="positionDataMap">
         <result column="POSITION_ID" property="Position_ID"/>
         <result column="POSITION_NAME" property="Position_Name"/>
+        <result column="POSITIONTYPE_ID" property="PositionType_ID"/>
     </resultMap>
     <!-- 查询部门下的岗位 -->
     <select id="queryPositionDataByDeptId" resultMap="positionDataMap">
-        SELECT A.DEPARTMENT_ID,B.POSITION_ID,C.POSITION_NAME
+        SELECT A.DEPARTMENT_ID,B.POSITION_ID,C.POSITION_NAME,C.POSITIONTYPE_ID
         FROM T_EMPLOYEE_BASIC A,ACCOUNT_DATA B,POSITION_DATA C
-        WHERE A.ACCOUNT = B.ACCOUNT_ID AND B.POSITION_ID = C.POSITION_ID
+        WHERE A.ACCOUNT = B.ACCOUNT_ID AND B.POSITION_ID = C.POSITION_ID AND A.STATE = 1
         <if test="deptId != null and deptId != ''">
             AND A.DEPARTMENT_ID = #{deptId}
         </if>
@@ -301,7 +302,7 @@
         <if test="isPoint != null and isPoint != ''">
             AND C.ISPOINT = 1
         </if>
-        GROUP BY A.DEPARTMENT_ID,B.POSITION_ID,C.POSITION_NAME
+        GROUP BY A.DEPARTMENT_ID,B.POSITION_ID,C.POSITION_NAME,C.POSITIONTYPE_ID
     </select>
 
     <!--查询部门树-->
@@ -310,5 +311,12 @@
         FROM F_GETCHILD(0) A,T_DEPARTMENT B
         WHERE A.ID = B.ID
         ORDER BY B.ORDERNUM
+    </select>
+
+    <!--    查询职位下的在职员工-->
+    <select id="queryEmpByPostId" resultType="com.jiubo.erp.rygl.bean.EmployeeBasicBean">
+        SELECT ACCOUNT_ID ACCOUNT,ACCOUNT_NAME NAME
+        FROM V_ACCOUNTDATA
+        WHERE ACCOUNT_STATE = '在用' AND POSITION_ID = #{postId}
     </select>
 </mapper>

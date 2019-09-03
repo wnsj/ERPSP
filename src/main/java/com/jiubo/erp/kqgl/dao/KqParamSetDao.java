@@ -124,4 +124,7 @@ public interface KqParamSetDao {
 
     //查询部门树
     public List<DepartmentBean> queryDeptTree();
+
+    //查询职位下的在职员工
+    public List<EmployeeBasicBean> queryEmpByPostId(String postId);
 }

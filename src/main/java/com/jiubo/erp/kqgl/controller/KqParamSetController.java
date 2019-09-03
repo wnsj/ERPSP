@@ -490,8 +490,6 @@ public class KqParamSetController {
         }
     }
 
-    ;
-
     /**
      * @desc:添加班组
      * @param:
@@ -530,8 +528,6 @@ public class KqParamSetController {
         }
     }
 
-    ;
-
     /**
      * @desc:删除班组
      * @param:
@@ -563,8 +559,6 @@ public class KqParamSetController {
             return result;
         }
     }
-
-    ;
 
     /**
      * @desc:修改班组
@@ -603,8 +597,6 @@ public class KqParamSetController {
         }
     }
 
-    ;
-
     /**
      * @desc:查询部门信息
      * @param:
@@ -635,8 +627,6 @@ public class KqParamSetController {
             return result;
         }
     }
-
-    ;
 
     /**
      * @desc:增加部门信息
@@ -674,8 +664,6 @@ public class KqParamSetController {
         }
     }
 
-    ;
-
     /**
      * @desc:删除部门信息
      * @param:
@@ -707,8 +695,6 @@ public class KqParamSetController {
             return result;
         }
     }
-
-    ;
 
     /**
      * @desc:修改部门信息
@@ -746,8 +732,6 @@ public class KqParamSetController {
         }
     }
 
-    ;
-
     /**
      * 查询岗位类型
      *
@@ -780,8 +764,6 @@ public class KqParamSetController {
             return result;
         }
     }
-
-    ;
 
     /**
      * @desc:添加岗位类型
@@ -821,8 +803,6 @@ public class KqParamSetController {
         }
     }
 
-    ;
-
     /**
      * @desc:删除岗位类型
      * @param:
@@ -854,8 +834,6 @@ public class KqParamSetController {
             return result;
         }
     }
-
-    ;
 
     /**
      * @desc:修改岗位类型
@@ -897,8 +875,6 @@ public class KqParamSetController {
         }
     }
 
-    ;
-
     /**
      * @desc:查询职位信息
      * @param:
@@ -929,8 +905,6 @@ public class KqParamSetController {
             return result;
         }
     }
-
-    ;
 
     /**
      * @desc:添加职位信息
@@ -970,8 +944,6 @@ public class KqParamSetController {
             return result;
         }
     }
-
-    ;
 
     /**
      * @desc:修改职位信息
@@ -1014,8 +986,6 @@ public class KqParamSetController {
         }
     }
 
-    ;
-
     /**
      * @desc:查询部门及部门下的员工
      * @param:
@@ -1046,8 +1016,6 @@ public class KqParamSetController {
             return result;
         }
     }
-
-    ;
 
     /**
      * @desc:查询具体员工的排班计划
@@ -1226,6 +1194,37 @@ public class KqParamSetController {
                 Map<String, Object> requestMap = JSONObject.parseObject(params, Map.class);
             }*/
             result.put(Constant.Result.RETDATA, KqParamSetService.queryDeptTree(null));
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = e.getMessage();
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            log.error(Constant.Result.RETMSG, e);
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+            return result;
+        }
+    }
+
+    /* *
+     * @desc:查询部门下的职位及员工
+   * @author: dx
+     * @date: 2019-09-02 17:13:07
+     * @return: com.alibaba.fastjson.JSONObject
+     * @throws:
+     * @version: 1.0
+     **/
+    //http://127.0.0.1:8080/Erp/kqParamSetContr/queryDeptPostEmp
+    @ResponseBody
+    @RequestMapping(value = "/queryDeptPostEmp", method = {RequestMethod.POST})
+    public JSONObject queryDeptPostEmp() {
+        JSONObject result = new JSONObject();
+        String retCode = Constant.Result.SUCCESS;
+        String retMsg = Constant.Result.SUCCESS_MSG;
+        try {
+            result.put(Constant.Result.RETDATA, KqParamSetService.queryDeptPostEmp());
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
             retMsg = e.getMessage();

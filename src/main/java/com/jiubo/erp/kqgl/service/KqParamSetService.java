@@ -13,6 +13,7 @@ import com.jiubo.erp.kqgl.bean.PositionDataBean;
 import com.jiubo.erp.kqgl.bean.PositionTypeBean;
 import com.jiubo.erp.kqgl.vo.Vacation;
 import com.jiubo.erp.rygl.bean.DepartmentBean;
+import com.jiubo.erp.rygl.bean.EmployeeBasicBean;
 
 public interface KqParamSetService {
     /**
@@ -405,6 +406,27 @@ public interface KqParamSetService {
      * @version: 1.0
      **/
     public void addDeptPreFix(List<DepartmentBean> sourceList, List<DepartmentBean> targetList) throws MessageException;
+
+    /* *
+     * @desc:查询职位下的在职员工
+     * @author: dx
+     * @date: 2019-09-02 16:31:53
+     * @param postId :
+     * @return: java.util.List<com.jiubo.erp.rygl.bean.EmployeeBasicBean>
+     * @throws:
+     * @version: 1.0
+     **/
+    public List<EmployeeBasicBean> queryEmpByPostId(String postId)throws MessageException;
+
+    /* *
+     * @desc:查询部门下的职位及员工
+     * @author: dx
+     * @date: 2019-09-02 17:11:06
+     * @return: java.util.List<com.jiubo.erp.rygl.bean.DepartmentBean>
+     * @throws:
+     * @version: 1.0
+     **/
+    public List<DepartmentBean> queryDeptPostEmp()throws MessageException;
 }
 //班次类别
 //public List<AttShift> queryAttShift();
