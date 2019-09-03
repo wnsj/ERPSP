@@ -614,6 +614,7 @@ public JSONObject updateLeaveApplication(HttpServletResponse response, HttpServl
      * @return
      */
     public JSONObject empRequireCheckList(HttpServletResponse response, HttpServletRequest request) {
+        PLOParam plop = new PLOParam();
 
         JSONObject result = new JSONObject();
         String retCode = Constant.Result.SUCCESS;
@@ -623,9 +624,11 @@ public JSONObject updateLeaveApplication(HttpServletResponse response, HttpServl
             if (StringUtils.isBlank(str))
                 throw new MessageException("参数接收失败！");
             JSONObject jsonData = JSONObject.parseObject(str);
-            int pType = this.dao.selectPositionType(jsonData.getString("positionId"));
-            System.out.println("empRequireCheckList："+str +"pType:"+pType+ jsonData.getString("btnTime")+jsonData.getString("departId"));
-            result.put("resData", this.dao.selectCheckList(jsonData.getString("departId"),jsonData.getString("btnTime"),pType));
+
+            plop= MapUtil.transJsonStrToObjectIgnoreCase(str, PLOParam.class);
+
+            System.out.println("empRequireCheckList："+str +"pType:"+ plop.getClickTimes()+plop.getDepartId());
+            result.put("resData", this.dao.checkEMPRequire(plop));
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;
@@ -655,7 +658,7 @@ public JSONObject updateLeaveApplication(HttpServletResponse response, HttpServl
             JSONObject jsonData = JSONObject.parseObject(str);
 
             System.out.println("empRequireApprolList：" + jsonData.getString("positionId"));
-            result.put("resData", this.dao.selectApprolList(jsonData.getString("positionId")));
+//            result.put("resData", this.dao.selectApprolList(jsonData.getString("positionId")));
         } catch (Exception e) {
             retCode = Constant.Result.ERROR;
             retMsg = Constant.Result.ERROR_MSG;

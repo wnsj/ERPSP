@@ -130,23 +130,55 @@ public class NoticeService {
     @Async
     @Scheduled(cron = "0 0 10 26,28,30 * ?")
     public void regularMeetingNotice() throws Exception {
+        List<String> accountList = noticeDao.queryAccountIdByRule("69");
+        this.timelyExecute(accountList,"例会预约提示","#/paperlessOffice/conferenceRoomManage","若次月例会没有预约，记得预约哦。若已预约，则忽略。");
+    }
+
+    //请假通知
+    @Async
+    @Scheduled(cron = "0 0/5 * * * ?")
+    public void schedulingAskForLeave() throws Exception {
+        List<String> accountList = new ArrayList<>();
+        //请假提醒
+        accountList = noticeDao.askOfLeave();
+        this.timelyExecute(accountList,"请假审批提醒","#/paperlessOffice/askForLeave","有请假需要申请<br>详情请查看【无纸化办公】--请假");
+    }
+
+    //倒休提醒
+    @Async
+    @Scheduled(cron = "0 0/5 * * * ?")
+    public void schedulingOfRestDown() throws Exception {
+        List<String> accountList = new ArrayList<>();
+        accountList = noticeDao.restDown();
+        this.timelyExecute(accountList,"倒休审批提醒","#/paperlessOffice/restdown","有倒休需要申请<br>详情请查看【无纸化办公】--倒休");
+    }
+
+    /**
+     * 提醒内容合并
+     * @param accountList 需要被提醒人的账号集合
+     * @param title 被提醒的title
+     * @param url  点击提醒弹窗后，通过这个url跳转到指定页面
+     * @param body 提醒的内容
+     * @throws Exception
+     */
+    public void timelyExecute(List<String> accountList,String title,String url,String body) throws Exception {
         if (accountIdSessionIdMap.isEmpty()) {
             log.error("当前没有用户在线!");
             return;
         }
-        List<String> accountList = noticeDao.queryAccountIdByRule("69");
         if(accountList == null || accountList.size() <= 0)return;
         JSONObject jsonObject = new JSONObject();
         jsonObject.put(Constant.Result.RETCODE, Constant.Result.SUCCESS);
         jsonObject.put(Constant.Result.RETMSG, Constant.Result.SUCCESS_MSG);
         Map<String, Object> context = new HashMap<String, Object>();
         context.put("icon", "https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1565946516414&di=2f925456dfc0bbfc8ba457c6e38fb0ce&imgtype=0&src=http%3A%2F%2Fb-ssl.duitang.com%2Fuploads%2Fitem%2F201607%2F13%2F20160713110827_vyiPR.thumb.700_0.png");
-        context.put("title", "例会预约提示");
-        context.put("url", "#/paperlessOffice/conferenceRoomManage");
-        context.put("body", "若次月例会没有预约，记得预约哦。若已预约，则忽略。");
+        context.put("title", title);
+        context.put("url", url);
+        context.put("body", body);
         jsonObject.put(Constant.Result.RETDATA, context);
         sendMessage(jsonObject, accountList);
     }
+
 
     //推送通知
     private int sendMessage(JSONObject data, List<String> peopleList) throws Exception {

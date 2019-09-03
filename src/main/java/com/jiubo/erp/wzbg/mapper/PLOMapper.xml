@@ -1348,7 +1348,69 @@
         </trim>
     </update>
 
+    <!-- 审查人员需求 -->
+    <select id="checkEMPRequire">
+        SELECT
+        ATTP.Account_Name AS accountName,
+        ATTP.Account_ID AS accountId
+        FROM
+        (<choose>
+        <when test="clickTimes == 0">
+            SELECT
+            TD.ID
+            FROM
+            T_Department TD
+            WHERE
+            TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID !=0)
+            OR TD.ID=#{departId}
+            OR TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID !=0))
+            OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 39 END)
+        </when>
+        <when test="clickTimes == 1">
 
+            SELECT
+            TD.ID
+            FROM
+            T_Department TD
+        </when>
+    </choose>)
+        TDS
+
+        LEFT JOIN
+        (SELECT AD.Account_Name, TD.ID, AD.Account_ID
+        FROM Account_Data AD
+        LEFT JOIN
+        T_Employee_Basic TEB ON TEB.Account=AD.Account_ID
+        LEFT JOIN
+        T_Department TD ON TD.ID = TEB.Department_ID
+        LEFT JOIN Position_Data PD
+        ON PD.Position_ID=AD.Position_ID
+        WHERE
+        AD.Account_State='在用' AND TEB.State=1 AND TEB.isDelete=0 AND AD.Account_ID != #{accountId}
+        <choose>
+            <when test="clickTimes == 0">
+                AND (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})&lt;6 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 33 END)
+                )
+            </when>
+            <when test="clickTimes == 1">
+                AND (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) &lt;6 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 33 END)
+                )
+            </when>
+
+        </choose>
+
+        )ATTP ON ATTP.ID=TDS.ID
+        WHERE
+        ATTP.Account_Name IS NOT NULL
+    </select>
 
     <select
             id="selectApplyReason"
@@ -1404,82 +1466,5 @@
         WHERE
         Position_ID=#{positionId}
 	</select>
-    <!-- 人员需求审查人 -->
-    <select
-            id="selectCheckList"
-            resultType="com.jiubo.erp.wzbg.bean.RDBaseInfoBean">
-        SELECT
-        Account_ID AS id
-        ,Account_Name AS name
-        FROM
-        Account_Data AD
-        LEFT JOIN T_Employee_Basic TEB ON AD.Account_ID=TEB.Account
-        LEFT JOIN Position_Data PD ON AD.Position_ID=PD.Position_ID
-        <trim
-                prefix="WHERE"
-                prefixOverrides="AND | OR">
-              1=1
-            <if test="pType!=6">
-               AND PD.PositionType_ID=6
-                <choose>
-                    <when test="btnTime ==1">
-                        AND (
-                        TEB.Department_ID=#{departId}
-                        OR
-                        TEB.Department_ID=(
-                        SELECT Parent_ID FROM T_Department WHERE TEB.Department_ID=#{btnTime}
-                        )
-                        OR
-                        TEB.Department_ID=(
-                        SELECT Parent_ID FROM T_Department WHERE TEB.Department_ID=(
-                        SELECT Parent_ID FROM T_Department WHERE TEB.Department_ID=#{departId}
-                        )
-                        )
-                        )
-                    </when>
-                </choose>
-            </if>
-            <if test="pType==6">
-                AND PD.Position_ID=33
-            </if>
-        </trim>
-    </select>
-
-    <!-- 人员需求批准人 -->
-    <select
-            id="selectApprolList"
-            resultType="com.jiubo.erp.wzbg.bean.RDBaseInfoBean">
-        SELECT
-        Account_ID AS id
-        ,Account_Name AS name
-        FROM
-        Account_Data AD
-        LEFT JOIN Position_Data PD ON AD.Position_ID=PD.Position_ID
-        LEFT JOIN Position_Type PT ON PD.PositionType_ID=PT.PositionType_ID
-        WHERE
-        AD.Position_ID=
-        (CASE WHEN
-                (
-                    SELECT
-                    PD.PositionType_ID
-                    FROM
-                    Position_Data PD
-                    LEFT JOIN Position_Type PT ON PD.PositionType_ID=PT.PositionType_ID
-                    WHERE
-                    PD.Position_ID=#{positionId}
-                )
-            >5 THEN 34
-            WHEN
-                (
-                    SELECT
-                    PD.PositionType_ID
-                    FROM
-                    Position_Data PD
-                    LEFT JOIN Position_Type PT ON PD.PositionType_ID=PT.PositionType_ID
-                    WHERE
-                    PD.Position_ID=#{positionId}
-                )
-            &lt;=5 THEN 33 END)
-    </select>
 
 </mapper>

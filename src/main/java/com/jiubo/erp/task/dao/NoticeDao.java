@@ -17,4 +17,11 @@ public interface NoticeDao {
 
     //根据权限id查询用户
     public List<String> queryAccountIdByRule(String ruleId);
+
+    //查询考勤ID
+    public List<String> askOfLeave();
+
+    //查询倒休
+    public List<String> restDown();
+
 }

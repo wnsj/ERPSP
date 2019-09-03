@@ -49,7 +49,8 @@
             GROUP BY CAIWU_ID
         </if>
         <if test="flag == 7">
-            IF EXISTS (SELECT * FROM OFFICESUPPLIESDATA A WHERE (A.RENSHI_ADVICE = 2 OR A.FUZONG_ADVICE = 2 OR A.CAIWU_ADVICE = 2 OR A.CAIWU_ADVICE = 1 )
+            IF EXISTS (SELECT * FROM OFFICESUPPLIESDATA A WHERE (A.RENSHI_ADVICE = 2 OR A.FUZONG_ADVICE = 2 OR
+            A.CAIWU_ADVICE = 2 OR A.CAIWU_ADVICE = 1 )
             AND A.REN_OTHERSEE IS NULL AND A.IS_TIJIAO = 1)
             SELECT ACCOUNT_ID FROM ACCOUNT_RULE_DATA WHERE RULE_ID = 70
         </if>
@@ -58,5 +59,42 @@
     <!--    根据权限id查询用户-->
     <select id="queryAccountIdByRule" resultType="java.lang.String">
         SELECT ACCOUNT_ID FROM ACCOUNT_RULE_DATA WHERE RULE_ID = #{ruleId}
+    </select>
+
+    <!--    请假通知   -->
+    <select id="askOfLeave" resultType="java.lang.String">
+        SELECT
+            DISTINCT
+            CASE
+            WHEN Result1 IS NULL THEN  Account1
+            WHEN Result2 IS NULL AND  Result1 = '1' THEN  Account2
+            WHEN Result3 IS NULL  AND Result2 = '1' THEN  Account3
+            WHEN Result4 IS NULL AND Result3 = '1' THEN  Account4
+            END AS accountId
+        FROM
+            Leave_Qingjia
+        WHERE
+            (Result1 IS NULL AND Account1 IS NOT NULL)
+            OR ( Result1=1 AND Result2 IS NULL AND Account2 IS NOT NULL)
+            OR ( Result2=1 AND Result3 IS NULL AND Account3 IS NOT NULL)
+            OR ( Result3=1 AND Result4 IS NULL AND Account4 IS NOT NULL)
+    </select>
+    <!--    倒休通知   -->
+    <select id="restDown" resultType="java.lang.String">
+        SELECT
+            DISTINCT
+            CASE
+            WHEN Result1 IS NULL THEN  Account1
+            WHEN Result2 IS NULL AND  Result1 = '1' THEN  Account2
+            WHEN Result3 IS NULL  AND Result2 = '1' THEN  Account3
+            WHEN Result4 IS NULL AND Result3 = '1' THEN  Account4
+            END AS accountId
+        FROM
+            Leave_Qingjia
+        WHERE
+            (Result1 IS NULL AND Account1 IS NOT NULL)
+            OR ( Result1=1 AND Result2 IS NULL AND Account2 IS NOT NULL)
+            OR ( Result2=1 AND Result3 IS NULL AND Account3 IS NOT NULL)
+            OR ( Result3=1 AND Result4 IS NULL AND Account4 IS NOT NULL)
     </select>
 </mapper>

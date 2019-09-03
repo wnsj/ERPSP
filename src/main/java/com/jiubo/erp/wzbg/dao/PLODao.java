@@ -68,12 +68,8 @@ public interface PLODao {
 	public int selectPositionType(@Param(value="positionId") String positionId);
 
 	//审查人
-	public List<RDBaseInfoBean> selectCheckList(@Param(value="departId") String departId,@Param(value="btnTime") String btnTime,@Param(value="pType") Integer pType);
+	public List<EmployeeOfCheck>checkEMPRequire(PLOParam ploParam);
 
-	//审核人
-	public List<RDBaseInfoBean> selectApprolList(@Param(value="positionId") String positionId);
-
-	
 }
 
 
