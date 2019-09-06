@@ -1081,4 +1081,11 @@
             </if>
         </where>
     </update>
+
+    <!--    查询接单人-->
+    <select id="queryJieDanRen" resultType="java.util.Map">
+         SELECT ACCOUNT_ID ,ACCOUNT_NAME
+         FROM V_ACCOUNTDATA
+         WHERE DEPARTMENT_ID = 23 AND STATE = 1
+    </select>
 </mapper>

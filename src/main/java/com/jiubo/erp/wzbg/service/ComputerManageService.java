@@ -2,6 +2,7 @@ package com.jiubo.erp.wzbg.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.jiubo.erp.common.MessageException;
 import com.jiubo.erp.wzbg.bean.ComputerManageBean;
 
 import java.util.List;
@@ -25,4 +26,6 @@ public interface ComputerManageService extends IService<ComputerManageBean> {
     //修改电脑用品申请
     public void updateComputer(ComputerManageBean computerManageBean);
 
+    //主管，负责人审核
+    public void shenHe(ComputerManageBean computerManageBean) throws MessageException;
 }

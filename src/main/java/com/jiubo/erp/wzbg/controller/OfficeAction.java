@@ -852,4 +852,37 @@ public class OfficeAction {
             return result;
         }
     }
+
+    /* *
+     * @desc:查询接单人
+     * @author: dx
+     * @date: 2019-09-04 15:43:08
+     * @param request :
+     * @param response :
+     * @return: com.alibaba.fastjson.JSONObject
+     * @throws:
+     * @version: 1.0
+     **/
+    //http://127.0.0.1:8080/Erp/officeAction/queryJieDanRen
+    @ResponseBody
+    @RequestMapping(value = "/queryJieDanRen", method = RequestMethod.POST)
+    public JSONObject queryJieDanRen(HttpServletRequest request, HttpServletResponse response) {
+        JSONObject result = new JSONObject();
+        String retCode = Constant.Result.SUCCESS;
+        String retMsg = Constant.Result.SUCCESS_MSG;
+        try {
+            result.put(Constant.Result.RETDATA, wzbgService.queryJieDanRen());
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = e.getMessage();
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            logger.error(Constant.Result.RETMSG, e);
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+            return result;
+        }
+    }
 }

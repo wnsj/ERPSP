@@ -18,6 +18,7 @@ public interface ComputerManageDao extends BaseMapper<ComputerManageBean> {
     //查询电脑用品
     List<ComputerManageBean> queryComputer(ComputerManageBean computerManageBean);
 
-    //新增电脑用品
-    //int addComputer(ComputerManageBean computerManageBean);
+    //主管，负责人审核
+    int shenHe(ComputerManageBean computerManageBean);
+
 }
