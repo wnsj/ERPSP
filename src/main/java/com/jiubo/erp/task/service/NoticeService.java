@@ -196,7 +196,9 @@ public class NoticeService {
             }
 
             for (Session session : sessions) {
-                session.getBasicRemote().sendText(jsonObject.toJSONString());
+                synchronized (session){
+                    session.getBasicRemote().sendText(jsonObject.toJSONString());
+                }
             }
         }
         return 0;

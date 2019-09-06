@@ -2,6 +2,7 @@ package com.jiubo.erp.wzbg.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.jiubo.erp.common.Constant;
+import com.jiubo.erp.common.ExcelUtil;
 import com.jiubo.erp.common.MapUtil;
 import com.jiubo.erp.common.MessageException;
 import com.jiubo.erp.rygl.controller.EmpController;
@@ -13,8 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
@@ -25,488 +25,496 @@ import java.io.*;
 import java.util.Iterator;
 
 /**
- * 
  * @author mwl
- *
  */
-@Controller
+@RestController
 @RequestMapping("/wzbg")
 public class PLOController {
 
-	public static Logger log = LoggerFactory.getLogger(EmpController.class);
-	@Autowired
-	private PLOService service;
+    public static Logger log = LoggerFactory.getLogger(EmpController.class);
+    @Autowired
+    private PLOService service;
 
-	/**
-	 * 请假-列表
-	 * 
-	 * @param response
-	 * @param request
-	 * @return JSONObject
-	 * @author 作者 : mwl
-	 * @version 创建时间：2019年7月3日 下午2:35:25
-	 */
+    /**
+     * 请假-列表
+     *
+     * @param response
+     * @param request
+     * @return JSONObject
+     * @author 作者 : mwl
+     * @version 创建时间：2019年7月3日 下午2:35:25
+     */
 
-	@ResponseBody
-	@RequestMapping(value = "/askOfLeaveList")
-	public JSONObject askOfLeaveList(HttpServletResponse response, HttpServletRequest request) {
-		return this.service.askOfLeaveList(response, request);
-	}
+    @ResponseBody
+    @RequestMapping(value = "/askOfLeaveList")
+    public JSONObject askOfLeaveList(HttpServletResponse response, HttpServletRequest request) {
+        return this.service.askOfLeaveList(response, request);
+    }
 
-	/**
-	 * 请假申请
-	 * 
-	 * @param response
-	 * @param request
-	 * @return JSONObject
-	 * @author 作者 : mwl
-	 * @version 创建时间：2019年7月8日 上午9:43:42
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/insertLeaveApplication")
-	public JSONObject insertLeaveApplication(HttpServletResponse response, HttpServletRequest request) {
+    /**
+     * 请假申请
+     *
+     * @param response
+     * @param request
+     * @return JSONObject
+     * @author 作者 : mwl
+     * @version 创建时间：2019年7月8日 上午9:43:42
+     */
+    @ResponseBody
+    @RequestMapping(value = "/insertLeaveApplication")
+    public JSONObject insertLeaveApplication(HttpServletResponse response, HttpServletRequest request) {
 
-		return this.service.insertLeaveApplication(response, request);
-	}
+        return this.service.insertLeaveApplication(response, request);
+    }
 
-	/**
-	 * 请假修改 方法说明
-	 * 
-	 * @param response
-	 * @param request
-	 * @return JSONObject
-	 * @author 作者 : mwl
-	 * @version 创建时间：2019年7月22日 上午9:38:51
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/updateLeaveApplication")
-	public JSONObject updateLeaveApplication(HttpServletResponse response, HttpServletRequest request) {
+    /**
+     * 请假修改 方法说明
+     *
+     * @param response
+     * @param request
+     * @return JSONObject
+     * @author 作者 : mwl
+     * @version 创建时间：2019年7月22日 上午9:38:51
+     */
+    @ResponseBody
+    @RequestMapping(value = "/updateLeaveApplication")
+    public JSONObject updateLeaveApplication(HttpServletResponse response, HttpServletRequest request) {
 
-		return this.service.updateLeaveApplication(response, request);
-	}
+        return this.service.updateLeaveApplication(response, request);
+    }
 
-	/**
-	 * 请假 -- 代理人员列表
-	 * 
-	 * @param response
-	 * @param request
-	 * @return JSONObject
-	 * @author 作者 : mwl
-	 * @version 创建时间：2019年7月3日 下午2:37:15
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/departOfEmpList")
-	public JSONObject selectDepartOfEmpList(HttpServletResponse response, HttpServletRequest request) {
+    /**
+     * 请假 -- 代理人员列表
+     *
+     * @param response
+     * @param request
+     * @return JSONObject
+     * @author 作者 : mwl
+     * @version 创建时间：2019年7月3日 下午2:37:15
+     */
+    @ResponseBody
+    @RequestMapping(value = "/departOfEmpList")
+    public JSONObject selectDepartOfEmpList(HttpServletResponse response, HttpServletRequest request) {
 
-		return this.service.selectDepartOfEmpList(response, request);
-	}
+        return this.service.selectDepartOfEmpList(response, request);
+    }
 
-	/**
-	 * 请假审查 -- 审查人列表 根据请假人的级别查看审查列表
-	 * 
-	 * @param response
-	 * @param request
-	 * @return JSONObject
-	 * @author 作者 : mwl
-	 * @version 创建时间：2019年7月8日 上午10:20:08
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/checkOfEmpList")
-	public JSONObject checkOfEmpList(HttpServletResponse response, HttpServletRequest request) {
+    /**
+     * 请假审查 -- 审查人列表 根据请假人的级别查看审查列表
+     *
+     * @param response
+     * @param request
+     * @return JSONObject
+     * @author 作者 : mwl
+     * @version 创建时间：2019年7月8日 上午10:20:08
+     */
+    @ResponseBody
+    @RequestMapping(value = "/checkOfEmpList")
+    public JSONObject checkOfEmpList(HttpServletResponse response, HttpServletRequest request) {
 
-		return this.service.checkOfEmpList(response, request);
-	}
-
-
-	/**
-	 * 请假审核 -- 审查人列表 根据请假人的级别查看审查列表
-	 *
-	 * @param response
-	 * @param request
-	 * @return JSONObject
-	 * @author 作者 : mwl
-	 * @version 创建时间：2019年7月8日 上午10:20:08
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/verifyOfEmpList")
-	public JSONObject verifyOfEmpList(HttpServletResponse response, HttpServletRequest request) {
-
-		PLOParam plop = new PLOParam();
-		JSONObject result = new JSONObject();
-		String retCode = Constant.Result.SUCCESS;
-		String retMsg = Constant.Result.SUCCESS_MSG;
-		try {
-			String str = ToolClass.getStrFromInputStream(request);
-			if (StringUtils.isBlank(str))
-				throw new MessageException("参数接收失败！");
-			plop = MapUtil.transJsonStrToObjectIgnoreCase(str, PLOParam.class);
-			result.put("resData", this.service.verifyOfEmpList(plop));
-		} catch (MessageException e) {
-			retCode = Constant.Result.ERROR;
-			retMsg = e.getMessage();
-		} catch (Exception e) {
-			retCode = Constant.Result.ERROR;
-			retMsg = Constant.Result.ERROR_MSG;
-			log.error(Constant.Result.RETMSG, e);
-		} finally {
-			result.put(Constant.Result.RETCODE, retCode);
-			result.put(Constant.Result.RETMSG, retMsg);
-			return result;
-		}
-	}
+        return this.service.checkOfEmpList(response, request);
+    }
 
 
-	/**
-	 * 请假审批 -- 审查人列表 根据请假人的级别查看审查列表
-	 *
-	 * @param response
-	 * @param request
-	 * @return JSONObject
-	 * @author 作者 : mwl
-	 * @version 创建时间：2019年7月8日 上午10:20:08
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/approveOfEmpList")
-	public JSONObject approveOfEmpList(HttpServletResponse response, HttpServletRequest request) {
+    /**
+     * 请假审核 -- 审查人列表 根据请假人的级别查看审查列表
+     *
+     * @param response
+     * @param request
+     * @return JSONObject
+     * @author 作者 : mwl
+     * @version 创建时间：2019年7月8日 上午10:20:08
+     */
+    @ResponseBody
+    @RequestMapping(value = "/verifyOfEmpList")
+    public JSONObject verifyOfEmpList(HttpServletResponse response, HttpServletRequest request) {
 
-		PLOParam plop = new PLOParam();
-		JSONObject result = new JSONObject();
-		String retCode = Constant.Result.SUCCESS;
-		String retMsg = Constant.Result.SUCCESS_MSG;
-		try {
-			String str = ToolClass.getStrFromInputStream(request);
-			if (StringUtils.isBlank(str))
-				throw new MessageException("参数接收失败！");
-			plop = MapUtil.transJsonStrToObjectIgnoreCase(str, PLOParam.class);
-			System.out.println("plop:"+plop.toString());
-			result.put("resData", this.service.approveOfEmpList(plop));
-		} catch (MessageException e) {
-			retCode = Constant.Result.ERROR;
-			retMsg = e.getMessage();
-		} catch (Exception e) {
-			retCode = Constant.Result.ERROR;
-			retMsg = Constant.Result.ERROR_MSG;
-			log.error(Constant.Result.RETMSG, e);
-		} finally {
-			result.put(Constant.Result.RETCODE, retCode);
-			result.put(Constant.Result.RETMSG, retMsg);
-			return result;
-		}
-	}
-
-	/**
-	 * 倒休 列表
-	 * 
-	 * @param response
-	 * @param request
-	 * @return JSONObject
-	 * @author 作者 : mwl
-	 * @version 创建时间：2019年7月8日 上午9:45:48
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/restDownList")
-	public JSONObject restDownList(HttpServletResponse response, HttpServletRequest request) {
-
-		return this.service.restDownList(response, request);
-	}
-
-	
-	/**
-	 * 倒休 申请
-	 * 
-	 * @param response
-	 * @param request
-	 * @return JSONObject
-	 * @author 作者 : mwl
-	 * @version 创建时间：2019年7月8日 上午9:45:48
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/restDownApply")
-	public JSONObject restDownApply(HttpServletResponse response, HttpServletRequest request) {
-
-		return this.service.restDownApply(response, request);
-	}
-
-	
-	/**
-	 * 倒休 修改
-	 * 
-	 * @param response
-	 * @param request
-	 * @return JSONObject
-	 * @author 作者 : mwl
-	 * @version 创建时间：2019年7月8日 上午9:45:48
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/updateRestDown")
-	public JSONObject updateRestDown(HttpServletResponse response, HttpServletRequest request) {
-
-		return this.service.restDownModify(response, request);
-	}
-
-	/**
-	 * 人员需求列表
-	 * 方法说明
-	 * @param response
-	 * @param request
-	 * @return
-	 * JSONObject
-	 * @author 作者 : mwl
-	 * @version 创建时间：2019年8月1日 下午1:42:27
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/empRequireLsit")
-	public JSONObject selectEmpRequireLsit(HttpServletResponse response, HttpServletRequest request) {
-
-		return this.service.selectEmpRequireLsit(response, request);
-	};
-
-	/**
-	 * 人员需求申请
-	 * 方法说明
-	 * @param response
-	 * @param request
-	 * @return
-	 * JSONObject
-	 * @author 作者 : mwl
-	 * @version 创建时间：2019年8月1日 下午1:42:27
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/insertEmpRequireApply")
-	public JSONObject insertEmpRequireApply(HttpServletResponse response, HttpServletRequest request) {
-
-		return this.service.insertEmpRequireApply(response, request);
-	};
-	/**
-	 * 修改人员需求
-	 * 方法说明
-	 * @param response
-	 * @param request
-	 * @return
-	 * JSONObject
-	 * @author 作者 : mwl
-	 * @version 创建时间：2019年8月1日 下午1:43:01
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/updateRYRequire")
-	public JSONObject updateRYRequire(HttpServletResponse response, HttpServletRequest request) {
-
-		return this.service.updateRYRequire(response, request);
-	}
-
-	/**
-	 * 工作年限
-	 * 方法说明
-	 * @param response
-	 * @param request
-	 * @return
-	 * JSONObject
-	 * @author 作者 : mwl
-	 * @version 创建时间：2019年8月1日 下午1:43:30
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/selectWorkAge")
-	public JSONObject selectWorkAge(HttpServletResponse response, HttpServletRequest request) {
-		return this.service.selectWorkAge(response, request);
-	}
-
-	/**
-	 * 专业
-	 * 方法说明
-	 * @param response
-	 * @param request
-	 * @return
-	 * JSONObject
-	 * @author 作者 : mwl
-	 * @version 创建时间：2019年8月1日 下午1:43:54
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/selectMajor")
-	public JSONObject selectMajor(HttpServletResponse response, HttpServletRequest request) {
-		return this.service.selectMajor(response, request);
-	}
-
-	/**
-	 * 跳槽频率
-	 * 方法说明
-	 * @param response
-	 * @param request
-	 * @return
-	 * JSONObject
-	 * @author 作者 : mwl
-	 * @version 创建时间：2019年8月1日 下午1:44:21
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/jobHopFrequency")
-	public JSONObject selectJobHopFrequency(HttpServletResponse response, HttpServletRequest request) {
-		return this.service.selectJobHopFrequency(response, request);
-	}
-
-	/**
-	 * 行业
-	 * 方法说明
-	 * @param response
-	 * @param request
-	 * @return
-	 * JSONObject
-	 * @author 作者 : mwl
-	 * @version 创建时间：2019年8月1日 下午1:45:25
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/industryBackground")
-	public JSONObject selectIndustryBackground(HttpServletResponse response, HttpServletRequest request) {
-		return this.service.selectIndustryBackground(response, request);
-	}
-
-	/**
-	 * 年龄段列表
-	 * 方法说明
-	 * @param response
-	 * @param request
-	 * @return
-	 * JSONObject
-	 * @author 作者 : mwl
-	 * @version 创建时间：2019年8月1日 下午1:45:58
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/selectAgeLsit")
-	public JSONObject selectAgeLsit(HttpServletResponse response, HttpServletRequest request) {
-
-		return this.service.selectAgeLsit(response, request);
-	}
-
-
-	/**
-	 *  人员需求审查人列表
-	 * @param response
-	 * @param request
-	 * @return
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/empRequireCheckList")
-	public JSONObject empRequireCheckList(HttpServletResponse response, HttpServletRequest request){
-
-		return this.service.empRequireCheckList(response,request);
-	}
-
-	/**
-	 * 人员需求审批人列表
-	 * @param response
-	 * @param request
-	 * @return
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/empRequireApprolList")
-	public JSONObject empRequireApprolList(HttpServletResponse response, HttpServletRequest request){
-
-		return this.service.empRequireApprolList(response,request);
-	}
-	
-	
-	
-	/**
-	 * 文件上传 方法说明
-	 * 
-	 * @param request
-	 * @param response
-	 * @return ModelAndView
-	 * @author 作者 : mwl
-	 * @version 创建时间：2019年7月25日 上午10:11:12
-	 * @throws UnsupportedEncodingException
-	 */
-	@ResponseBody
-	@RequestMapping(value = "/upload2")
-	public void postUpload(HttpServletRequest request, HttpServletResponse response)
-			throws UnsupportedEncodingException {
-
-		request.setCharacterEncoding("UTF-8");
-		// 文件上传核心类
-		CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(
-				request.getSession().getServletContext());
-
-		// 判断request是否有文件上传
-		if (multipartResolver.isMultipart(request)) {
-			// 通过MultipartHttpServletRequest解析上传请求中的文件
-			MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
-			// 获取上传请求中的所有文件
-			Iterator<String> iter = multiRequest.getFileNames();
-			while (iter.hasNext()) {
-				// 转换成spring支持的文件类型MultipartFile
-				MultipartFile file = multiRequest.getFile(iter.next());
-				if (file != null) {
-					File localFile = new File("D:/Output/" + file.getOriginalFilename());
-					try {
-						// 将上传文件写到指定位置,此处是本地文件夹
-						file.transferTo(localFile);
-					} catch (IllegalStateException e) {
-						e.printStackTrace();
-					} catch (IOException e) {
-						e.printStackTrace();
-					}
-				}
-			}
-		}
-
-	}
-
-	
-	
-	@ResponseBody
-	@RequestMapping(value = "/downloadFile")
-	public void downloadFile(HttpServletRequest request, HttpServletResponse response) {
-//	public static void downloadFile(HttpServletResponse response,String fileName,String path){
-		System.out.println("下载文件进来了，开始下载");
-		String fileName="whoIsMe.doc";
-		String path = "/ERP/WebContent/updateFile/";
-		System.out.println("path:"+path);
-        if (fileName != null) {
-            //设置文件路径
-            File file = new File(path);
-            if (file.exists()) {
-                response.setHeader("content-type", "application/octet-stream");
-                response.setContentType("application/octet-stream");
-                try {
-                    response.setHeader("Content-Disposition", "attachment;filename="+new String(fileName.getBytes("utf-8"),"ISO-8859-1"));
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                }
-                byte[] buffer = new byte[1024];
-                FileInputStream fis = null;
-                BufferedInputStream bis = null;
-                try {
-                    fis = new FileInputStream(file);
-                    bis = new BufferedInputStream(fis);
-                    OutputStream os = response.getOutputStream();
-                    int i = bis.read(buffer);
-                    while (i != -1) {
-                        os.write(buffer, 0, i);
-                        i = bis.read(buffer);
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    if (bis != null) {
-                        try {
-                            bis.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    if (fis != null) {
-                        try {
-                            fis.close();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
+        PLOParam plop = new PLOParam();
+        JSONObject result = new JSONObject();
+        String retCode = Constant.Result.SUCCESS;
+        String retMsg = Constant.Result.SUCCESS_MSG;
+        try {
+            String str = ToolClass.getStrFromInputStream(request);
+            if (StringUtils.isBlank(str))
+                throw new MessageException("参数接收失败！");
+            plop = MapUtil.transJsonStrToObjectIgnoreCase(str, PLOParam.class);
+            result.put("resData", this.service.verifyOfEmpList(plop));
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = e.getMessage();
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            log.error(Constant.Result.RETMSG, e);
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+            return result;
         }
     }
 
-	
-	
-	
+
+    /**
+     * 请假审批 -- 审查人列表 根据请假人的级别查看审查列表
+     *
+     * @param response
+     * @param request
+     * @return JSONObject
+     * @author 作者 : mwl
+     * @version 创建时间：2019年7月8日 上午10:20:08
+     */
+    @ResponseBody
+    @RequestMapping(value = "/approveOfEmpList")
+    public JSONObject approveOfEmpList(HttpServletResponse response, HttpServletRequest request) {
+
+        PLOParam plop = new PLOParam();
+        JSONObject result = new JSONObject();
+        String retCode = Constant.Result.SUCCESS;
+        String retMsg = Constant.Result.SUCCESS_MSG;
+        try {
+            String str = ToolClass.getStrFromInputStream(request);
+            if (StringUtils.isBlank(str))
+                throw new MessageException("参数接收失败！");
+            plop = MapUtil.transJsonStrToObjectIgnoreCase(str, PLOParam.class);
+            System.out.println("plop:" + plop.toString());
+            result.put("resData", this.service.approveOfEmpList(plop));
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = e.getMessage();
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            log.error(Constant.Result.RETMSG, e);
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+            return result;
+        }
+    }
+
+    /**
+     * 倒休 列表
+     *
+     * @param response
+     * @param request
+     * @return JSONObject
+     * @author 作者 : mwl
+     * @version 创建时间：2019年7月8日 上午9:45:48
+     */
+    @ResponseBody
+    @RequestMapping(value = "/restDownList")
+    public JSONObject restDownList(HttpServletResponse response, HttpServletRequest request) {
+
+        return this.service.restDownList(response, request);
+    }
+
+
+    /**
+     * 倒休 申请
+     *
+     * @param response
+     * @param request
+     * @return JSONObject
+     * @author 作者 : mwl
+     * @version 创建时间：2019年7月8日 上午9:45:48
+     */
+    @ResponseBody
+    @RequestMapping(value = "/restDownApply")
+    public JSONObject restDownApply(HttpServletResponse response, HttpServletRequest request) {
+
+        return this.service.restDownApply(response, request);
+    }
+
+
+    /**
+     * 倒休 修改
+     *
+     * @param response
+     * @param request
+     * @return JSONObject
+     * @author 作者 : mwl
+     * @version 创建时间：2019年7月8日 上午9:45:48
+     */
+    @ResponseBody
+    @RequestMapping(value = "/updateRestDown")
+    public JSONObject updateRestDown(HttpServletResponse response, HttpServletRequest request) {
+
+        return this.service.restDownModify(response, request);
+    }
+
+    /**
+     * 人员需求列表
+     * 方法说明
+     *
+     * @param response
+     * @param request
+     * @return JSONObject
+     * @author 作者 : mwl
+     * @version 创建时间：2019年8月1日 下午1:42:27
+     */
+    @ResponseBody
+    @RequestMapping(value = "/empRequireLsit")
+    public JSONObject selectEmpRequireLsit(HttpServletResponse response, HttpServletRequest request) {
+
+        return this.service.selectEmpRequireLsit(response, request);
+    }
+
+    ;
+
+    /**
+     * 人员需求申请
+     * 方法说明
+     *
+     * @param response
+     * @param request
+     * @return JSONObject
+     * @author 作者 : mwl
+     * @version 创建时间：2019年8月1日 下午1:42:27
+     */
+    @ResponseBody
+    @RequestMapping(value = "/insertEmpRequireApply")
+    public JSONObject insertEmpRequireApply(HttpServletResponse response, HttpServletRequest request) {
+
+        return this.service.insertEmpRequireApply(response, request);
+    }
+
+    ;
+
+    /**
+     * 修改人员需求
+     * 方法说明
+     *
+     * @param response
+     * @param request
+     * @return JSONObject
+     * @author 作者 : mwl
+     * @version 创建时间：2019年8月1日 下午1:43:01
+     */
+    @ResponseBody
+    @RequestMapping(value = "/updateRYRequire")
+    public JSONObject updateRYRequire(HttpServletResponse response, HttpServletRequest request) {
+
+        return this.service.updateRYRequire(response, request);
+    }
+
+    /**
+     * 工作年限
+     * 方法说明
+     *
+     * @param response
+     * @param request
+     * @return JSONObject
+     * @author 作者 : mwl
+     * @version 创建时间：2019年8月1日 下午1:43:30
+     */
+    @ResponseBody
+    @RequestMapping(value = "/selectWorkAge")
+    public JSONObject selectWorkAge(HttpServletResponse response, HttpServletRequest request) {
+        return this.service.selectWorkAge(response, request);
+    }
+
+    /**
+     * 专业
+     * 方法说明
+     *
+     * @param response
+     * @param request
+     * @return JSONObject
+     * @author 作者 : mwl
+     * @version 创建时间：2019年8月1日 下午1:43:54
+     */
+    @ResponseBody
+    @RequestMapping(value = "/selectMajor")
+    public JSONObject selectMajor(HttpServletResponse response, HttpServletRequest request) {
+        return this.service.selectMajor(response, request);
+    }
+
+    /**
+     * 跳槽频率
+     * 方法说明
+     *
+     * @param response
+     * @param request
+     * @return JSONObject
+     * @author 作者 : mwl
+     * @version 创建时间：2019年8月1日 下午1:44:21
+     */
+    @ResponseBody
+    @RequestMapping(value = "/jobHopFrequency")
+    public JSONObject selectJobHopFrequency(HttpServletResponse response, HttpServletRequest request) {
+        return this.service.selectJobHopFrequency(response, request);
+    }
+
+    /**
+     * 行业
+     * 方法说明
+     *
+     * @param response
+     * @param request
+     * @return JSONObject
+     * @author 作者 : mwl
+     * @version 创建时间：2019年8月1日 下午1:45:25
+     */
+    @ResponseBody
+    @RequestMapping(value = "/industryBackground")
+    public JSONObject selectIndustryBackground(HttpServletResponse response, HttpServletRequest request) {
+        return this.service.selectIndustryBackground(response, request);
+    }
+
+    /**
+     * 年龄段列表
+     * 方法说明
+     *
+     * @param response
+     * @param request
+     * @return JSONObject
+     * @author 作者 : mwl
+     * @version 创建时间：2019年8月1日 下午1:45:58
+     */
+    @ResponseBody
+    @RequestMapping(value = "/selectAgeLsit")
+    public JSONObject selectAgeLsit(HttpServletResponse response, HttpServletRequest request) {
+
+        return this.service.selectAgeLsit(response, request);
+    }
+
+
+    /**
+     * 人员需求审查人列表
+     *
+     * @param response
+     * @param request
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/empRequireCheckList")
+    public JSONObject empRequireCheckList(HttpServletResponse response, HttpServletRequest request) {
+
+        PLOParam plop = new PLOParam();
+        JSONObject result = new JSONObject();
+        String retCode = Constant.Result.SUCCESS;
+        String retMsg = Constant.Result.SUCCESS_MSG;
+        try {
+            String str = ToolClass.getStrFromInputStream(request);
+            if (StringUtils.isBlank(str))
+                throw new MessageException("参数接收失败！");
+            plop = MapUtil.transJsonStrToObjectIgnoreCase(str, PLOParam.class);
+            System.out.println("plop:" + plop.toString());
+            result.put("resData", this.service.checkEMPRequire(plop));
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = e.getMessage();
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            log.error(Constant.Result.RETMSG, e);
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+            return result;
+        }
+    }
+
+    /**
+     * 人员需求审批人列表
+     *
+     * @param response
+     * @param request
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/empRequireVerifyList")
+    public JSONObject empRequireVerifyList(HttpServletResponse response, HttpServletRequest request) {
+
+        PLOParam plop = new PLOParam();
+        JSONObject result = new JSONObject();
+        String retCode = Constant.Result.SUCCESS;
+        String retMsg = Constant.Result.SUCCESS_MSG;
+        try {
+            String str = ToolClass.getStrFromInputStream(request);
+            if (StringUtils.isBlank(str))
+                throw new MessageException("参数接收失败！");
+            plop = MapUtil.transJsonStrToObjectIgnoreCase(str, PLOParam.class);
+            System.out.println("plop:" + plop.toString());
+            result.put("resData", this.service.verifyEMPRequire(plop));
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = e.getMessage();
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            log.error(Constant.Result.RETMSG, e);
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+            return result;
+        }
+    }
+
+    /**
+     * 人员需求审批人列表
+     *
+     * @param response
+     * @param request
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping(value = "/empRequireApprovalList")
+    public JSONObject empRequireApprovalList(HttpServletResponse response, HttpServletRequest request) {
+
+        PLOParam plop = new PLOParam();
+        JSONObject result = new JSONObject();
+        String retCode = Constant.Result.SUCCESS;
+        String retMsg = Constant.Result.SUCCESS_MSG;
+        try {
+            String str = ToolClass.getStrFromInputStream(request);
+            if (StringUtils.isBlank(str))
+                throw new MessageException("参数接收失败！");
+            plop = MapUtil.transJsonStrToObjectIgnoreCase(str, PLOParam.class);
+            System.out.println("plop:" + plop.toString());
+            result.put("resData", this.service.approvalEMPRequire(plop));
+        } catch (MessageException e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = e.getMessage();
+        } catch (Exception e) {
+            retCode = Constant.Result.ERROR;
+            retMsg = Constant.Result.ERROR_MSG;
+            log.error(Constant.Result.RETMSG, e);
+        } finally {
+            result.put(Constant.Result.RETCODE, retCode);
+            result.put(Constant.Result.RETMSG, retMsg);
+            return result;
+        }
+    }
+
+
+    @ResponseBody
+    @RequestMapping(value = "/downloadFile")
+    public String downloadFile(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        System.out.println("文件传来了");
+        //通过数据库查询，要下载的文件的名字
+        ExcelUtil.downloadFile(response,"testWord.doc");
+        return "上传成功";
+    }
+
+    /**
+     * 上传excel
+     *
+     * @param file
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/import")
+    public String addUser(@RequestParam("file") MultipartFile file) throws Exception {
+        System.out.println("文件传来了");
+        //这里可以将文件名存起来，方便下载使用,文件上传过程将文件的MD5值和名字存在数据库中，通过MD5值判断是否上传过次文件
+        //String md5 = DigestUtils.md5Hex(file.getBytes());
+        String fileName = file.getOriginalFilename();
+        ExcelUtil.uploadWord(file,fileName);
+        return "上传成功";
+    }
+
+
 //	
 //	public void downLoad(HttpServletRequest request, HttpServletResponse response){
 //		// 得到要下载的文件名

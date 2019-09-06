@@ -10,11 +10,11 @@
         <!-- lookup parent from repository -->
     </parent>
     <groupId>com.jiubo.erp</groupId>
-    <artifactId>erp</artifactId>
+    <artifactId>ERP</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <!--打包方式-->
     <packaging>war</packaging>
-    <name>erp</name>
+    <name>ERP</name>
     <description>Demo project for Spring Boot</description>
 
     <properties>

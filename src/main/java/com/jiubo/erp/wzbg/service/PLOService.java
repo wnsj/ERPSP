@@ -66,8 +66,11 @@ public interface PLOService {
 	public JSONObject selectAgeLsit(HttpServletResponse response, HttpServletRequest request);
 
 	//审查人
-	public JSONObject empRequireCheckList(HttpServletResponse response, HttpServletRequest request);
+	public List<EmployeeOfCheck> checkEMPRequire(PLOParam ploParam);
+
+	//审核人
+	public List<EmployeeOfCheck>verifyEMPRequire(PLOParam ploParam);
 
 	//审批人
-	public JSONObject empRequireApprolList(HttpServletResponse response, HttpServletRequest request);
+	public List<EmployeeOfCheck>approvalEMPRequire(PLOParam ploParam);
 }

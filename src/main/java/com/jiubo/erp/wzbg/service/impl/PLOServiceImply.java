@@ -374,7 +374,7 @@ public JSONObject updateLeaveApplication(HttpServletResponse response, HttpServl
                 throw new MessageException("参数接收失败！");
             plop = MapUtil.transJsonStrToObjectIgnoreCase(str, PLOParam.class);
             System.out.println("plop:"+plop.toString());
-            result.put("resData", this.dao.selectRestDownList(plop));
+            result.put("resData", this.dao.selectEmpRequireLsit(plop));
         } catch (MessageException e) {
             retCode = Constant.Result.ERROR;
             retMsg = e.getMessage();
@@ -605,39 +605,28 @@ public JSONObject updateLeaveApplication(HttpServletResponse response, HttpServl
     }
 
 
-
-
     /**
      * 人员需求 审查人
-     * @param response
-     * @param request
      * @return
      */
-    public JSONObject empRequireCheckList(HttpServletResponse response, HttpServletRequest request) {
-        PLOParam plop = new PLOParam();
+    public List<EmployeeOfCheck> checkEMPRequire(PLOParam ploParam){  return this.dao.checkEMPRequire(ploParam);}
 
-        JSONObject result = new JSONObject();
-        String retCode = Constant.Result.SUCCESS;
-        String retMsg = Constant.Result.SUCCESS_MSG;
-        try {
-            String str = StreamUtils.copyToString(request.getInputStream(), Charset.forName("UTF-8"));
-            if (StringUtils.isBlank(str))
-                throw new MessageException("参数接收失败！");
-            JSONObject jsonData = JSONObject.parseObject(str);
+    /**
+     * 人员需求 审核人
+     * @param ploParam
+     * @return
+     */
+    public List<EmployeeOfCheck>verifyEMPRequire(PLOParam ploParam){
+        return  this.dao.verifyEMPRequire(ploParam);
+    }
 
-            plop= MapUtil.transJsonStrToObjectIgnoreCase(str, PLOParam.class);
-
-            System.out.println("empRequireCheckList："+str +"pType:"+ plop.getClickTimes()+plop.getDepartId());
-            result.put("resData", this.dao.checkEMPRequire(plop));
-        } catch (Exception e) {
-            retCode = Constant.Result.ERROR;
-            retMsg = Constant.Result.ERROR_MSG;
-            log.error(Constant.Result.RETMSG, e);
-        } finally {
-            result.put(Constant.Result.RETCODE, retCode);
-            result.put(Constant.Result.RETMSG, retMsg);
-            return result;
-        }
+    /**
+     * 审批人
+     * @param ploParam
+     * @return
+     */
+    public List<EmployeeOfCheck>approvalEMPRequire(PLOParam ploParam){
+        return  this.dao.approvalEMPRequire(ploParam);
     }
 
     /**
