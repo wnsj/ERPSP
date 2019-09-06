@@ -3,7 +3,6 @@ package com.jiubo.erp.wzbg.bean;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
-import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
 import lombok.Data;
@@ -44,15 +43,15 @@ public class ComputerManageBean implements Serializable {
     @TableField("End_time")
     private String endTime;
 
-    //申请人姓名
+    //使用人姓名
     @TableField("Apply_name")
     private String applyName;
 
-    //使用人ID
+    //申请人ID
     @TableField("User_ID")
     private String userId;
 
-    //使用人姓名
+    //申请人姓名
     @TableField("User_name")
     private String userName;
 
@@ -109,7 +108,7 @@ public class ComputerManageBean implements Serializable {
     @TableField("User_see")
     private String userSee;
 
-    //申请人ID
+    //使用人ID
     @TableField("Apply_ID")
     private String applyId;
 
@@ -170,4 +169,7 @@ public class ComputerManageBean implements Serializable {
 
     //审核人意见类型【null:全部，1：同意，2：不同意，3：未审核】
     private String adviceType;
+
+    //指定的交接人
+    private String peiJieDanName;
 }

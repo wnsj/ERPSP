@@ -5,8 +5,16 @@
     <!--    查询电脑用品-->
     <select id="queryComputer" resultType="com.jiubo.erp.wzbg.bean.ComputerManageBean">
         SELECT COMPUTER.ID, T1.NAME AS DEPARTMENTNAME, COMPUTER.ID AS CID, TYPE_ID, DEPARTMENTID
-        , START_TIME,JOB_ID, POSITION_NAME, ARTICLES_NAME, A5.ACCOUNT_NAME AS USERNAME, A1.ACCOUNT_NAME AS APPLYNAME
-        , A2.ACCOUNT_NAME AS ZHUNAME, A3.ACCOUNT_NAME AS FUNAME, END_TIME
+        , START_TIME,JOB_ID, POSITION_NAME, ARTICLES_NAME,
+        USER_ID,A5.ACCOUNT_NAME AS USERNAME,
+        APPLY_ID, A1.ACCOUNT_NAME AS APPLYNAME
+        ,ZHU_ID , A2.ACCOUNT_NAME AS ZHUNAME,
+        FU_ID, A3.ACCOUNT_NAME AS FUNAME,
+        PREPARE_ID,A4.ACCOUNT_NAME PREPARENAME,
+        CASE WHEN PEI_JIEDAN_ID IS NULL OR PEI_JIEDAN_ID = 0 THEN NULL
+        WHEN PEI_JIEDAN_ID IS NOT NULL AND PEI_JIEDAN_ID != 0 THEN PEI_JIEDAN_ID END AS PEI_JIEDAN_ID
+        ,A6.ACCOUNT_NAME PEI_JIEDAN_NAME,SHUOMING,
+        END_TIME
         , CASE
         WHEN PREPARE_NAME IS NULL THEN '未交接'
         WHEN PREPARE_NAME IS NOT NULL THEN PREPARE_NAME
@@ -36,6 +44,7 @@
         LEFT JOIN ACCOUNT_DATA A3 ON A3.ACCOUNT_ID = COMPUTER.FU_ID
         LEFT JOIN ACCOUNT_DATA A4 ON A4.ACCOUNT_ID = COMPUTER.PREPARE_ID
         LEFT JOIN ACCOUNT_DATA A5 ON A5.ACCOUNT_ID = COMPUTER.USER_ID
+        LEFT JOIN ACCOUNT_DATA A6 ON A6.ACCOUNT_ID = COMPUTER.PEI_JIEDAN_ID
         LEFT JOIN T_DEPARTMENT T1 ON DEPARTMENTID = T1.ID
         LEFT JOIN POSITION_DATA ON POSITION_DATA.POSITION_ID = JOB_ID
         WHERE COMPUTER.ID >= 0
@@ -81,7 +90,7 @@
         </if>
         <choose>
             <when test="isIng == null or isIng == '' or isIng == 0"></when>
-            <when test="isIng == 1"> AND IS_ING IS NULL</when>
+            <when test="isIng == 1">AND IS_ING IS NULL</when>
             <otherwise>AND IS_ING = #{isIng}</otherwise>
         </choose>
         <if test="isReserve != null and isReserve != ''">
@@ -89,16 +98,53 @@
         </if>
     </select>
 
-    <!--    新增电脑用品申请
-    <insert id="addComputer">
-        INSERT INTO COMPUTER (DEPARTMENTID, START_TIME, END_TIME, APPLY_NAME, USER_ID,
-         USER_NAME, ARTICLES_NAME, ZHU_ID, PREPARE_ID, JOB_ID,
-         ZHU_ADVICE, FU_ADVICE, TYPE_ID, APPLY_SEE, ZHU_SEE,
-         FU_SEE, DUI_SEE, USER_SEE, APPLY_ID, FU_ID,
-         IS_RESERVE, RENSHI_TIME, PREPARE_TIME, PREPARE_NAME, SHUOMING,
-         PEI_JIEDAN_ID, PEI_JIEDAN_ID_SEE, IS_PEI, IS_ING)
-        VALUES (#{DepartmentID}, #{}, NULL, NULL, 2119,
-        NULL, ' 领用电脑 电脑', 254, NULL, 36,
-        1, 0, -1, NULL, 1, 0, 0, 0, 254, 666, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)
-    </insert>-->
+    <!--    主管，负责人审核-->
+    <update id="shenHe">
+        UPDATE COMPUTER
+        SET
+        <trim suffixOverrides=",">
+            <if test="zhuAdvice != null and zhuAdvice != ''">
+                ZHU_ADVICE = #{zhuAdvice},
+            </if>
+            <if test="fuAdvice != null and fuAdvice != ''">
+                FU_ADVICE = #{fuAdvice},
+            </if>
+            <if test="peiJiedanId != null and peiJiedanId != ''">
+                PEI_JIEDAN_ID = #{peiJiedanId},
+            </if>
+            <if test="prepareName != null and prepareName != ''">
+                PREPARE_NAME = #{prepareName},
+            </if>
+            <if test="Shuoming != null and Shuoming != ''">
+                SHUOMING = #{Shuoming},
+            </if>
+            <if test="zhuId != null and zhuId != ''">
+                ZHU_ID = #{zhuId},
+            </if>
+            <if test="fuId != null and fuId != ''">
+                FU_ID = #{fuId},
+            </if>
+            <if test="isIng != null and isIng != ''">
+                IS_ING = #{isIng},
+            </if>
+            <if test="endTime != null and endTime != ''">
+                END_TIME = #{endTime},
+            </if>
+        </trim>
+        WHERE ID = #{id}
+        <if test="zhuAdvice != null and zhuAdvice != ''">
+            AND ZHU_ADVICE = 0 AND IS_ING IS NULL
+        </if>
+        <if test="fuAdvice != null and fuAdvice != ''">
+            AND FU_ADVICE = 0 AND ZHU_ADVICE = 1 AND IS_ING IS NULL
+        </if>
+        <if test="isIng != null and isIng != ''">
+            <if test="isIng == 1">
+                AND IS_ING IS NULL
+            </if>
+            <if test="isIng == 2">
+                AND IS_ING = 1
+            </if>
+        </if>
+    </update>
 </mapper>

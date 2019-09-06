@@ -115,4 +115,7 @@ public interface OfficeDao {
 
     //修改各领导办公用品申请信息查看情况
     public void updateOfficeSuppliesSee(OfficeSuppliesDataBean officeSuppliesDataBean);
+
+    //查询接单人
+    public List<Map<String, Object>> queryJieDanRen();
 }

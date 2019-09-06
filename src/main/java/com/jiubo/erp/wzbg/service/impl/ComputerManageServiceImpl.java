@@ -1,6 +1,7 @@
 package com.jiubo.erp.wzbg.service.impl;
 
 
+import com.jiubo.erp.common.MessageException;
 import com.jiubo.erp.wzbg.bean.ComputerManageBean;
 import com.jiubo.erp.wzbg.dao.ComputerManageDao;
 import com.jiubo.erp.wzbg.service.ComputerManageService;
@@ -12,14 +13,14 @@ import java.util.List;
 
 /**
  * <p>
- *  电脑用品管理服务实现类
+ * 电脑用品管理服务实现类
  * </p>
  *
  * @author dx
  * @since 2019-08-31
  */
 @Service
-public class ComputerManageServiceImpl extends ServiceImpl<ComputerManageDao , ComputerManageBean> implements ComputerManageService {
+public class ComputerManageServiceImpl extends ServiceImpl<ComputerManageDao, ComputerManageBean> implements ComputerManageService {
 
     @Autowired
     private ComputerManageDao computerManageDao;
@@ -37,5 +38,10 @@ public class ComputerManageServiceImpl extends ServiceImpl<ComputerManageDao , C
     @Override
     public void updateComputer(ComputerManageBean computerManageBean) {
         computerManageDao.updateById(computerManageBean);
+    }
+
+    @Override
+    public void shenHe(ComputerManageBean computerManageBean) throws MessageException {
+        if (computerManageDao.shenHe(computerManageBean) <= 0) throw new MessageException("操作失败!");
     }
 }

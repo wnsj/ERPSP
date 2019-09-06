@@ -231,13 +231,13 @@ public interface OfficeService {
     public void updateOfficeUserData(OfficeUserDataBean officeUserDataBean) throws MessageException;
 
     /* *
-    * @desc:会议室查询
-    * @author: dx
-    * @date: 2019-07-23 09:01:50
-    * @return: java.util.List<com.jiubo.erp.zpgl.bean.OfficeDataBean>
-    * @throws:
-    * @version: 1.0
-    **/
+     * @desc:会议室查询
+     * @author: dx
+     * @date: 2019-07-23 09:01:50
+     * @return: java.util.List<com.jiubo.erp.zpgl.bean.OfficeDataBean>
+     * @throws:
+     * @version: 1.0
+     **/
     public List<OfficeDataBean> queryOfficeData() throws MessageException;
 
     /* *
@@ -271,7 +271,7 @@ public interface OfficeService {
      * @throws:
      * @version: 1.0
      **/
-    public List<Map<String,Object>> queryNotice(JSONObject jsonObject)throws MessageException;
+    public List<Map<String, Object>> queryNotice(JSONObject jsonObject) throws MessageException;
 
     /* *
      * @desc:修改各领导办公用品申请信息查看情况
@@ -283,4 +283,14 @@ public interface OfficeService {
      * @version: 1.0
      **/
     public void updateOfficeSuppliesSee(OfficeSuppliesDataBean officeSuppliesDataBean) throws MessageException;
+
+    /* *
+     * @desc:查询接单人
+     * @author: dx
+     * @date: 2019-09-04 15:44:09
+     * @return: java.util.List<java.util.Map<java.lang.String,java.lang.Object>>
+     * @throws:
+     * @version: 1.0
+     **/
+    public List<Map<String, Object>> queryJieDanRen() throws MessageException;
 }
