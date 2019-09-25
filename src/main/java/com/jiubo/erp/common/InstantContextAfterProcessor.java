@@ -3,6 +3,7 @@ package com.jiubo.erp.common;
 import org.springframework.beans.BeansException;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
+import org.springframework.stereotype.Component;
 
 /**
  * @desc:
@@ -10,7 +11,8 @@ import org.springframework.context.ApplicationContextAware;
  * @author: dx
  * @version: 1.0
  */
-public class InstantContextAfterProcessor implements ApplicationContextAware {
+@Component
+public class InstantContextAfterProcessor implements ApplicationContextAware{
 
     public static ApplicationContext applicationContext = null;
 
