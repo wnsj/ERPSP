@@ -44,4 +44,9 @@ public class ComputerManageServiceImpl extends ServiceImpl<ComputerManageDao, Co
     public void shenHe(ComputerManageBean computerManageBean) throws MessageException {
         if (computerManageDao.shenHe(computerManageBean) <= 0) throw new MessageException("操作失败!");
     }
+
+    @Override
+    public List<ComputerManageBean> queryComputerNotice(int flag) throws MessageException {
+        return computerManageDao.queryComputerNotice(flag);
+    }
 }

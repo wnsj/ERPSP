@@ -1200,24 +1200,36 @@
             resultType="com.jiubo.erp.wzbg.bean.EmpRequireBean">
         SELECT P.ID AS id
         ,P.Department_ID AS departmentId
+        ,TD.Name AS departmentName
         ,P.Position_ID AS positionId
+        ,PD.Position_Name AS positionName
         ,P.Apply_Time AS applyTime
         ,P.Need_Time AS needTime
         ,P.Apply_Reason AS applyReason
         ,P.Num AS num
         ,P.Shencha_ID AS shenchaId
+        ,AD1.Account_Name AS shenchaName
         ,P.Shencha_Time AS shenchaTime
-        ,P.Shencha_Advice AS shenchaAdvice
+        ,CASE WHEN P.Shencha_Advice=1 THEN '同意'
+          WHEN P.Shencha_Advice=2 THEN '不同意'
+          WHEN P.Shencha_Advice=0 THEN '等待' END AS shenchaAdvice
         ,P.Shencha_See AS shenchaSee
         ,P.Renli_ID AS renliId
+        ,AD2.Account_Name AS renliName
         ,P.Renli_Time AS renliTime
-        ,P.Renli_Advice AS renliAdvice
+        ,CASE WHEN P.Renli_Advice=1 THEN '同意'
+        WHEN P.Renli_Advice=2 THEN '不同意'
+        WHEN P.Renli_Advice=0 THEN '等待' END AS renliAdvice
         ,P.Renli_See AS renliSee
         ,P.Shenpi_ID AS shenpiId
+        ,AD3.Account_Name AS shenpiName
         ,P.Shenpi_Time AS shenpiTime
-        ,P.Shenpi_Advice AS shenpiAdvice
+        ,CASE WHEN P.Shenpi_Advice=1 THEN '同意'
+        WHEN P.Shenpi_Advice=2 THEN '不同意'
+        WHEN P.Shenpi_Advice=0 THEN '等待' END AS shenpiAdvice
         ,P.Shenpi_See AS shenpiSee
         ,P.Apply_ID AS applyId
+        ,AD4.Account_Name AS applyName
         ,P.Is_Yes AS isYes
         ,P.Yes_Time AS yesTime
         ,P.Sex AS sex
@@ -1234,37 +1246,34 @@
         ,P.Supplement AS supplement
         ,P.File_name AS fileName
         ,P.Apply_type AS applyType
-        ,P.state AS state
+        ,CASE WHEN P.state=1 THEN '已取消' ELSE '正常' END AS state
         FROM Personnel P
-        LEFT JOIN Account_Data AD1 ON
-        P.Shencha_ID=AD1.Account_ID
-        LEFT JOIN Account_Data AD2 ON
-        P.Renli_ID=AD2.Account_ID
-        LEFT JOIN Account_Data AD3 ON
-        Shenpi_ID=AD3.Account_ID
-        LEFT JOIN Account_Data AD4 ON
-        P.Apply_ID=AD4.Account_ID
+        LEFT JOIN T_Employee_Basic TEB ON TEB.Account=P.Apply_ID
+        LEFT JOIN T_Department TD ON TEB.Department_ID=TD.ID
+        LEFT JOIN Account_Data AD1 ON P.Shencha_ID=AD1.Account_ID
+        LEFT JOIN Account_Data AD2 ON P.Renli_ID=AD2.Account_ID
+        LEFT JOIN Account_Data AD3 ON P.Shenpi_ID=AD3.Account_ID
+        LEFT JOIN Account_Data AD4 ON P.Apply_ID=AD4.Account_ID
+        LEFT JOIN Position_Data PD ON PD.Position_ID=AD4.Position_ID
         <trim
                 prefix="WHERE"
                 prefixOverrides="AND | OR">
             <if test="beginDate !=null and beginDate !=''">
-                AND LD.AddTime &gt;=#{beginDate}
+                AND P.Apply_Time &gt;=#{beginDate}
             </if>
             <if test="endDate !=null and endDate !=''">
-                AND LD.AddTime &lt;=#{endDate}
+                AND P.Apply_Time &lt;=#{endDate}
             </if>
             <if test="accountId!=null and accountId!=''">
-                AND (LD.Account1
-                =#{accountId}
-                OR LD.Account2 =#{accountId}
-                OR LD.Account3
-                =#{accountId} OR
-                LD.Account4 =#{accountId})
+                AND (P.Account1 =#{accountId}
+                OR P.Account2 =#{accountId}
+                OR P.Account3 =#{accountId}
+                OR P.Account4 =#{accountId})
             </if>
-            <if test=" positionId !=null and positionId !=''">
+            <if test=" positionId !=null and positionId !='' and positionId !=0">
                 AND P.Position_ID =#{positionId}
             </if>
-            <if test=" departId !=null and departId !=''">
+            <if test=" departId !=null and departId !='' and departId !=0">
                 AND P.Department_ID =#{departId}
             </if>
 
@@ -1276,7 +1285,7 @@
             parameterType="com.jiubo.erp.wzbg.bean.EmpRequireBean">
         INSERT INTO
         Personnel
-        (Department_ID ,Position_ID ,Apply_Time ,Need_Time ,Apply_Reason ,Num AS num
+        (Department_ID ,Position_ID ,Apply_Time ,Need_Time ,Apply_Reason ,Num
         ,Shencha_ID ,Shencha_Time ,Shencha_Advice  ,Shencha_See
         ,Renli_ID  ,Renli_Time ,Renli_Advice  ,Renli_See
         ,Shenpi_ID  ,Shenpi_Time ,Shenpi_Advice ,Shenpi_See
@@ -1307,17 +1316,20 @@
 
         <if test="shenchaId !=null and shenchaId !=''"> Shencha_ID=#{shenchaId}, </if>
         <if test="shenchaTime !=null and shenchaTime !=''"> Shencha_Time=#{shenchaTime}, </if>
-        <if test="shenchaAdvice !=null and shenchaAdvice !=''"> Shencha_Advice=#{shenchaAdvice}, </if>
+        <if test="shenchaAdvice == '同意'">Shencha_Advice=1, </if>
+        <if test="shenchaAdvice == '不同意'">Shencha_Advice=0, </if>
         <if test="shenchaSee !=null and shenchaSee !=''"> Shencha_See=#{shenchaSee}, </if>
 
         <if test="renliId !=null and renliId !=''"> Renli_ID=#{renliId}, </if>
         <if test="renliTime !=null and renliTime !=''"> Renli_Time=#{renliTime}, </if>
-        <if test="renliAdvice !=null and renliAdvice !=''"> Renli_Advice=#{renliAdvice}, </if>
+        <if test="renliAdvice == '同意'">Renli_Advice=1, </if>
+        <if test="renliAdvice == '不同意'">Renli_Advice=0, </if>
         <if test="renliSee !=null and renliSee !=''"> Renli_See=#{renliSee}, </if>
 
         <if test="shenpiId !=null and shenpiId !=''"> Shenpi_ID=#{shenpiId}, </if>
         <if test="shenpiTime !=null and shenpiTime !=''"> Shenpi_Time=#{shenpiTime}, </if>
-        <if test="shenpiAdvice !=null and shenpiAdvice !=''"> Shenpi_Advice=#{shenpiAdvice}, </if>
+        <if test="shenpiAdvice == '同意'">Shenpi_Advice=1, </if>
+        <if test="shenpiAdvice == '不同意'">Shenpi_Advice=0, </if>
         <if test="shenpiSee !=null and shenpiSee !=''"> Shenpi_See=#{shenpiSee}, </if>
 
         <if test="applyId !=null and applyId !=''"> Apply_ID=#{applyId}, </if>
@@ -1337,7 +1349,8 @@
         <if test="supplement !=null and supplement !=''"> File_name=#{supplement}, </if>
         <if test="fileName !=null and fileName !=''"> Supplement=#{fileName}, </if>
         <if test="applyType !=null and applyType !=''"> Apply_type=#{applyType}, </if>
-        <if test="state !=null and state !=''"> state=#{state}, </if>
+        <if test="state =='已取消'"> state=1, </if>
+        <if test="state =='正常'"> state=null, </if>
         <trim
                 prefix="WHERE"
                 prefixOverrides="AND | OR">
@@ -1348,7 +1361,98 @@
         </trim>
     </update>
 
+    <!-- 审查     人员需求 -->
+    <select id="checkEMPRequire" parameterType="com.jiubo.erp.wzbg.vo.PLOParam" resultType="com.jiubo.erp.wzbg.bean.EmployeeOfCheck">
+        SELECT
+        ATTP.Account_Name AS accountName,
+        ATTP.Account_ID AS accountId
+        FROM
+        (<choose>
+        <when test="clickTimes == 0">
+            SELECT
+            TD.ID
+            FROM
+            T_Department TD
+            WHERE
+            TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID !=0)
+            OR TD.ID=#{departId}
+            OR TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=(SELECT TD.ParentID FROM T_Department TD WHERE TD.ID=#{departId} AND TD.ID !=0))
+            OR TD.ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 39 END)
+        </when>
+        <when test="clickTimes == 1">
 
+            SELECT
+            TD.ID
+            FROM
+            T_Department TD
+        </when>
+    </choose>)
+        TDS
+
+        LEFT JOIN
+        (SELECT AD.Account_Name, TD.ID, AD.Account_ID
+        FROM Account_Data AD
+        LEFT JOIN
+        T_Employee_Basic TEB ON TEB.Account=AD.Account_ID
+        LEFT JOIN
+        T_Department TD ON TD.ID = TEB.Department_ID
+        LEFT JOIN Position_Data PD
+        ON PD.Position_ID=AD.Position_ID
+        WHERE
+        AD.Account_State='在用' AND TEB.State=1 AND TEB.isDelete=0
+        <choose>
+            <when test="clickTimes == 0">
+                AND (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) !=6 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 33 END)
+                )
+            </when>
+            <when test="clickTimes == 1">
+                AND (PD.PositionType_ID=(CASE
+                WHEN
+                (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId}) !=6 THEN 6
+                END)
+                OR PD.Position_ID=(CASE WHEN (SELECT PD.PositionType_ID FROM Position_Data PD WHERE PD.Position_ID=#{positionId})=6 THEN 33 END)
+                )
+            </when>
+
+        </choose>
+
+        )ATTP ON ATTP.ID=TDS.ID
+        WHERE
+        ATTP.Account_Name IS NOT NULL
+    </select>
+
+    <!-- 审核     人员需求 -->
+    <select id="verifyEMPRequire" parameterType="com.jiubo.erp.wzbg.vo.PLOParam" resultType="com.jiubo.erp.wzbg.bean.EmployeeOfCheck">
+        SELECT AD.Account_Name AS accountName, AD.Account_ID AS accountId
+        FROM Account_Data AD
+        LEFT JOIN
+        T_Employee_Basic TEB ON TEB.Account=AD.Account_ID
+        LEFT JOIN
+        T_Department TD ON TD.ID = TEB.Department_ID
+        LEFT JOIN Position_Data PD
+        ON PD.Position_ID=AD.Position_ID
+        WHERE
+        AD.Account_State='在用' AND TEB.State=1 AND TEB.isDelete=0  and PD.PositionType_ID=6 AND TEB.Department_ID=39
+    </select>
+
+    <!-- 审批人员需求 -->
+    <select id="approvalEMPRequire" parameterType="com.jiubo.erp.wzbg.vo.PLOParam" resultType="com.jiubo.erp.wzbg.bean.EmployeeOfCheck">
+        SELECT AD.Account_Name AS accountName, AD.Account_ID AS accountId
+        FROM Account_Data AD
+        LEFT JOIN
+        T_Employee_Basic TEB ON TEB.Account=AD.Account_ID
+        LEFT JOIN
+        T_Department TD ON TD.ID = TEB.Department_ID
+        LEFT JOIN Position_Data PD
+        ON PD.Position_ID=AD.Position_ID
+        WHERE
+        AD.Account_ID=(CASE WHEN  6 != #{positionTypeId} THEN 67
+                  WHEN  6 = #{positionTypeId} THEN 249 END)
+    </select>
 
     <select
             id="selectApplyReason"
@@ -1404,82 +1508,5 @@
         WHERE
         Position_ID=#{positionId}
 	</select>
-    <!-- 人员需求审查人 -->
-    <select
-            id="selectCheckList"
-            resultType="com.jiubo.erp.wzbg.bean.RDBaseInfoBean">
-        SELECT
-        Account_ID AS id
-        ,Account_Name AS name
-        FROM
-        Account_Data AD
-        LEFT JOIN T_Employee_Basic TEB ON AD.Account_ID=TEB.Account
-        LEFT JOIN Position_Data PD ON AD.Position_ID=PD.Position_ID
-        <trim
-                prefix="WHERE"
-                prefixOverrides="AND | OR">
-              1=1
-            <if test="pType!=6">
-               AND PD.PositionType_ID=6
-                <choose>
-                    <when test="btnTime ==1">
-                        AND (
-                        TEB.Department_ID=#{departId}
-                        OR
-                        TEB.Department_ID=(
-                        SELECT Parent_ID FROM T_Department WHERE TEB.Department_ID=#{btnTime}
-                        )
-                        OR
-                        TEB.Department_ID=(
-                        SELECT Parent_ID FROM T_Department WHERE TEB.Department_ID=(
-                        SELECT Parent_ID FROM T_Department WHERE TEB.Department_ID=#{departId}
-                        )
-                        )
-                        )
-                    </when>
-                </choose>
-            </if>
-            <if test="pType==6">
-                AND PD.Position_ID=33
-            </if>
-        </trim>
-    </select>
-
-    <!-- 人员需求批准人 -->
-    <select
-            id="selectApprolList"
-            resultType="com.jiubo.erp.wzbg.bean.RDBaseInfoBean">
-        SELECT
-        Account_ID AS id
-        ,Account_Name AS name
-        FROM
-        Account_Data AD
-        LEFT JOIN Position_Data PD ON AD.Position_ID=PD.Position_ID
-        LEFT JOIN Position_Type PT ON PD.PositionType_ID=PT.PositionType_ID
-        WHERE
-        AD.Position_ID=
-        (CASE WHEN
-                (
-                    SELECT
-                    PD.PositionType_ID
-                    FROM
-                    Position_Data PD
-                    LEFT JOIN Position_Type PT ON PD.PositionType_ID=PT.PositionType_ID
-                    WHERE
-                    PD.Position_ID=#{positionId}
-                )
-            >5 THEN 34
-            WHEN
-                (
-                    SELECT
-                    PD.PositionType_ID
-                    FROM
-                    Position_Data PD
-                    LEFT JOIN Position_Type PT ON PD.PositionType_ID=PT.PositionType_ID
-                    WHERE
-                    PD.Position_ID=#{positionId}
-                )
-            &lt;=5 THEN 33 END)
-    </select>
 
 </mapper>

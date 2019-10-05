@@ -23,4 +23,9 @@ public class TestServiceImpl implements ITestService {
 
         System.out.println("上传的数据："+ExcelUtil.updateExcel(fileName,file,true).toString());
     }
+
+    public String wordImport(String fileName, MultipartFile file) throws Exception{
+        System.out.println("上传word文件："+ExcelUtil.uploadWord(file,fileName));
+        return ExcelUtil.uploadWord(file,fileName);
+    }
 }

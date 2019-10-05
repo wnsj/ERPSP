@@ -30,22 +30,25 @@
             PD.POSITION_NAME,
             PD.POSITIONTYPE_ID,
             TD.ID,
-            (CASE WHEN TD.ID=0 THEN 0
-            WHEN (SELECT ParentID FROM  T_Department WHERE ID=TD.ID)=0 THEN 1
-            WHEN (SELECT ParentID FROM  T_Department WHERE ID=(SELECT ParentID FROM  T_Department WHERE ID=TD.ID))=0 THEN 2
-            WHEN (SELECT ParentID FROM  T_Department WHERE ID=(SELECT ParentID FROM  T_Department WHERE ID=(SELECT ParentID FROM  T_Department WHERE ID=TD.ID)))=0 THEN 3
+            (CASE WHEN TD.ID = 0 THEN 0
+            WHEN (SELECT ParentID FROM  T_Department WHERE ID = TD.ID ) = 0 THEN 1
+            WHEN (SELECT ParentID FROM  T_Department WHERE ID = (SELECT ParentID FROM  T_Department WHERE ID = TD.ID)) = 0 THEN 2
+            WHEN (SELECT ParentID FROM  T_Department WHERE ID = (SELECT ParentID FROM  T_Department WHERE ID = (SELECT ParentID FROM  T_Department WHERE ID = TD.ID))) = 0 THEN 3
             END)
             AS level,
             TD.NAME
         FROM
             ACCOUNT_DATA AD
-            LEFT JOIN POSITION_DATA PD ON AD.POSITION_ID=PD.POSITION_ID
-            LEFT JOIN T_EMPLOYEE_BASIC TEB ON TEB.ACCOUNT=AD.ACCOUNT_ID
-            LEFT JOIN T_DEPARTMENT TD ON TD.ID=TEB.DEPARTMENT_ID
+            LEFT JOIN POSITION_DATA PD ON AD.POSITION_ID = PD.POSITION_ID
+            LEFT JOIN T_EMPLOYEE_BASIC TEB ON TEB.ACCOUNT = AD.ACCOUNT_ID
+            LEFT JOIN T_DEPARTMENT TD ON TD.ID = TEB.DEPARTMENT_ID
         WHERE
               ACCOUNT_NAME = #{Account_Name} AND Account_Pwd = #{Account_Pwd}
               <if test="Account_State != null and Account_State != ''">
                   AND ACCOUNT_STATE = #{Account_State}
+              </if>
+              <if test="Account_ID != null and Account_ID != ''">
+                  AND ACCOUNT_ID = #{Account_ID}
               </if>
     </select>
 

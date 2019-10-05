@@ -1,5 +1,6 @@
 package com.jiubo.erp.erpLogin.service.impl;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -65,44 +66,44 @@ public class UserServiceimpl implements UserService {
     public JSONObject login(AccountDataBean bean) throws MessageException {
         JSONObject jsonObject = new JSONObject();
         JSONObject cookieJson = new JSONObject();
+        String pwd = Md5Util.md5Encrypt32Lower(bean.getAccount_Pwd());
+//        log.error("accountName:{},pwd:{}", bean.getAccount_Name(), pwd);
+        bean.setAccount_Pwd(pwd);
+        bean.setAccount_State("在用");
+        AccountDataBean accountDataBean = dao.userLogin(bean);
+        if (accountDataBean == null) throw new MessageException("账号、密码错误或该账号已被停用!");
+        //if ("停用".equals(accountDataBean.getAccount_State())) throw new MessageException("该账号已被停用!");
+        jsonObject.put("account", accountDataBean);
+        cookieJson.put("account", accountDataBean);
+        HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
+        HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
+        //String token = (String) request.getSession(true).getAttribute("Access-Token");
+        String token = Md5Util.md5Encrypt32Lower(accountDataBean.getAccount_Name() + accountDataBean.getAccount_Pwd());
+        accountDataBean.setAccount_Pwd("");
+        request.getSession().setAttribute(token, accountDataBean);
+        List<AccountRuleData> ruleDataBeans = queryRuleData(accountDataBean.getAccount_ID());
+        //cookie存储大小为4k左右，进行cookie瘦身
+        List<String> ruleIdList = new ArrayList<String>();
+        for (AccountRuleData accountRuleData : ruleDataBeans) {
+            ruleIdList.add(accountRuleData.getRule_ID());
+        }
+        jsonObject.put("accessToken", token);
+        jsonObject.put("permission", ruleDataBeans);
+        cookieJson.put("accessToken", token);
+        cookieJson.put("permission", ruleIdList);
+        jsonObject.put("smallAccountData", cookieJson);
+        CookieTools.addCookie(response, "accessToken", token, tokenLife);
         try {
-            String pwd = Md5Util.md5Encrypt32Lower(bean.getAccount_Pwd());
-            log.error("accountName:{},pwd:{}",bean.getAccount_Name(),pwd);
-            bean.setAccount_Pwd(pwd);
-            AccountDataBean accountDataBean = dao.userLogin(bean);
-            if (accountDataBean == null)throw new MessageException("账号或密码错误!");
-            if ("停用".equals(accountDataBean.getAccount_State()))throw new MessageException("该账号已被停用!");
-            jsonObject.put("account",accountDataBean);
-            cookieJson.put("account",accountDataBean);
-            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-            HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
-            //String token = (String) request.getSession(true).getAttribute("Access-Token");
-            String token = Md5Util.md5Encrypt32Lower(accountDataBean.getAccount_Name()+accountDataBean.getAccount_Pwd());
-            accountDataBean.setAccount_Pwd("");
-            request.getSession().setAttribute(token,accountDataBean);
-            List<AccountRuleData> ruleDataBeans = queryRuleData(accountDataBean.getAccount_ID());
-            //cookie存储大小为4k左右，进行cookie瘦身
-            List<String> ruleIdList = new ArrayList<String>();
-            for (AccountRuleData accountRuleData : ruleDataBeans){
-                ruleIdList.add(accountRuleData.getRule_ID());
-            }
-            jsonObject.put("accessToken",token);
-            jsonObject.put("permission",ruleDataBeans);
-            cookieJson.put("accessToken",token);
-            cookieJson.put("permission",ruleIdList);
-            jsonObject.put("smallAccountData",cookieJson);
-            CookieTools.addCookie(response,"accessToken",token,tokenLife);
-            CookieTools.addCookie(response,"accountData", URLEncoder.encode(cookieJson.toJSONString(), Constant.Charset.UTF8), accountLife);
-        } catch (Exception e) {
-            log.error(Constant.Result.RETMSG, e);
-            throw new MessageException(e.getMessage());
+            CookieTools.addCookie(response, "accountData", URLEncoder.encode(cookieJson.toJSONString(), Constant.Charset.UTF8), accountLife);
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
         }
         return jsonObject;
     }
 
     @Override
     public List<AccountRuleData> queryRuleData(String accountId) throws MessageException {
-        if (StringUtils.isBlank(accountId))throw new MessageException("账户id不能为空!");
+        if (StringUtils.isBlank(accountId)) throw new MessageException("账户id不能为空!");
         return dao.queryRuleData(accountId);
     }
 }

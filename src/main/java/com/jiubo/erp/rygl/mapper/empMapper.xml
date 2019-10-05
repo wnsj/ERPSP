@@ -107,7 +107,8 @@
 	<select id="selectPositionList" resultType="com.jiubo.erp.rygl.vo.Position">
 		SELECT
 		Position_ID AS positionId,
-		Position_Name AS positionName
+		Position_Name AS positionName,
+		PositionType_ID AS positionTypeId
 		FROM
 		Position_Data
 	</select>

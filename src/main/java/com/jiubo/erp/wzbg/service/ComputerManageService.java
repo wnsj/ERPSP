@@ -28,4 +28,7 @@ public interface ComputerManageService extends IService<ComputerManageBean> {
 
     //主管，负责人审核
     public void shenHe(ComputerManageBean computerManageBean) throws MessageException;
+
+    //电脑用品通知
+    public List<ComputerManageBean> queryComputerNotice(int flag)throws MessageException;
 }

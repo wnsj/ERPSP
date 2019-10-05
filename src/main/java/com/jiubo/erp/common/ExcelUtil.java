@@ -1,8 +1,8 @@
 package com.jiubo.erp.common;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
+
 import com.alibaba.fastjson.JSONObject;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.poi.hssf.usermodel.*;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.DateUtil;
@@ -15,7 +15,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.net.URI;
+import java.net.URL;
 import java.util.*;
 
 
@@ -644,6 +647,85 @@ public class ExcelUtil {
         }
     }
 
+    /**
+     * 上传work文件
+     * @param file
+     * @param name
+     * @return
+     * @throws IOException
+     */
+    public static String uploadWord(MultipartFile file, String name) throws IOException {
+        String savePath = ExcelUtil.class.getClassLoader().getResource("doc/").toString().substring(6);
+        System.out.println("上传的目录"+savePath);
+        File fileUrl = new File(savePath);
+        //判断上传文件的保存目录是否存在
+        if (!fileUrl.exists() && !fileUrl.isDirectory()) {
+            System.out.println(savePath + "目录不存在，需要创建");
+            //创建目录
+            fileUrl.mkdir();
+        }
+        InputStream in = file.getInputStream();
+        //创建一个文件输出流
+        FileOutputStream out = new FileOutputStream(savePath + "\\" + name);
+        //创建一个缓冲区
+        byte buffer[] = new byte[1024];
+        //判断输入流中的数据是否已经读完的标识
+        int len = 0;
+        //循环将输入流读入到缓冲区当中，(len=in.read(buffer))>0就表示in里面还有数据
+        while ((len = in.read(buffer)) > 0) {
+            //使用FileOutputStream输出流将缓冲区的数据写入到指定的目录(savePath + "\\" + filename)当中
+            out.write(buffer, 0, len);
+        }
+        //关闭输入流
+        in.close();
+        //关闭输出流
+        out.close();
+        return "上传成功";
+    }
+
+    /**
+     * 下载指定项目目录下的文件
+     * @param response
+     * @param fileName
+     * @return
+     */
+    public static String downloadFile(HttpServletResponse response, String fileName) {
+        InputStream stream = ExcelUtil.class.getClassLoader().getResourceAsStream("doc/" + fileName);
+        response.setHeader("content-type", "application/octet-stream");
+        response.setContentType("application/octet-stream");
+        try {
+            String name = java.net.URLEncoder.encode(fileName, "UTF-8");
+            response.setHeader("Content-Disposition", "attachment;filename=" + java.net.URLDecoder.decode(name, "ISO-8859-1") );
+        } catch (UnsupportedEncodingException e2) {
+            e2.printStackTrace();
+        }
+        byte[] buff = new byte[1024];
+        BufferedInputStream bis = null;
+        OutputStream os = null;
+        try {
+            os = response.getOutputStream();
+            bis = new BufferedInputStream(stream);
+            int i = bis.read(buff);
+            while (i != -1) {
+                os.write(buff, 0, buff.length);
+                os.flush();
+                i = bis.read(buff);
+            }
+        } catch (FileNotFoundException e1) {
+            return "系统找不到指定的文件";
+        }catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (bis != null) {
+                try {
+                    bis.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return "success";
+    }
 
 //    public static void main(String[] args) throws Exception {
 //        //CreateExcel();

@@ -23,10 +23,10 @@ public interface PLODao {
 	//请假 --- 审查列表
 	public List<EmployeeOfCheck>checkOfEmpList(PLOParam ploParam);
 
-	//审核列表
+	//请假 --- 审核列表
 	public List<EmployeeOfCheck>verifyOfEmpList(PLOParam ploParam);
 
-	//审批列表
+	//请假 --- 审批列表
 	public List<EmployeeOfCheck>approveOfEmpList(PLOParam ploParam);
 	
 	//倒休列表
@@ -41,7 +41,7 @@ public interface PLODao {
 
 
 	//人员需求列表
-	public List<EmpRequireBean> selectEmpRequireLsit(EmpRequireBean erb);
+	public List<EmpRequireBean> selectEmpRequireLsit(PLOParam ploParam);
 
 	//人员需求申请
 	public int insertEmpRequireApply(EmpRequireBean erb);
@@ -67,13 +67,16 @@ public interface PLODao {
 	//查看岗位类型
 	public int selectPositionType(@Param(value="positionId") String positionId);
 
-	//审查人
-	public List<RDBaseInfoBean> selectCheckList(@Param(value="departId") String departId,@Param(value="btnTime") String btnTime,@Param(value="pType") Integer pType);
+	//人员需求---审查人
+	public List<EmployeeOfCheck>checkEMPRequire(PLOParam ploParam);
 
-	//审核人
-	public List<RDBaseInfoBean> selectApprolList(@Param(value="positionId") String positionId);
+    //人员需求---审核人
+    public List<EmployeeOfCheck>verifyEMPRequire(PLOParam ploParam);
 
-	
+    //人员需求---审批人
+    public List<EmployeeOfCheck>approvalEMPRequire(PLOParam ploParam);
+
+
 }
 
 
