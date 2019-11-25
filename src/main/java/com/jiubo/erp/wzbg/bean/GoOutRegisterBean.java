@@ -111,6 +111,8 @@ public class GoOutRegisterBean implements Serializable {
     @TableField("Go_Report_ID")
     private String goReportId;
 
+    private String goReportName;
+
     @TableField("Go_Report_See")
     private String goReportSee;
 
@@ -120,6 +122,9 @@ public class GoOutRegisterBean implements Serializable {
     private String begDate;
 
     private String endDate;
+
+    //全部意见
+    private String allAdvice;
 
     private JSONArray gotOutDateArr;//外出时间数组
 

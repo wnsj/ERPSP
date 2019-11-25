@@ -1,6 +1,7 @@
 package com.jiubo.erp.wzbg.controller;
 
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.jiubo.erp.common.Constant;
 import com.jiubo.erp.common.MessageException;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -112,6 +114,79 @@ public class GoOutRegisterController {
         jsonObject.put(Constant.Result.RETMSG, Constant.Result.SUCCESS_MSG);
         Map<String, Object> param = JSONObject.parseObject(params, Map.class);
         jsonObject.put(Constant.Result.RETDATA, goOutRegisterService.getOutData(param));
+        return jsonObject;
+    }
+
+
+    /**
+     * 根据部门id查询相关负责人（通知负责人）
+     *
+     * @param params {
+     *               deptids:[]
+     *               }
+     * @return jsonObject
+     * @throws Exception
+     */
+    @PostMapping("/selectDeptLeaderById")
+    public JSONObject selectDeptLeaderById(@RequestBody String params) throws Exception {
+        if (StringUtils.isBlank(params)) throw new MessageException("参数接收失败!");
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(Constant.Result.RETCODE, Constant.Result.SUCCESS);
+        jsonObject.put(Constant.Result.RETMSG, Constant.Result.SUCCESS_MSG);
+        Map<String, Object> map = JSON.parseObject(params, Map.class);
+        jsonObject.put(Constant.Result.RETDATA, goOutRegisterService.selectDeptLeaderById(map));
+        return jsonObject;
+    }
+
+
+    /**
+     * 根据部门id查询上一级部门信息
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/expandDeptLeaderById")
+    public JSONObject expandDeptLeaderById(@RequestBody String params) throws Exception {
+        if (StringUtils.isBlank(params)) throw new MessageException("参数接收失败!");
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(Constant.Result.RETCODE, Constant.Result.SUCCESS);
+        jsonObject.put(Constant.Result.RETMSG, Constant.Result.SUCCESS_MSG);
+        Map<String, Object> map = JSON.parseObject(params, Map.class);
+        jsonObject.put(Constant.Result.RETDATA, goOutRegisterService.expandDeptLeaderById(map.get("counts").toString(),map.get("deptid").toString()));
+        return jsonObject;
+    }
+
+
+    /**
+     * 根据id修改是否取消状态
+     * @param params
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/updateGoOutDeleteById")
+    public JSONObject updateGoOutDeleteById(@RequestBody String params) throws Exception {
+        if (StringUtils.isBlank(params)) throw new MessageException("参数接收失败!");
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(Constant.Result.RETCODE, Constant.Result.SUCCESS);
+        jsonObject.put(Constant.Result.RETMSG, Constant.Result.SUCCESS_MSG);
+        Map<String, String> map = JSON.parseObject(params, Map.class);
+        goOutRegisterService.updateGoOutDeleteById(map.get("id"));
+        return jsonObject;
+    }
+
+    /**
+     * 更新通知人或报备人意见
+     * @param params
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/updateAdvice")
+    public JSONObject updateAdvice(@RequestBody String params) throws Exception {
+        if (StringUtils.isBlank(params)) throw new MessageException("参数接收失败!");
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put(Constant.Result.RETCODE, Constant.Result.SUCCESS);
+        jsonObject.put(Constant.Result.RETMSG, Constant.Result.SUCCESS_MSG);
+        Map<String, String> map = JSON.parseObject(params, Map.class);
+        goOutRegisterService.updateAdvice(map);
         return jsonObject;
     }
 }

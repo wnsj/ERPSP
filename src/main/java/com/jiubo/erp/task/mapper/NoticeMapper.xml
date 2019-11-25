@@ -97,4 +97,23 @@
             OR ( Result2=1 AND Result3 IS NULL AND Account3 IS NOT NULL)
             OR ( Result3=1 AND Result4 IS NULL AND Account4 IS NOT NULL)
     </select>
+
+    <!--外出登记通知-->
+    <select id="queryGoOutRegisterAccountIds" resultType="java.lang.String">
+        SELECT
+            Go_Out_Tongzhi_ID
+        FROM
+            Go_Out_Register
+        WHERE
+            Go_Out_Delete IS NULL
+            AND Go_Out_Tongzhi_Advice = 1 UNION
+        SELECT
+            Go_Report_ID
+        FROM
+            Go_Out_Register
+        WHERE
+            Go_Out_Delete IS NULL
+            AND Go_Out_Tongzhi_Advice = 2
+            AND Go_Report_Advice = 1
+    </select>
 </mapper>

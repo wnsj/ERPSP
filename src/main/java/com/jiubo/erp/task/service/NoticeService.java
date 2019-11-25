@@ -273,6 +273,16 @@ public class NoticeService {
         }
     }
 
+    //外出登记通知
+    @Async
+    @Scheduled(cron = "0 0/5 * * * ?")
+    public void schedulingQueryGoOutRegisterAccountIds() throws Exception {
+        List<String> accountList = new ArrayList<>();
+        accountList = noticeDao.queryGoOutRegisterAccountIds();
+        System.out.println("外出提醒开始发送");
+        this.timelyExecute(accountList, "外出提醒", "#/paperlessOffice/goOutRegister", "有人员外出，请处理<br>详情请查看【无纸化办公】--外出登记");
+    }
+
     /**
      * 提醒内容合并
      *

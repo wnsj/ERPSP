@@ -59,4 +59,30 @@ public interface GoOutRegisterService extends IService<GoOutRegisterBean> {
      * @version: 1.0
      **/
     List<Map<String,Object>> getOutData(Map<String,Object> params)throws MessageException;
+
+    /**
+     * 根据部门id查询相关负责人
+     * @param map
+     * @return
+     */
+    List<Map<String,Object>> selectDeptLeaderById(Map<String,Object> map) throws MessageException;
+
+    /**
+     * 根据部门id查询上一级部门信息
+     * @param deptid
+     * @return
+     */
+    Map<String,Object> expandDeptLeaderById(String counts,String deptid);
+
+    /**
+     * 根据id修改是否取消状态
+     * @param id
+     */
+    void updateGoOutDeleteById(String id);
+
+    /**
+     * 更新通知人或报备人意见
+     * @param map
+     */
+    void updateAdvice(Map<String, String> map) throws MessageException;
 }

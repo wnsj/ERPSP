@@ -24,4 +24,6 @@ public interface NoticeDao {
     //查询倒休
     public List<String> restDown();
 
+    //外出登记需要通知的用户
+    List<String> queryGoOutRegisterAccountIds();
 }

@@ -3,34 +3,67 @@
 <mapper namespace="com.jiubo.erp.wzbg.dao.GoOutRegisterDao">
     <!--    外出登记查询-->
     <select id="queryGoOutRegister" resultType="com.jiubo.erp.wzbg.bean.GoOutRegisterBean">
-        SELECT
-        G.ID AS ID, G.GO_OUT_APPLY_TIME ,
-        G.GO_OUT_DEPARTMENT_ID,
-        T.NAME AS GOOUTDEPARTMENTNAME, GO_OUT_NAME,
-        G.GO_OUT_APPLY_ID ,
-        A2.ACCOUNT_NAME AS GOOUTAPPLYNAME
-        , G.GO_OUT_ADDRESS , G.GO_OUT_REGION ,
-        G.GO_OUT_GO_TIME,
-        G.GO_OUT_TONGZHI_ID ,
-        A3.ACCOUNT_NAME AS GOOUTTONGZHINAME,
-        GO_OUT_TONGZHI_ADVICE ,
-        GO_OUT_COME_TIME
-        , CASE
-        WHEN GO_OUT_OTHERTYPE = 1 THEN '班中外出'
-        WHEN GO_OUT_OTHERTYPE = 2 THEN '班前外出'
-        END AS GO_OUT_OTHERTYPE
-        , CASE
-        WHEN GO_OUT_TYPE = 1 THEN '是'
-        WHEN GO_OUT_TYPE = 2 THEN '否'
-        END AS GO_OUT_TYPE
-        , CASE
-        WHEN GO_OUT_DELETE IS NULL THEN '点击取消'
-        WHEN GO_OUT_DELETE = 1 THEN '已取消'
-        END AS GO_OUT_DELETE
-        FROM GO_OUT_REGISTER G
-        LEFT JOIN ACCOUNT_DATA A2 ON A2.ACCOUNT_ID = G.GO_OUT_APPLY_ID
-        LEFT JOIN T_DEPARTMENT T ON T.ID = G.GO_OUT_DEPARTMENT_ID
-        LEFT JOIN ACCOUNT_DATA A3 ON A3.ACCOUNT_ID = G.GO_OUT_TONGZHI_ID
+--         SELECT
+--         G.ID AS ID, G.GO_OUT_APPLY_TIME ,
+--         G.GO_OUT_DEPARTMENT_ID,
+--         T.NAME AS GOOUTDEPARTMENTNAME, GO_OUT_NAME,
+--         G.GO_OUT_APPLY_ID ,
+--         A2.ACCOUNT_NAME AS GOOUTAPPLYNAME
+--         , G.GO_OUT_ADDRESS , G.GO_OUT_REGION ,
+--         G.GO_OUT_GO_TIME,
+--         G.GO_OUT_TONGZHI_ID ,
+--         A3.ACCOUNT_NAME AS GOOUTTONGZHINAME,
+--         GO_OUT_TONGZHI_ADVICE ,
+--         GO_OUT_COME_TIME
+--         , CASE
+--         WHEN GO_OUT_OTHERTYPE = 1 THEN '班中外出'
+--         WHEN GO_OUT_OTHERTYPE = 2 THEN '班前外出'
+--         END AS GO_OUT_OTHERTYPE
+--         , CASE
+--         WHEN GO_OUT_TYPE = 1 THEN '是'
+--         WHEN GO_OUT_TYPE = 2 THEN '否'
+--         END AS GO_OUT_TYPE
+--         , CASE
+--         WHEN GO_OUT_DELETE IS NULL THEN '点击取消'
+--         WHEN GO_OUT_DELETE = 1 THEN '已取消'
+--         END AS GO_OUT_DELETE
+--         FROM GO_OUT_REGISTER G
+--         LEFT JOIN ACCOUNT_DATA A2 ON A2.ACCOUNT_ID = G.GO_OUT_APPLY_ID
+--         LEFT JOIN T_DEPARTMENT T ON T.ID = G.GO_OUT_DEPARTMENT_ID
+--         LEFT JOIN ACCOUNT_DATA A3 ON A3.ACCOUNT_ID = G.GO_OUT_TONGZHI_ID
+
+            SELECT
+                G.ID AS ID, G.GO_OUT_APPLY_TIME ,
+                G.GO_OUT_DEPARTMENT_ID,
+                T.NAME AS GOOUTDEPARTMENTNAME, GO_OUT_NAME,
+                G.GO_OUT_APPLY_ID ,
+                A2.ACCOUNT_NAME AS GOOUTAPPLYNAME
+                , G.GO_OUT_ADDRESS , G.GO_OUT_REGION ,
+                G.GO_OUT_GO_TIME,
+                G.GO_OUT_TONGZHI_ID ,
+                A3.ACCOUNT_NAME AS GOOUTTONGZHINAME,
+                GO_OUT_TONGZHI_ADVICE ,
+                GO_OUT_COME_TIME,
+                Go_Report_ID,
+                A4.ACCOUNT_NAME as GOREPORTNAME,
+                Go_Report_Advice
+            , CASE
+            WHEN GO_OUT_OTHERTYPE = 1 THEN '班中外出'
+            WHEN GO_OUT_OTHERTYPE = 2 THEN '班前外出'
+            END AS GO_OUT_OTHERTYPE
+            , CASE
+            WHEN GO_OUT_TYPE = 1 THEN '是'
+            WHEN GO_OUT_TYPE = 2 THEN '否'
+            END AS GO_OUT_TYPE
+            , CASE
+            WHEN GO_OUT_DELETE IS NULL THEN '点击取消'
+            WHEN GO_OUT_DELETE = 1 THEN '已取消'
+            END AS GO_OUT_DELETE
+            FROM GO_OUT_REGISTER G
+            LEFT JOIN ACCOUNT_DATA A2 ON A2.ACCOUNT_ID = G.GO_OUT_APPLY_ID
+            LEFT JOIN T_DEPARTMENT T ON T.ID = G.GO_OUT_DEPARTMENT_ID
+            LEFT JOIN ACCOUNT_DATA A3 ON A3.ACCOUNT_ID = G.GO_OUT_TONGZHI_ID
+            LEFT JOIN ACCOUNT_DATA A4 ON A4.ACCOUNT_ID = G.Go_Report_ID
         <where>
             <if test="goOutDepartmentId != null and goOutDepartmentId != ''">
                 AND GO_OUT_DEPARTMENT_ID = #{goOutDepartmentId}
@@ -62,6 +95,9 @@
                     </when>
                 </choose>
             </if>
+            <if test="allAdvice !=null and allAdvice!=''">
+               AND Go_Out_Tongzhi_Advice=#{allAdvice} or Go_Report_Advice=#{allAdvice}
+            </if>
             <if test="id != null and id != ''">
                 AND G.ID = #{id}
             </if>
@@ -76,15 +112,28 @@
     <update id="updateGoOutRegister">
         UPDATE GO_OUT_REGISTER
         SET
-             GO_OUT_COME_TIME = #{goOutComeTime}
+             Go_Out_Apply_Time = #{goOutApplyTime}
+             ,Go_Out_Name = #{goOutName}
+            ,GO_OUT_COME_TIME = #{goOutComeTime}
+            ,Go_Out_Department_ID = #{goOutDepartmentId}
             , GO_OUT_GO_TIME = #{goOutGoTime}
             , GO_OUT_TYPE = #{goOutType}
             , GO_OUT_ADDRESS = #{goOutAddress}
             , GO_OUT_REGION = #{goOutRegion}
             , GO_OUT_TONGZHI_ID = #{goOutTongzhiId}
-            , GO_OUT_TONGZHI_ADVICE = #{goOutTongzhiAdvice}
             , GO_OUT_OTHERTYPE = #{goOutOthertype}
-        WHERE ID = #{id} AND  GO_OUT_DELETE IS NULL AND GO_OUT_GO_TIME > GETDATE()
+            , Go_Out_Tongzhi_Advice = 1
+            , Go_Report_Advice = 1
+        WHERE ID = #{id} AND  GO_OUT_DELETE IS NULL
+--         AND GO_OUT_GO_TIME > GETDATE()
+    </update>
+
+    <!--根据id修改是否取消状态-->
+    <update id="updateGoOutDeleteById" parameterType="String">
+        UPDATE Go_Out_Register
+        SET Go_Out_Delete = 1
+        WHERE
+            id = #{id}
     </update>
 
     <!--    修改外出登记-->
@@ -115,27 +164,112 @@
 
     <!--    查询部门下的员工-->
     <select id="getOutData" resultType="java.util.Map">
-         SELECT
-             EMP_NAME, GENDER, JOBNUM, DEPARTMENT_ID, BIRTH, ENTRYDATE, POSITIVEDATE, RESIGNDATE,
-             UPDATEDATE, CREATEDATE, ISDELETE, STATE, CREATEUSER, ACCOUNT, ACCOUNT_ID,
-             ACCOUNT_NAME, REMARK, ID, POSITION_ID, ACCOUNT_STATE
-         FROM V_ACCOUNTDATA
-         <where>
-             <if test="params.deptId != null and params.deptId != ''">
-                 AND DEPARTMENT_ID = #{params.deptId}
-             </if>
-             <if test="params.state != null and params.state != ''">
-                 AND STATE = #{params.state}
-             </if>
-             <if test="params.positionId != null and params.positionId != ''">
+        SELECT
+        EMP_NAME, GENDER, JOBNUM, DEPARTMENT_ID, BIRTH, ENTRYDATE, POSITIVEDATE, RESIGNDATE,
+        UPDATEDATE, CREATEDATE, ISDELETE, STATE, CREATEUSER, ACCOUNT, ACCOUNT_ID,
+        ACCOUNT_NAME, REMARK, ID, POSITION_ID, ACCOUNT_STATE
+        FROM V_ACCOUNTDATA
+        <where>
+            <if test="params.deptId != null and params.deptId != ''">
+                AND DEPARTMENT_ID = #{params.deptId}
+            </if>
+            <if test="params.state != null and params.state != ''">
+                AND STATE = #{params.state}
+            </if>
+            <if test="params.positionId != null and params.positionId != ''">
                 AND POSITION_ID = #{params.positionId}
-             </if>
+            </if>
             <if test="params.account != null and params.account != ''">
                 AND ACCOUNT = #{params.account}
             </if>
             <if test="params.accountId != null and params.accountId != ''">
                 AND ACCOUNT_ID = #{params.accountId}
             </if>
-         </where>
+        </where>
+    </select>
+
+    <!--根据部门id查询相关负责人-->
+    <select id="selectDeptLeaderById" parameterType="java.util.Map" resultType="java.util.Map">
+        SELECT
+            EMP_NAME,
+            ACCOUNT_ID,
+            POSITION_NAME,
+            NAME,
+            POSITIONTYPE_NAME
+        FROM
+            V_ACCOUNTDATA
+            LEFT JOIN POSITION_DATA ON POSITION_DATA.POSITION_ID = V_ACCOUNTDATA.POSITION_ID
+            LEFT JOIN T_DEPARTMENT ON T_DEPARTMENT.ID = V_ACCOUNTDATA.DEPARTMENT_ID
+            LEFT JOIN POSITION_TYPE ON POSITION_DATA.POSITIONTYPE_ID = POSITION_TYPE.POSITIONTYPE_ID
+        WHERE
+            ACCOUNT_STATE = '在用'
+            and POSITION_TYPE.POSITIONTYPE_ID in (5,6)
+        <choose>
+            <when test="map.deptids!=null and map.deptids.size()==1 and map.deptids[0]==39">
+                and T_DEPARTMENT.ID!=39
+            </when>
+            <otherwise>
+                and T_DEPARTMENT.ID in
+                <foreach collection="map.deptids"  item="item" open="(" separator="," close=")"  >
+                    #{item}
+                </foreach>
+                <if test="map.parentid == null">
+                    UNION
+                    SELECT
+                    EMP_NAME,
+                    ACCOUNT_ID,
+                    POSITION_NAME,
+                    NAME,
+                    POSITIONTYPE_NAME
+                    FROM
+                    V_ACCOUNTDATA
+                    LEFT JOIN POSITION_DATA ON POSITION_DATA.POSITION_ID = V_ACCOUNTDATA.POSITION_ID
+                    LEFT JOIN T_DEPARTMENT ON T_DEPARTMENT.ID = V_ACCOUNTDATA.DEPARTMENT_ID
+                    LEFT JOIN POSITION_TYPE ON POSITION_DATA.POSITIONTYPE_ID = POSITION_TYPE.POSITIONTYPE_ID
+                    WHERE
+                    ACCOUNT_STATE = '在用'
+                    AND POSITION_NAME = '办公室主任'
+                    AND NAME = '人力综合办'
+                    AND POSITIONTYPE_NAME = '部长总监'
+                </if>
+            </otherwise>
+        </choose>
+    </select>
+
+    <!--根据部门id查询部门信息-->
+    <select id="selectDeptById" parameterType="String" resultType="java.util.Map">
+        select * from T_Department where ID=#{deptid}
+    </select>
+
+    <!--根据部门id查询部门上级id集合-->
+    <select id="expandDeptLeaderById" parameterType="String" resultType="java.lang.Object">
+        SELECT
+                ID
+            FROM
+                T_Department tdept
+            WHERE
+                tdept.ParentID= (
+                    SELECT
+                        td.ParentID
+                    FROM
+                        T_Department td
+                    WHERE
+                      ID = #{deptid})
+    </select>
+
+    <!--更新通知人或报备人意见-->
+    <update id="updateAdvice" parameterType="java.util.Map">
+        UPDATE Go_Out_Register
+        <trim prefix="set" suffixOverrides=",">
+            <if test="goOutTongzhiAdvice!=null">Go_Out_Tongzhi_Advice=#{goOutTongzhiAdvice},</if>
+            <if test="goReportAdvice!=null">Go_Report_Advice=#{goReportAdvice},</if>
+        </trim>
+            WHERE
+                id = #{id}
+    </update>
+
+
+    <select id="selectDeptLeaderByParentId" parameterType="String" resultType="java.lang.Object">
+        select ID from T_DEPARTMENT where ParentID=#{parentID}
     </select>
 </mapper>
